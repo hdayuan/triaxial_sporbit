@@ -8,11 +8,16 @@ start = time.time()
 sim = rebound.Simulation()
 sim.integrator = "whfast"
 sim.units = ('AU', 'yr', 'MSun')
-sim.dt = 0.0125 / 64
+sim.dt = 4*0.0001953125
 sim.add(m=1.)
 
+# change offset to 0 if using force
 v = 6.286207389817359
 d_theta = v*sim.dt
+# x_val = 1. # np.cos(d_theta)
+# y_val = 0. # -np.sin(d_theta)
+# vx_val = 0. # v*np.sin(d_theta)
+# vy_val = v # v*np.cos(d_theta)
 x_val = np.cos(d_theta)
 y_val = -np.sin(d_theta)
 vx_val = v*np.sin(d_theta)
@@ -22,12 +27,14 @@ sim.add(m=0.001, x=x_val,y=y_val,vx=vx_val,vy=vy_val)
 # sim.add(m=0.001, a=1.)
 
 rebx = reboundx.Extras(sim)
-triax = rebx.load_operator("triaxial_torque")
-rebx.add_operator(triax)
+triax = rebx.load_operator("triaxial_torque") # change if force / operator
+rebx.add_operator(triax) # change if force / operator
 
 # add spin to smaller body
 ps = sim.particles
-angle = 1.*np.pi/180.
+angle = 0.*np.pi/180.
+
+
 ps[1].params["tt_ix"] = np.cos(angle)
 ps[1].params["tt_iy"] = np.sin(angle)
 ps[1].params["tt_iz"] = 0.
@@ -48,7 +55,7 @@ ps[1].params["tt_sk"] = 1.
 
 ps[1].params["tt_omega"] = 2*np.pi / ps[1].P
 
-f = open("test_torque_out_"+str(sim.dt)+"dt.txt", "w")
+f = open("test_torque_out_extra_"+str(sim.dt)+"dt.txt", "w")
 
 #############################################################
 
@@ -76,7 +83,7 @@ f = open("test_torque_out_"+str(sim.dt)+"dt.txt", "w")
 # f.write(str(sim.t)+"\n")
 
 for i in range(1000):
-    sim.integrate(i*0.1)
+    sim.integrate(i*0.01)
     rx = ps[0].x - ps[1].x
     ry = ps[0].y - ps[1].y
     rz = ps[0].z - ps[1].z
