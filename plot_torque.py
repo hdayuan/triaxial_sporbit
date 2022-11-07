@@ -17,8 +17,7 @@ tf = 10
 step = 0.01
 n = int(tf / step)
 
-def run(dt):
-    to_plot = False
+def run(dt, dtheta_offset=np.radians(1), to_plot=True):
     start = time.time()
 
     sim = rebound.Simulation()
@@ -29,7 +28,7 @@ def run(dt):
 
     # change offset to 0 if using force
     v = 6.286207389817359
-    d_theta = v * sim.dt + np.radians(1)
+    d_theta = v * sim.dt + dtheta_offset
     # x_val = 1. # np.cos(d_theta)
     # y_val = 0. # -np.sin(d_theta)
     # vx_val = 0. # v*np.sin(d_theta)
@@ -162,10 +161,32 @@ def run(dt):
     f.close()
     print('Running for %.10f took %.7f s' % (dt, time.time() - start))
 
+def zero_offset_assert():
+    '''
+    assert that with zero offset, we get very small oscillations
+    '''
+    dt = step / 2**10 # some small dt
+
+    run(dt, dtheta_offset=0, to_plot=False)
+    outf = 'test_torque_out_%.10fdt.txt' % dt
+    f = open(outf, 'r')
+    allLines = f.readlines()
+
+    angles = np.zeros(n)
+    for i in range(n):
+        datum = allLines[i].split()
+        angles[i] = float(datum[0])
+    angles = angles[1: ] # remove leading element
+
+    assert np.min(angles) - np.max(angles) < 1e-3
+    print('Passed zero torque assertion!!')
+
 if __name__ == '__main__':
+    zero_offset_assert()
+
     dtmax = step
     dts = dtmax / 2**np.arange(10, -1, -1)
-    # dts = [step]
+    # dts = np.array([step, step / 2])
     outfs = []
     for dt in dts:
         outf = 'test_torque_out_%.10fdt.txt' % dt
@@ -193,7 +214,8 @@ if __name__ == '__main__':
 
     rms = np.zeros(len(outfs)-1)
     means = np.zeros(len(outfs)-1)
-    stdevs = np.zeros(len(outfs)-1)
+    mins = np.zeros(len(outfs)-1)
+    maxes = np.zeros(len(outfs)-1)
 
     for i in range(1,len(outfs)):
         f = open(outfs[i], 'r')
@@ -209,7 +231,8 @@ if __name__ == '__main__':
         ang = np.unwrap(data[ :, angle])[1: ]
         rms[i-1] = np.sqrt(np.sum((ang-true_vals)**2))
         means[i-1] = np.mean(ang)
-        stdevs[i-1] = np.std(ang)
+        mins[i-1] = np.min(ang[1: ])
+        maxes[i-1] = np.max(ang[1: ])
 
     fig, (ax1, ax2) = plt.subplots(
         2, 1,
@@ -217,12 +240,12 @@ if __name__ == '__main__':
         sharex=True)
     ax1.loglog(dts[1:], rms, 'go')
     ax1.set_yscale('log')
-    ax1.plot(dts[1: ], rms[1] * (dts[1: ] / dts[1]))
+    ax1.plot(dts[1: ], rms[0] * (dts[1: ] / dts[1]))
 
     ax2.plot(dts[1: ], means, 'b')
-    ax2.plot(dts[1: ], means + stdevs, 'g--', lw=0.5)
-    ax2.plot(dts[1: ], means - stdevs, 'g--', lw=0.5)
-    ax2.set_ylabel('Mean / std')
+    ax2.plot(dts[1: ], mins, 'g--', lw=0.5)
+    ax2.plot(dts[1: ], maxes, 'g--', lw=0.5)
+    ax2.set_ylabel('Min/Mean/Max')
 
     # ax2.plot(dts[1: ], np.abs(means - means[0]), 'go')
     # ax2.set_ylim(bottom=0)
