@@ -13,8 +13,8 @@ plt.rc('lines', lw=2.5)
 plt.rc('xtick', direction='in', top=True, bottom=True)
 plt.rc('ytick', direction='in', left=True, right=True)
 
-tf = 100
-step = 0.03
+tf = 10
+step = 0.05
 n = int(tf / step)
 
 def run(dt, dtheta_offset=np.radians(1), to_plot=True):
@@ -47,8 +47,7 @@ def run(dt, dtheta_offset=np.radians(1), to_plot=True):
 
     # add spin to smaller body
     ps = sim.particles
-    angle = 0.*np.pi/180.
-
+    angle = np.radians(0)
 
     ps[1].params['tt_ix'] = np.cos(angle)
     ps[1].params['tt_iy'] = np.sin(angle)
@@ -69,6 +68,9 @@ def run(dt, dtheta_offset=np.radians(1), to_plot=True):
     ps[1].params['tt_sk'] = 1.
 
     ps[1].params['tt_omega'] = 2*np.pi / ps[1].P
+    ps[1].params['tt_R'] = 0.0001
+    ps[1].params['tt_k2'] = 0.5
+    ps[1].params['tt_Q'] = 100
 
     filename = 'test_torque_out_%.10fdt' % sim.dt
     f = open(filename + '.txt', 'w')
@@ -210,10 +212,7 @@ if __name__ == '__main__':
         mins[i-1] = np.min(ang[1: ])
         maxes[i-1] = np.max(ang[1: ])
 
-    fig, (ax1, ax2) = plt.subplots(
-        2, 1,
-        figsize=(8, 8),
-        sharex=True)
+    fig, (ax1, ax2) = plt.subplots(2, 1,figsize=(8, 8),sharex=True)
     ax1.loglog(dts[1:], rms, 'go', label='RMS (data)')
     ax1.set_yscale('log')
     ylims = ax1.get_ylim()
