@@ -17,7 +17,7 @@ tf = 10
 step = 0.05
 n = int(tf / step)
 
-def run(dt, dtheta_offset=np.radians(1), to_plot=True):
+def run(dt, dtheta_offset=np.radians(10), to_plot=True):
     start = time.time()
 
     sim = rebound.Simulation()
