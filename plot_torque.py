@@ -69,7 +69,7 @@ def run(dt, dtheta_offset=np.radians(10), to_plot=True):
 
     ps[1].params['tt_omega'] = 2*np.pi / ps[1].P
     ps[1].params['tt_R'] = 0.0001
-    ps[1].params['tt_k2'] = 0.5
+    ps[1].params['tt_k2'] = 0.9
     ps[1].params['tt_Q'] = 100
 
     filename = 'test_torque_out_%.10fdt' % sim.dt
