@@ -59,9 +59,10 @@ def run(dt, dtheta_offset=np.radians(10), to_plot=True):
     ps[1].params['tt_ky'] = 0.
     ps[1].params['tt_kz'] = 1.
 
-    ps[1].params['tt_Ii'] = 1.
-    ps[1].params['tt_Ij'] = 2.
-    ps[1].params['tt_Ik'] = 3.
+    # (2/5)*MR^2
+    ps[1].params['tt_Ii'] = 1.e-13
+    ps[1].params['tt_Ij'] = 1.1e-13
+    ps[1].params['tt_Ik'] = 1.2e-13
 
     ps[1].params['tt_si'] = 0.
     ps[1].params['tt_sj'] = 0.
@@ -123,7 +124,7 @@ def run(dt, dtheta_offset=np.radians(10), to_plot=True):
         prefac = 3 * sim.G
         exact_sol = np.pi - dtheta_offset * np.cos(np.sqrt(prefac / 3) * times)
 
-        ax1.plot(times, np.unwrap(angs), 'ko', label='Num')
+        ax1.plot(times[1:], np.unwrap(angs)[1:], 'ko', label='Num')
         ax1.plot(times, exact_sol, label='Exact')
         ax1.set_title('%.10f' % dt)
         ax1.set_ylabel('theta')
