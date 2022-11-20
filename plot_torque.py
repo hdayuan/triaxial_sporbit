@@ -13,11 +13,11 @@ plt.rc('lines', lw=2.5)
 plt.rc('xtick', direction='in', top=True, bottom=True)
 plt.rc('ytick', direction='in', left=True, right=True)
 
-tf = 10
+tf = 200
 step = 0.05
 n = int(tf / step)
 
-def run(dt, dtheta_offset=np.radians(10), to_plot=True):
+def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
     start = time.time()
 
     sim = rebound.Simulation()
@@ -28,7 +28,7 @@ def run(dt, dtheta_offset=np.radians(10), to_plot=True):
 
     # change offset to 0 if using force
     v = 6.286207389817359
-    d_theta = v * sim.dt + dtheta_offset
+    d_theta = v * sim.dt
     # x_val = 1. # np.cos(d_theta)
     # y_val = 0. # -np.sin(d_theta)
     # vx_val = 0. # v*np.sin(d_theta)
@@ -38,7 +38,7 @@ def run(dt, dtheta_offset=np.radians(10), to_plot=True):
     vx_val = v*np.sin(d_theta)
     vy_val = v*np.cos(d_theta)
 
-    sim.add(m=0.001, x=x_val,y=y_val,vx=vx_val,vy=vy_val)
+    sim.add(m=0.00001, x=x_val,y=y_val,vx=vx_val,vy=vy_val)
     # sim.add(m=0.001, a=1.)
 
     rebx = reboundx.Extras(sim)
@@ -47,31 +47,37 @@ def run(dt, dtheta_offset=np.radians(10), to_plot=True):
 
     # add spin to smaller body
     ps = sim.particles
-    angle = np.radians(0)
 
-    ps[1].params['tt_ix'] = np.cos(angle)
-    ps[1].params['tt_iy'] = np.sin(angle)
+    ps[1].params['tt_ix'] = np.cos(dtheta_offset)
+    ps[1].params['tt_iy'] = np.sin(dtheta_offset)
     ps[1].params['tt_iz'] = 0.
-    ps[1].params['tt_jx'] = -np.sin(angle)
-    ps[1].params['tt_jy'] = np.cos(angle)
+    ps[1].params['tt_jx'] = -np.sin(dtheta_offset)
+    ps[1].params['tt_jy'] = np.cos(dtheta_offset)
     ps[1].params['tt_jz'] = 0.
     ps[1].params['tt_kx'] = 0.
     ps[1].params['tt_ky'] = 0.
     ps[1].params['tt_kz'] = 1.
 
     # (2/5)*MR^2
-    ps[1].params['tt_Ii'] = 1.e-13
-    ps[1].params['tt_Ij'] = 1.1e-13
-    ps[1].params['tt_Ik'] = 1.2e-13
+    Ii = 1.e-13
+    Ij = Ii + 1.e-14
+    Ik = Ii + 2.e-14
+
+    ps[1].params['tt_Ii'] = Ii
+    ps[1].params['tt_Ij'] = Ij
+    ps[1].params['tt_Ik'] = Ik
 
     ps[1].params['tt_si'] = 0.
     ps[1].params['tt_sj'] = 0.
     ps[1].params['tt_sk'] = 1.
 
-    ps[1].params['tt_omega'] = 2*np.pi / ps[1].P
-    ps[1].params['tt_R'] = 0.0001
-    ps[1].params['tt_k2'] = 0.9
-    ps[1].params['tt_Q'] = 100
+    Q = 1.e-20
+    tidal_dt = 1 / Q / ps[1].n
+    omega = 2*np.pi / ps[1].P
+    ps[1].params['tt_omega'] = omega
+    ps[1].params['tt_R'] = 0.001
+    ps[1].params['tt_k2'] = 0.5
+    ps[1].params['tt_tidal_dt'] = tidal_dt
 
     filename = 'test_torque_out_%.10fdt' % sim.dt
     f = open(filename + '.txt', 'w')
@@ -121,8 +127,8 @@ def run(dt, dtheta_offset=np.radians(10), to_plot=True):
             figsize=(8, 8),
             sharex=True)
 
-        prefac = 3 * sim.G
-        exact_sol = np.pi - dtheta_offset * np.cos(np.sqrt(prefac / 3) * times)
+        freq = np.sqrt(3*sim.G*(Ij-Ii)/Ik)
+        exact_sol = np.pi - dtheta_offset * np.cos(freq * times)
 
         ax1.plot(times[1:], np.unwrap(angs)[1:], 'ko', label='Num')
         ax1.plot(times, exact_sol, label='Exact')
@@ -161,7 +167,7 @@ if __name__ == '__main__':
     zero_offset_assert()
 
     dtmax = step
-    dts = dtmax / 2**np.arange(8, -1, -1)
+    dts = dtmax / 2**np.arange(4, -1, -1)
     # dts = np.array([step, step / 2])
     outfs = []
     for dt in dts:
@@ -221,6 +227,8 @@ if __name__ == '__main__':
              label='1-order')
     ax1.plot(dts[1: ], rms[3] * (dts[1: ] / dts[4])**2, c='y', lw=0.5,
              label='2-order')
+    ax1.plot(dts[1: ], rms[3] * (dts[1: ] / dts[4])**3, c='b', lw=0.5,
+             label='3-order')
     ax1.legend(fontsize=12)
     ax1.set_ylim(ylims)
 
