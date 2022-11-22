@@ -13,11 +13,12 @@ plt.rc('lines', lw=2.5)
 plt.rc('xtick', direction='in', top=True, bottom=True)
 plt.rc('ytick', direction='in', left=True, right=True)
 
-tf = 200
-step = 0.05
+a = 0.1 # set to 0.1/0.2 for tides?
+tf = 50*a**1.5
+step = 0.01*a**1.5
 n = int(tf / step)
 
-def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
+def run(dt, dtheta_offset=np.radians(0.), to_plot=True):
     start = time.time()
 
     sim = rebound.Simulation()
@@ -26,15 +27,16 @@ def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
     sim.dt = dt
     sim.add(m=1.)
 
+    
     # change offset to 0 if using force
-    v = 6.286207389817359
+    v = 6.286207389817359/np.sqrt(a)
     d_theta = v * sim.dt
     # x_val = 1. # np.cos(d_theta)
     # y_val = 0. # -np.sin(d_theta)
     # vx_val = 0. # v*np.sin(d_theta)
     # vy_val = v # v*np.cos(d_theta)
-    x_val = np.cos(d_theta)
-    y_val = -np.sin(d_theta)
+    x_val = a*np.cos(d_theta)
+    y_val = -a*np.sin(d_theta)
     vx_val = v*np.sin(d_theta)
     vy_val = v*np.cos(d_theta)
 
@@ -60,8 +62,8 @@ def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
 
     # (2/5)*MR^2
     Ii = 1.e-13
-    Ij = Ii + 1.e-14
-    Ik = Ii + 2.e-14
+    Ij = Ii
+    Ik = Ii
 
     ps[1].params['tt_Ii'] = Ii
     ps[1].params['tt_Ij'] = Ij
@@ -74,8 +76,8 @@ def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
     Q = 1.e-20
     tidal_dt = 1 / Q / ps[1].n
     omega = 2*np.pi / ps[1].P
-    ps[1].params['tt_omega'] = omega
-    ps[1].params['tt_R'] = 0.001
+    ps[1].params['tt_omega'] = 10*omega
+    ps[1].params['tt_R'] = 0.0001
     ps[1].params['tt_k2'] = 0.5
     ps[1].params['tt_tidal_dt'] = tidal_dt
 
@@ -130,7 +132,7 @@ def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
         freq = np.sqrt(3*sim.G*(Ij-Ii)/Ik)
         exact_sol = np.pi - dtheta_offset * np.cos(freq * times)
 
-        ax1.plot(times[1:], np.unwrap(angs)[1:], 'ko', label='Num')
+        ax1.plot(times[1:], np.unwrap(angs)[1:], color='black', label='Num')
         ax1.plot(times, exact_sol, label='Exact')
         ax1.set_title('%.10f' % dt)
         ax1.set_ylabel('theta')
@@ -167,7 +169,7 @@ if __name__ == '__main__':
     zero_offset_assert()
 
     dtmax = step
-    dts = dtmax / 2**np.arange(4, -1, -1)
+    dts = dtmax / 2**np.arange(0, -1, -1)
     # dts = np.array([step, step / 2])
     outfs = []
     for dt in dts:
@@ -219,29 +221,29 @@ if __name__ == '__main__':
         mins[i-1] = np.min(ang[1: ])
         maxes[i-1] = np.max(ang[1: ])
 
-    fig, (ax1, ax2) = plt.subplots(2, 1,figsize=(8, 8),sharex=True)
-    ax1.loglog(dts[1:], rms, 'go', label='RMS (data)')
-    ax1.set_yscale('log')
-    ylims = ax1.get_ylim()
-    ax1.plot(dts[1: ], rms[3] * (dts[1: ] / dts[4]), c='r', lw=0.5,
-             label='1-order')
-    ax1.plot(dts[1: ], rms[3] * (dts[1: ] / dts[4])**2, c='y', lw=0.5,
-             label='2-order')
-    ax1.plot(dts[1: ], rms[3] * (dts[1: ] / dts[4])**3, c='b', lw=0.5,
-             label='3-order')
-    ax1.legend(fontsize=12)
-    ax1.set_ylim(ylims)
+    # fig, (ax1, ax2) = plt.subplots(2, 1,figsize=(8, 8),sharex=True)
+    # ax1.loglog(dts[1:], rms, 'go', label='RMS (data)')
+    # ax1.set_yscale('log')
+    # ylims = ax1.get_ylim()
+    # ax1.plot(dts[1: ], rms[3] * (dts[1: ] / dts[4]), c='r', lw=0.5,
+    #          label='1-order')
+    # ax1.plot(dts[1: ], rms[3] * (dts[1: ] / dts[4])**2, c='y', lw=0.5,
+    #          label='2-order')
+    # ax1.plot(dts[1: ], rms[3] * (dts[1: ] / dts[4])**3, c='b', lw=0.5,
+    #          label='3-order')
+    # ax1.legend(fontsize=12)
+    # ax1.set_ylim(ylims)
 
-    ax2.plot(dts[1: ], means, 'b')
-    ax2.plot(dts[1: ], mins, 'g--', lw=0.5)
-    ax2.plot(dts[1: ], maxes, 'g--', lw=0.5)
-    ax2.set_ylabel('Min/Mean/Max')
+    # ax2.plot(dts[1: ], means, 'b')
+    # ax2.plot(dts[1: ], mins, 'g--', lw=0.5)
+    # ax2.plot(dts[1: ], maxes, 'g--', lw=0.5)
+    # ax2.set_ylabel('Min/Mean/Max')
 
-    ax1.set_ylabel('RMS (radians)')
-    ax2.set_xlabel('dt (years)')
-    ax2.set_xscale('log')
-    ax1.axvline(step, c='k')
-    ax2.axvline(step, c='k')
+    # ax1.set_ylabel('RMS (radians)')
+    # ax2.set_xlabel('dt (years)')
+    # ax2.set_xscale('log')
+    # ax1.axvline(step, c='k')
+    # ax2.axvline(step, c='k')
 
-    plt.tight_layout()
-    plt.savefig('torque', dpi=300)
+    # plt.tight_layout()
+    # plt.savefig('torque', dpi=300)
