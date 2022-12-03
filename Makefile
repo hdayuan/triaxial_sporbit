@@ -7,6 +7,6 @@ run:
 plot:
 	open *.png
 
-clean_full:
+clean:
 	rm -rf *.txt
 	rm -rf *.png

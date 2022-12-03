@@ -13,12 +13,13 @@ plt.rc('lines', lw=2.5)
 plt.rc('xtick', direction='in', top=True, bottom=True)
 plt.rc('ytick', direction='in', left=True, right=True)
 
-a = 0.1 # set to 0.1/0.2 for tides?
+a = 0.1
+Q = 100000.e0
 tf = 50*a**1.5
 step = 0.01*a**1.5
 n = int(tf / step)
 
-def run(dt, dtheta_offset=np.radians(0.), to_plot=True):
+def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
     start = time.time()
 
     sim = rebound.Simulation()
@@ -30,7 +31,7 @@ def run(dt, dtheta_offset=np.radians(0.), to_plot=True):
     
     # change offset to 0 if using force
     v = 6.286207389817359/np.sqrt(a)
-    d_theta = v * sim.dt
+    d_theta = v * sim.dt / a
     # x_val = 1. # np.cos(d_theta)
     # y_val = 0. # -np.sin(d_theta)
     # vx_val = 0. # v*np.sin(d_theta)
@@ -62,8 +63,8 @@ def run(dt, dtheta_offset=np.radians(0.), to_plot=True):
 
     # (2/5)*MR^2
     Ii = 1.e-13
-    Ij = Ii
-    Ik = Ii
+    Ij = Ii#+1.e-14
+    Ik = Ii#+2.e-14
 
     ps[1].params['tt_Ii'] = Ii
     ps[1].params['tt_Ij'] = Ij
@@ -73,12 +74,12 @@ def run(dt, dtheta_offset=np.radians(0.), to_plot=True):
     ps[1].params['tt_sj'] = 0.
     ps[1].params['tt_sk'] = 1.
 
-    Q = 1.e-20
-    tidal_dt = 1 / Q / ps[1].n
-    omega = 2*np.pi / ps[1].P
-    ps[1].params['tt_omega'] = 10*omega
-    ps[1].params['tt_R'] = 0.0001
-    ps[1].params['tt_k2'] = 0.5
+    tidal_dt = np.arctan(1./Q) / 2. / ps[1].n
+    omega = ps[1].n #2*np.pi / ps[1].P
+
+    ps[1].params['tt_omega'] = 1.01*omega
+    ps[1].params['tt_R'] = 1.e-4 # ~ 2 earth radii
+    ps[1].params['tt_k2'] = 0.9
     ps[1].params['tt_tidal_dt'] = tidal_dt
 
     filename = 'test_torque_out_%.10fdt' % sim.dt
@@ -86,8 +87,10 @@ def run(dt, dtheta_offset=np.radians(0.), to_plot=True):
 
     times = []
     angs = []
+    omegas = []
     rxs = []
     ixs = []
+    ns = []
 
     for i in range(n):
         sim.integrate(i*step)
@@ -102,6 +105,8 @@ def run(dt, dtheta_offset=np.radians(0.), to_plot=True):
         j_dot_r = ps[1].params['tt_jx']*rx + ps[1].params['tt_jy']*ry + ps[1].params['tt_jz']*rz
         ang = np.arctan2(j_dot_r, i_dot_r)
         angs.append(ang)
+        omegas.append(ps[1].params['tt_omega'])
+        ns.append(ps[1].n)
         f.write(str(ang)+'\t')
         f.write(str(ps[1].params['tt_omega'])+'\t')
         f.write(str(ps[1].params['tt_ix'])+'\t')
@@ -132,12 +137,18 @@ def run(dt, dtheta_offset=np.radians(0.), to_plot=True):
         freq = np.sqrt(3*sim.G*(Ij-Ii)/Ik)
         exact_sol = np.pi - dtheta_offset * np.cos(freq * times)
 
-        ax1.plot(times[1:], np.unwrap(angs)[1:], color='black', label='Num')
-        ax1.plot(times, exact_sol, label='Exact')
+        # ax1.plot(times[1:], np.unwrap(angs)[1:], color='black', label='Num')
+        ax1.plot(times[1:int(n*0.01)], np.array(omegas[1:int(n*0.01)])-np.array(ns[1:int(n*0.01)]), 'ko', label='Num')
+        # ax1.set_ylim(top=10, bottom=-10)
+        # ax1.plot(times, exact_sol, label='Exact')
         ax1.set_title('%.10f' % dt)
-        ax1.set_ylabel('theta')
-        ax2.plot(times[1: ], (np.unwrap(angs) - exact_sol)[1: ])
-        ax2.set_ylabel('Residuals')
+        # ax1.set_ylabel('theta')
+        ax1.set_ylabel('omega')
+        # ax2.plot(times[1: ], (np.unwrap(angs) - exact_sol)[1: ])
+        # ax2.set_ylabel('Residuals')
+        # ax2.set_xlabel('Time')
+        ax2.plot(times[1:int(n*0.01) ], ns[1:int(n*0.01) ])
+        ax2.set_ylabel('Mean motion')
         ax2.set_xlabel('Time')
         plt.savefig(filename + '.png', dpi=300)
         plt.clf()
@@ -166,7 +177,7 @@ def zero_offset_assert():
     print('Passed zero torque test case!!')
 
 if __name__ == '__main__':
-    zero_offset_assert()
+    # zero_offset_assert()
 
     dtmax = step
     dts = dtmax / 2**np.arange(0, -1, -1)
