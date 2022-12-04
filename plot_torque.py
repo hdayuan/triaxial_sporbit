@@ -8,27 +8,38 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=20)
+plt.rc('font', family='serif', size=18)
 plt.rc('lines', lw=2.5)
 plt.rc('xtick', direction='in', top=True, bottom=True)
 plt.rc('ytick', direction='in', left=True, right=True)
 
+# global variables
 a = 0.1
-Q = 100000.e0
-tf = 50*a**1.5
-step = 0.01*a**1.5
+Q = .01
+R = 1.e-4 # ~ 20 earth radii
+omeg_to_sp = 2. # omega / spin
+M_star = 1.
+M_p = 1.e-4 # ~ 2 earth masses
+k2 = 1.5
+dt_frac = 0.05 # fraction of orbital period
+tf = 5*a**1.5
+step = 0.2*a**1.5
 n = int(tf / step)
 
 def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
+    global G
+    global omega
+    global mm
+
     start = time.time()
 
     sim = rebound.Simulation()
     sim.integrator = 'whfast'
     sim.units = ('AU', 'yr', 'MSun')
     sim.dt = dt
-    sim.add(m=1.)
+    sim.add(m=M_star)
+    G = sim.G
 
-    
     # change offset to 0 if using force
     v = 6.286207389817359/np.sqrt(a)
     d_theta = v * sim.dt / a
@@ -41,7 +52,7 @@ def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
     vx_val = v*np.sin(d_theta)
     vy_val = v*np.cos(d_theta)
 
-    sim.add(m=0.00001, x=x_val,y=y_val,vx=vx_val,vy=vy_val)
+    sim.add(m=M_p, x=x_val,y=y_val,vx=vx_val,vy=vy_val)
     # sim.add(m=0.001, a=1.)
 
     rebx = reboundx.Extras(sim)
@@ -62,7 +73,7 @@ def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
     ps[1].params['tt_kz'] = 1.
 
     # (2/5)*MR^2
-    Ii = 1.e-13
+    Ii = (2/5)*M_p*R*R
     Ij = Ii#+1.e-14
     Ik = Ii#+2.e-14
 
@@ -75,11 +86,12 @@ def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
     ps[1].params['tt_sk'] = 1.
 
     tidal_dt = np.arctan(1./Q) / 2. / ps[1].n
-    omega = ps[1].n #2*np.pi / ps[1].P
+    omega = omeg_to_sp*ps[1].n
+    mm = ps[1].n
 
-    ps[1].params['tt_omega'] = 1.01*omega
-    ps[1].params['tt_R'] = 1.e-4 # ~ 2 earth radii
-    ps[1].params['tt_k2'] = 0.9
+    ps[1].params['tt_omega'] = omega
+    ps[1].params['tt_R'] = R
+    ps[1].params['tt_k2'] = k2
     ps[1].params['tt_tidal_dt'] = tidal_dt
 
     filename = 'test_torque_out_%.10fdt' % sim.dt
@@ -129,27 +141,38 @@ def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
 
     times = np.array(times)
     if to_plot:
-        fig, (ax1, ax2) = plt.subplots(
-            2, 1,
-            figsize=(8, 8),
+        # fig, (ax1, ax2) = plt.subplots(
+        #     2, 1,
+        #     figsize=(8, 8),
+        #     sharex=True)
+        fig, (ax) = plt.subplots(
+            1, 1,
+            figsize=(10, 6),
             sharex=True)
 
-        freq = np.sqrt(3*sim.G*(Ij-Ii)/Ik)
-        exact_sol = np.pi - dtheta_offset * np.cos(freq * times)
+        theta_lag = (omega - mm) / (2.*mm)*np.arctan(1./Q)
+        exact_sol = ((omega - mm) - times*(15.*k2*G*M_star**2*R**3*np.cos(theta_lag)*np.sin(theta_lag)/(2.*M_p*a**6))) / mm
+        ax.plot(times[1:]/a**1.5, np.array(((omegas[1:])-np.array(ns[1:]))/mm), 'ko', label='Num')
+        ax.plot(times[1:]/a**1.5, exact_sol[1:], color='tab:blue')
+        ax.legend(['Numerical', 'Analytical'])
+        ax.set_ylabel(r"$\frac{\omega - n}{n}$")
+        ax.set_xlabel('Time (orbital periods)')
 
+        # freq = np.sqrt(3*sim.G*(Ij-Ii)/Ik)
+        # exact_sol = np.pi - dtheta_offset * np.cos(freq * times)
         # ax1.plot(times[1:], np.unwrap(angs)[1:], color='black', label='Num')
-        ax1.plot(times[1:int(n*0.01)], np.array(omegas[1:int(n*0.01)])-np.array(ns[1:int(n*0.01)]), 'ko', label='Num')
+        #ax1.plot(times[1:int(n*0.01)], np.array(omegas[1:int(n*0.01)])-np.array(ns[1:int(n*0.01)]), 'ko', label='Num')
         # ax1.set_ylim(top=10, bottom=-10)
         # ax1.plot(times, exact_sol, label='Exact')
-        ax1.set_title('%.10f' % dt)
+        #ax1.set_title('%.10f' % dt)
         # ax1.set_ylabel('theta')
-        ax1.set_ylabel('omega')
+        #ax1.set_ylabel('omega - n')
         # ax2.plot(times[1: ], (np.unwrap(angs) - exact_sol)[1: ])
         # ax2.set_ylabel('Residuals')
         # ax2.set_xlabel('Time')
-        ax2.plot(times[1:int(n*0.01) ], ns[1:int(n*0.01) ])
-        ax2.set_ylabel('Mean motion')
-        ax2.set_xlabel('Time')
+        #ax2.plot(times[1:int(n*0.01) ], ns[1:int(n*0.01) ])
+        #ax2.set_ylabel('Mean motion')
+        #ax2.set_xlabel('Time')
         plt.savefig(filename + '.png', dpi=300)
         plt.clf()
 
@@ -179,7 +202,7 @@ def zero_offset_assert():
 if __name__ == '__main__':
     # zero_offset_assert()
 
-    dtmax = step
+    dtmax = dt_frac*a**1.5
     dts = dtmax / 2**np.arange(0, -1, -1)
     # dts = np.array([step, step / 2])
     outfs = []
