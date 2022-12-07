@@ -14,16 +14,17 @@ plt.rc('xtick', direction='in', top=True, bottom=True)
 plt.rc('ytick', direction='in', left=True, right=True)
 
 # global variables
-a = 0.1
+a = .1
 Q = .01
 R = 1.e-4 # ~ 20 earth radii
-omeg_to_sp = 2. # omega / spin
+obliquity = np.radians(0)
+omeg_to_sp = 1. # omega / n
 M_star = 1.
 M_p = 1.e-4 # ~ 2 earth masses
 k2 = 1.5
-dt_frac = 0.05 # fraction of orbital period
-tf = 5*a**1.5
-step = 0.2*a**1.5
+dt_frac = 0.01 # fraction of orbital period
+tf = 50.*a**1.5
+step = 0.05*a**1.5
 n = int(tf / step)
 
 def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
@@ -40,20 +41,21 @@ def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
     sim.add(m=M_star)
     G = sim.G
 
-    # change offset to 0 if using force
-    v = 6.286207389817359/np.sqrt(a)
-    d_theta = v * sim.dt / a
-    # x_val = 1. # np.cos(d_theta)
-    # y_val = 0. # -np.sin(d_theta)
-    # vx_val = 0. # v*np.sin(d_theta)
-    # vy_val = v # v*np.cos(d_theta)
-    x_val = a*np.cos(d_theta)
-    y_val = -a*np.sin(d_theta)
-    vx_val = v*np.sin(d_theta)
-    vy_val = v*np.cos(d_theta)
+    # DON'T THINK I NEED THIS ANYMORE!!
+    # # change offset to 0 if using force
+    # v = 6.286207389817359/np.sqrt(a)
+    # d_theta = v * sim.dt / a
+    # # x_val = 1. # np.cos(d_theta)
+    # # y_val = 0. # -np.sin(d_theta)
+    # # vx_val = 0. # v*np.sin(d_theta)
+    # # vy_val = v # v*np.cos(d_theta)
+    # x_val = a#a*np.cos(d_theta)
+    # y_val = 0#-a*np.sin(d_theta)
+    # vx_val = 0#v*np.sin(d_theta)
+    # vy_val = v#v*np.cos(d_theta)
 
-    sim.add(m=M_p, x=x_val,y=y_val,vx=vx_val,vy=vy_val)
-    # sim.add(m=0.001, a=1.)
+    # sim.add(m=M_p, x=x_val,y=y_val,vx=vx_val,vy=vy_val)
+    sim.add(m=M_p, a=a)
 
     rebx = reboundx.Extras(sim)
     triax = rebx.load_operator('triaxial_torque') # change if force / operator
@@ -72,10 +74,20 @@ def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
     ps[1].params['tt_ky'] = 0.
     ps[1].params['tt_kz'] = 1.
 
+    # ps[1].params['tt_ix'] = np.cos(obliquity)
+    # ps[1].params['tt_iy'] = 0.
+    # ps[1].params['tt_iz'] = -np.sin(obliquity)
+    # ps[1].params['tt_jx'] = 0.
+    # ps[1].params['tt_jy'] = 1.
+    # ps[1].params['tt_jz'] = 0.
+    # ps[1].params['tt_kx'] = np.sin(obliquity)
+    # ps[1].params['tt_ky'] = 0.
+    # ps[1].params['tt_kz'] = np.cos(obliquity)
+
     # (2/5)*MR^2
-    Ii = (2/5)*M_p*R*R
-    Ij = Ii#+1.e-14
-    Ik = Ii#+2.e-14
+    Ii = 1.e-13# (2/5)*M_p*R*R
+    Ij = Ii+1.e-14
+    Ik = Ii+2.e-14
 
     ps[1].params['tt_Ii'] = Ii
     ps[1].params['tt_Ij'] = Ij
@@ -103,6 +115,7 @@ def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
     rxs = []
     ixs = []
     ns = []
+    obliquities = []
 
     for i in range(n):
         sim.integrate(i*step)
@@ -119,6 +132,7 @@ def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
         angs.append(ang)
         omegas.append(ps[1].params['tt_omega'])
         ns.append(ps[1].n)
+        obliquities.append(np.abs(np.arccos(ps[1].params['tt_kz'])))
         f.write(str(ang)+'\t')
         f.write(str(ps[1].params['tt_omega'])+'\t')
         f.write(str(ps[1].params['tt_ix'])+'\t')
@@ -145,12 +159,19 @@ def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
         #     2, 1,
         #     figsize=(8, 8),
         #     sharex=True)
+
         fig, (ax) = plt.subplots(
             1, 1,
             figsize=(10, 6),
             sharex=True)
 
+        # PLOT SPIN DAMPING
         theta_lag = (omega - mm) / (2.*mm)*np.arctan(1./Q)
+        max_theta_lag = np.pi/4
+        if theta_lag > max_theta_lag:
+            theta_lag = max_theta_lag
+        if theta_lag < -max_theta_lag:
+            theta_lag = -max_theta_lag
         exact_sol = ((omega - mm) - times*(15.*k2*G*M_star**2*R**3*np.cos(theta_lag)*np.sin(theta_lag)/(2.*M_p*a**6))) / mm
         ax.plot(times[1:]/a**1.5, np.array(((omegas[1:])-np.array(ns[1:]))/mm), 'ko', label='Num')
         ax.plot(times[1:]/a**1.5, exact_sol[1:], color='tab:blue')
@@ -158,21 +179,28 @@ def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
         ax.set_ylabel(r"$\frac{\omega - n}{n}$")
         ax.set_xlabel('Time (orbital periods)')
 
+        # PLOT OBLIQUITY
+        # ax.plot(times[1:]/a**1.5, np.degrees(np.array(obliquities)[1:]), 'ko', label='Num')
+        # ax.set_ylabel("Obliquity (deg)")
+        # ax.set_xlabel('Time (orbital periods)')
+
+        # PLOT CONVERGENCE
         # freq = np.sqrt(3*sim.G*(Ij-Ii)/Ik)
+        # # exact solution only works for a = 1 for now!!!
         # exact_sol = np.pi - dtheta_offset * np.cos(freq * times)
-        # ax1.plot(times[1:], np.unwrap(angs)[1:], color='black', label='Num')
-        #ax1.plot(times[1:int(n*0.01)], np.array(omegas[1:int(n*0.01)])-np.array(ns[1:int(n*0.01)]), 'ko', label='Num')
-        # ax1.set_ylim(top=10, bottom=-10)
+        # ax1.plot(times[:], np.unwrap(angs)[:], color='black', label='Num')
+        # # ax1.plot(times[1:int(n*0.01)], np.array(omegas[1:int(n*0.01)])-np.array(ns[1:int(n*0.01)]), 'ko', label='Num')
+        # # ax1.set_ylim(top=10, bottom=-10)
         # ax1.plot(times, exact_sol, label='Exact')
-        #ax1.set_title('%.10f' % dt)
+        # ax1.set_title('%.10f' % dt)
         # ax1.set_ylabel('theta')
-        #ax1.set_ylabel('omega - n')
-        # ax2.plot(times[1: ], (np.unwrap(angs) - exact_sol)[1: ])
+        # # ax1.set_ylabel('omega - n')
+        # ax2.plot(times[: ], (np.unwrap(angs) - exact_sol)[: ])
         # ax2.set_ylabel('Residuals')
         # ax2.set_xlabel('Time')
-        #ax2.plot(times[1:int(n*0.01) ], ns[1:int(n*0.01) ])
-        #ax2.set_ylabel('Mean motion')
-        #ax2.set_xlabel('Time')
+        # # ax2.plot(times[1:int(n*0.01) ], ns[1:int(n*0.01) ])
+        # # ax2.set_ylabel('Mean motion')
+
         plt.savefig(filename + '.png', dpi=300)
         plt.clf()
 
@@ -255,29 +283,29 @@ if __name__ == '__main__':
         mins[i-1] = np.min(ang[1: ])
         maxes[i-1] = np.max(ang[1: ])
 
-    # fig, (ax1, ax2) = plt.subplots(2, 1,figsize=(8, 8),sharex=True)
-    # ax1.loglog(dts[1:], rms, 'go', label='RMS (data)')
-    # ax1.set_yscale('log')
-    # ylims = ax1.get_ylim()
-    # ax1.plot(dts[1: ], rms[3] * (dts[1: ] / dts[4]), c='r', lw=0.5,
-    #          label='1-order')
-    # ax1.plot(dts[1: ], rms[3] * (dts[1: ] / dts[4])**2, c='y', lw=0.5,
-    #          label='2-order')
-    # ax1.plot(dts[1: ], rms[3] * (dts[1: ] / dts[4])**3, c='b', lw=0.5,
-    #          label='3-order')
-    # ax1.legend(fontsize=12)
-    # ax1.set_ylim(ylims)
+    fig, (ax1, ax2) = plt.subplots(2, 1,figsize=(8, 8),sharex=True)
+    ax1.loglog(dts[1:], rms, 'go', label='RMS (data)')
+    ax1.set_yscale('log')
+    ylims = ax1.get_ylim()
+    ax1.plot(dts[1: ], rms[3] * (dts[1: ] / dts[4]), c='r', lw=0.5,
+             label='1-order')
+    ax1.plot(dts[1: ], rms[3] * (dts[1: ] / dts[4])**2, c='y', lw=0.5,
+             label='2-order')
+    ax1.plot(dts[1: ], rms[3] * (dts[1: ] / dts[4])**3, c='b', lw=0.5,
+             label='3-order')
+    ax1.legend(fontsize=12)
+    ax1.set_ylim(ylims)
 
-    # ax2.plot(dts[1: ], means, 'b')
-    # ax2.plot(dts[1: ], mins, 'g--', lw=0.5)
-    # ax2.plot(dts[1: ], maxes, 'g--', lw=0.5)
-    # ax2.set_ylabel('Min/Mean/Max')
+    ax2.plot(dts[1: ], means, 'b')
+    ax2.plot(dts[1: ], mins, 'g--', lw=0.5)
+    ax2.plot(dts[1: ], maxes, 'g--', lw=0.5)
+    ax2.set_ylabel('Min/Mean/Max')
 
-    # ax1.set_ylabel('RMS (radians)')
-    # ax2.set_xlabel('dt (years)')
-    # ax2.set_xscale('log')
-    # ax1.axvline(step, c='k')
-    # ax2.axvline(step, c='k')
+    ax1.set_ylabel('RMS (radians)')
+    ax2.set_xlabel('dt (years)')
+    ax2.set_xscale('log')
+    ax1.axvline(step, c='k')
+    ax2.axvline(step, c='k')
 
-    # plt.tight_layout()
-    # plt.savefig('torque', dpi=300)
+    plt.tight_layout()
+    plt.savefig('torque', dpi=300)
