@@ -17,17 +17,17 @@ plt.rc('ytick', direction='in', left=True, right=True)
 a = .1
 Q = .01
 R = 1.e-4 # ~ 20 earth radii
-obliquity = np.radians(0)
-omeg_to_sp = 1. # omega / n
+obliquity = np.radians(0.1)
+omeg_to_sp = 1.5 # omega / n
 M_star = 1.
 M_p = 1.e-4 # ~ 2 earth masses
 k2 = 1.5
 dt_frac = 0.01 # fraction of orbital period
-tf = 50.*a**1.5
+tf = 10000.*a**1.5
 step = 0.05*a**1.5
 n = int(tf / step)
 
-def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
+def run(dt, dtheta_offset=np.radians(0.), to_plot=True):
     global G
     global omega
     global mm
@@ -64,30 +64,30 @@ def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
     # add spin to smaller body
     ps = sim.particles
 
-    ps[1].params['tt_ix'] = np.cos(dtheta_offset)
-    ps[1].params['tt_iy'] = np.sin(dtheta_offset)
-    ps[1].params['tt_iz'] = 0.
-    ps[1].params['tt_jx'] = -np.sin(dtheta_offset)
-    ps[1].params['tt_jy'] = np.cos(dtheta_offset)
-    ps[1].params['tt_jz'] = 0.
-    ps[1].params['tt_kx'] = 0.
-    ps[1].params['tt_ky'] = 0.
-    ps[1].params['tt_kz'] = 1.
-
-    # ps[1].params['tt_ix'] = np.cos(obliquity)
-    # ps[1].params['tt_iy'] = 0.
-    # ps[1].params['tt_iz'] = -np.sin(obliquity)
-    # ps[1].params['tt_jx'] = 0.
-    # ps[1].params['tt_jy'] = 1.
+    # ps[1].params['tt_ix'] = np.cos(dtheta_offset)
+    # ps[1].params['tt_iy'] = np.sin(dtheta_offset)
+    # ps[1].params['tt_iz'] = 0.
+    # ps[1].params['tt_jx'] = -np.sin(dtheta_offset)
+    # ps[1].params['tt_jy'] = np.cos(dtheta_offset)
     # ps[1].params['tt_jz'] = 0.
-    # ps[1].params['tt_kx'] = np.sin(obliquity)
+    # ps[1].params['tt_kx'] = 0.
     # ps[1].params['tt_ky'] = 0.
-    # ps[1].params['tt_kz'] = np.cos(obliquity)
+    # ps[1].params['tt_kz'] = 1.
+
+    ps[1].params['tt_ix'] = np.cos(obliquity)
+    ps[1].params['tt_iy'] = 0.
+    ps[1].params['tt_iz'] = -np.sin(obliquity)
+    ps[1].params['tt_jx'] = 0.
+    ps[1].params['tt_jy'] = 1.
+    ps[1].params['tt_jz'] = 0.
+    ps[1].params['tt_kx'] = np.sin(obliquity)
+    ps[1].params['tt_ky'] = 0.
+    ps[1].params['tt_kz'] = np.cos(obliquity)
 
     # (2/5)*MR^2
-    Ii = 1.e-13# (2/5)*M_p*R*R
-    Ij = Ii+1.e-14
-    Ik = Ii+2.e-14
+    Ii = (2/5)*M_p*R*R
+    Ij = Ii # +1.e-14
+    Ik = Ii # + (Ii / 10.) # +2.e-14
 
     ps[1].params['tt_Ii'] = Ii
     ps[1].params['tt_Ij'] = Ij
@@ -116,6 +116,10 @@ def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
     ixs = []
     ns = []
     obliquities = []
+    kxs = []
+    kys = []
+    omega_xs = []
+    omega_ys = []
 
     for i in range(n):
         sim.integrate(i*step)
@@ -144,6 +148,10 @@ def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
         f.write(str(ps[1].params['tt_kx'])+'\t')
         f.write(str(ps[1].params['tt_ky'])+'\t')
         f.write(str(ps[1].params['tt_kz'])+'\t')
+        kxs.append(ps[1].params['tt_kx'])
+        kys.append(ps[1].params['tt_ky'])
+        omega_xs.append(ps[1].params['tt_omega']*(ps[1].params['tt_si']*ps[1].params['tt_ix']+ps[1].params['tt_sj']*ps[1].params['tt_jx']+ps[1].params['tt_sk']*ps[1].params['tt_kx']))
+        omega_ys.append(ps[1].params['tt_omega']*(ps[1].params['tt_si']*ps[1].params['tt_iy']+ps[1].params['tt_sj']*ps[1].params['tt_jy']+ps[1].params['tt_sk']*ps[1].params['tt_ky']))
         f.write(str(rx)+'\t')
         f.write(str(ry)+'\t')
         f.write(str(rz)+'\t')
@@ -166,23 +174,30 @@ def run(dt, dtheta_offset=np.radians(1.), to_plot=True):
             sharex=True)
 
         # PLOT SPIN DAMPING
-        theta_lag = (omega - mm) / (2.*mm)*np.arctan(1./Q)
-        max_theta_lag = np.pi/4
-        if theta_lag > max_theta_lag:
-            theta_lag = max_theta_lag
-        if theta_lag < -max_theta_lag:
-            theta_lag = -max_theta_lag
-        exact_sol = ((omega - mm) - times*(15.*k2*G*M_star**2*R**3*np.cos(theta_lag)*np.sin(theta_lag)/(2.*M_p*a**6))) / mm
-        ax.plot(times[1:]/a**1.5, np.array(((omegas[1:])-np.array(ns[1:]))/mm), 'ko', label='Num')
-        ax.plot(times[1:]/a**1.5, exact_sol[1:], color='tab:blue')
-        ax.legend(['Numerical', 'Analytical'])
-        ax.set_ylabel(r"$\frac{\omega - n}{n}$")
-        ax.set_xlabel('Time (orbital periods)')
+        # theta_lag = (omega - mm) / (2.*mm)*np.arctan(1./Q)
+        # max_theta_lag = np.pi/4
+        # if theta_lag > max_theta_lag:
+        #     theta_lag = max_theta_lag
+        # if theta_lag < -max_theta_lag:
+        #     theta_lag = -max_theta_lag
+        # exact_sol = ((omega - mm) - times*(15.*k2*G*M_star**2*R**3*np.cos(theta_lag)*np.sin(theta_lag)/(2.*M_p*a**6))) / mm
+        # ax.plot(times[:]/a**1.5, np.array(((omegas[:])-np.array(ns[:]))/mm), 'ko', label='Num')
+        # ax.plot(times[:]/a**1.5, exact_sol[:], color='tab:blue')
+        # ax.legend(['Numerical', 'Analytical'])
+        # ax.set_ylabel(r"$\frac{\omega - n}{n}$")
+        # ax.set_xlabel('Time (orbital periods)')
+
+        # PLOT PRECESSION
+        # ax1.plot(times[:]/a**1.5, kxs, marker='o')
+        # ax1.set_ylabel(r"$k_x$")
+        # ax2.plot(times[:]/a**1.5, omega_xs, marker='o')
+        # ax2.set_ylabel(r"$k_y$")
+        # ax2.set_xlabel('Time (orbital periods)')
 
         # PLOT OBLIQUITY
-        # ax.plot(times[1:]/a**1.5, np.degrees(np.array(obliquities)[1:]), 'ko', label='Num')
-        # ax.set_ylabel("Obliquity (deg)")
-        # ax.set_xlabel('Time (orbital periods)')
+        ax.plot(times[:]/a**1.5, np.degrees(np.array(obliquities)[:]), 'ko', label='Num')
+        ax.set_ylabel("Obliquity (deg)")
+        ax.set_xlabel('Time (orbital periods)')
 
         # PLOT CONVERGENCE
         # freq = np.sqrt(3*sim.G*(Ij-Ii)/Ik)
@@ -239,73 +254,73 @@ if __name__ == '__main__':
         run(dt)
         outfs.append(outf)
 
-    nv = 15
+    # nv = 15
 
-    angle = 0
-    omega = 1
-    t = nv - 1
-    ##################################
+    # angle = 0
+    # omega = 1
+    # t = nv - 1
+    # ##################################
 
-    f = open(outfs[0], 'r')
-    allLines = f.readlines()
+    # f = open(outfs[0], 'r')
+    # allLines = f.readlines()
 
-    data = np.zeros((n, nv))
+    # data = np.zeros((n, nv))
 
-    for i in range(n):
-        datum = allLines[i].split()
-        for j in range(nv):
-            data[i,j] = float(datum[j])
+    # for i in range(n):
+    #     datum = allLines[i].split()
+    #     for j in range(nv):
+    #         data[i,j] = float(datum[j])
 
-    true_vals = np.unwrap(data[ :, angle])[1: ]
+    # true_vals = np.unwrap(data[ :, angle])[1: ]
 
-    rms = np.zeros(len(outfs)-1)
-    rms_an = np.zeros(len(outfs)-1)
-    means = np.zeros(len(outfs)-1)
-    mins = np.zeros(len(outfs)-1)
-    maxes = np.zeros(len(outfs)-1)
+    # rms = np.zeros(len(outfs)-1)
+    # rms_an = np.zeros(len(outfs)-1)
+    # means = np.zeros(len(outfs)-1)
+    # mins = np.zeros(len(outfs)-1)
+    # maxes = np.zeros(len(outfs)-1)
 
-    for i in range(1,len(outfs)):
-        f = open(outfs[i], 'r')
-        allLines = f.readlines()
+    # for i in range(1,len(outfs)):
+    #     f = open(outfs[i], 'r')
+    #     allLines = f.readlines()
 
-        data = np.zeros((n, nv))
+    #     data = np.zeros((n, nv))
 
-        for j in range(n):
-            datum = allLines[j].split()
-            for k in range(nv):
-                data[j,k] = float(datum[k])
+    #     for j in range(n):
+    #         datum = allLines[j].split()
+    #         for k in range(nv):
+    #             data[j,k] = float(datum[k])
 
-        ang = np.unwrap(data[ :, angle])[1: ]
+    #     ang = np.unwrap(data[ :, angle])[1: ]
 
-        rms[i-1] = np.sqrt(np.sum((ang-true_vals)**2)) / len(ang)
-        # rms[i-1] = np.abs(ang-true_vals)[-1]
-        means[i-1] = np.mean(ang)
-        mins[i-1] = np.min(ang[1: ])
-        maxes[i-1] = np.max(ang[1: ])
+    #     rms[i-1] = np.sqrt(np.sum((ang-true_vals)**2)) / len(ang)
+    #     # rms[i-1] = np.abs(ang-true_vals)[-1]
+    #     means[i-1] = np.mean(ang)
+    #     mins[i-1] = np.min(ang[1: ])
+    #     maxes[i-1] = np.max(ang[1: ])
 
-    fig, (ax1, ax2) = plt.subplots(2, 1,figsize=(8, 8),sharex=True)
-    ax1.loglog(dts[1:], rms, 'go', label='RMS (data)')
-    ax1.set_yscale('log')
-    ylims = ax1.get_ylim()
-    ax1.plot(dts[1: ], rms[3] * (dts[1: ] / dts[4]), c='r', lw=0.5,
-             label='1-order')
-    ax1.plot(dts[1: ], rms[3] * (dts[1: ] / dts[4])**2, c='y', lw=0.5,
-             label='2-order')
-    ax1.plot(dts[1: ], rms[3] * (dts[1: ] / dts[4])**3, c='b', lw=0.5,
-             label='3-order')
-    ax1.legend(fontsize=12)
-    ax1.set_ylim(ylims)
+    # fig, (ax1, ax2) = plt.subplots(2, 1,figsize=(8, 8),sharex=True)
+    # ax1.loglog(dts[1:], rms, 'go', label='RMS (data)')
+    # ax1.set_yscale('log')
+    # ylims = ax1.get_ylim()
+    # ax1.plot(dts[1: ], rms[3] * (dts[1: ] / dts[4]), c='r', lw=0.5,
+    #          label='1-order')
+    # ax1.plot(dts[1: ], rms[3] * (dts[1: ] / dts[4])**2, c='y', lw=0.5,
+    #          label='2-order')
+    # ax1.plot(dts[1: ], rms[3] * (dts[1: ] / dts[4])**3, c='b', lw=0.5,
+    #          label='3-order')
+    # ax1.legend(fontsize=12)
+    # ax1.set_ylim(ylims)
 
-    ax2.plot(dts[1: ], means, 'b')
-    ax2.plot(dts[1: ], mins, 'g--', lw=0.5)
-    ax2.plot(dts[1: ], maxes, 'g--', lw=0.5)
-    ax2.set_ylabel('Min/Mean/Max')
+    # ax2.plot(dts[1: ], means, 'b')
+    # ax2.plot(dts[1: ], mins, 'g--', lw=0.5)
+    # ax2.plot(dts[1: ], maxes, 'g--', lw=0.5)
+    # ax2.set_ylabel('Min/Mean/Max')
 
-    ax1.set_ylabel('RMS (radians)')
-    ax2.set_xlabel('dt (years)')
-    ax2.set_xscale('log')
-    ax1.axvline(step, c='k')
-    ax2.axvline(step, c='k')
+    # ax1.set_ylabel('RMS (radians)')
+    # ax2.set_xlabel('dt (years)')
+    # ax2.set_xscale('log')
+    # ax1.axvline(step, c='k')
+    # ax2.axvline(step, c='k')
 
-    plt.tight_layout()
-    plt.savefig('torque', dpi=300)
+    # plt.tight_layout()
+    # plt.savefig('torque', dpi=300)
