@@ -15,7 +15,7 @@ plt.rc('xtick', direction='in', top=True, bottom=True)
 plt.rc('ytick', direction='in', left=True, right=True)
 
 # make simulation object with given parameters
-def create_sim(sim_params,dt_frac,dtheta_offset=0.):
+def create_sim(sim_params,dt_frac,dtheta_offset=0.,one_body=False):
     a,Q_tide,R_p,obliquity,omega_to_n,M_p,k2,moment2,moment3,s_k_angle = sim_params
     if dtheta_offset != 0. and obliquity != 0.:
         print("Error: either obliquity or dtheta_offset must be 0.")
@@ -25,8 +25,14 @@ def create_sim(sim_params,dt_frac,dtheta_offset=0.):
     sim.integrator = 'whfast'
     sim.units = ('AU', 'yr', 'MSun')
     
-    sim.add(m=1.)
-    sim.add(m=M_p, a=a)
+    if one_body:
+        sim.add(m=M_p)
+        i = 0
+
+    else:
+        sim.add(m=1.)
+        sim.add(m=M_p, a=a)
+        i = 1
 
     rebx = reboundx.Extras(sim)
     triax = rebx.load_operator('triaxial_torque')
@@ -36,53 +42,68 @@ def create_sim(sim_params,dt_frac,dtheta_offset=0.):
     ps = sim.particles
 
     if obliquity != 0:
-        ps[1].params['tt_ix'] = np.cos(obliquity)
-        ps[1].params['tt_iy'] = 0.
-        ps[1].params['tt_iz'] = -np.sin(obliquity)
-        ps[1].params['tt_jx'] = 0.
-        ps[1].params['tt_jy'] = 1.
-        ps[1].params['tt_jz'] = 0.
-        ps[1].params['tt_kx'] = np.sin(obliquity)
-        ps[1].params['tt_ky'] = 0.
-        ps[1].params['tt_kz'] = np.cos(obliquity)
+        ps[i].params['tt_ix'] = np.cos(obliquity)
+        ps[i].params['tt_iy'] = 0.
+        ps[i].params['tt_iz'] = -np.sin(obliquity)
+        ps[i].params['tt_jx'] = 0.
+        ps[i].params['tt_jy'] = 1.
+        ps[i].params['tt_jz'] = 0.
+        ps[i].params['tt_kx'] = np.sin(obliquity)
+        ps[i].params['tt_ky'] = 0.
+        ps[i].params['tt_kz'] = np.cos(obliquity)
     else:
-        ps[1].params['tt_ix'] = np.cos(dtheta_offset)
-        ps[1].params['tt_iy'] = -np.sin(dtheta_offset)
-        ps[1].params['tt_iz'] = 0.
-        ps[1].params['tt_jx'] = np.sin(dtheta_offset)
-        ps[1].params['tt_jy'] = np.cos(dtheta_offset)
-        ps[1].params['tt_jz'] = 0.
-        ps[1].params['tt_kx'] = 0.
-        ps[1].params['tt_ky'] = 0.
-        ps[1].params['tt_kz'] = 1.
+        ps[i].params['tt_ix'] = np.cos(dtheta_offset)
+        ps[i].params['tt_iy'] = -np.sin(dtheta_offset)
+        ps[i].params['tt_iz'] = 0.
+        ps[i].params['tt_jx'] = np.sin(dtheta_offset)
+        ps[i].params['tt_jy'] = np.cos(dtheta_offset)
+        ps[i].params['tt_jz'] = 0.
+        ps[i].params['tt_kx'] = 0.
+        ps[i].params['tt_ky'] = 0.
+        ps[i].params['tt_kz'] = 1.
 
     # (2/5)*MR^2
     Ii = (2/5)*M_p*R_p*R_p
     Ij = Ii*(1+moment2)
     Ik = Ii*(1+moment3)
 
-    ps[1].params['tt_Ii'] = Ii
-    ps[1].params['tt_Ij'] = Ij
-    ps[1].params['tt_Ik'] = Ik
+    ps[i].params['tt_Ii'] = Ii
+    ps[i].params['tt_Ij'] = Ij
+    ps[i].params['tt_Ik'] = Ik
 
-    ps[1].params['tt_si'] = np.sin(s_k_angle)
-    ps[1].params['tt_sj'] = 0.
-    ps[1].params['tt_sk'] = np.cos(s_k_angle)
+    ps[i].params['tt_si'] = np.sin(s_k_angle)
+    ps[i].params['tt_sj'] = 0.
+    ps[i].params['tt_sk'] = np.cos(s_k_angle)
 
-    tidal_dt = np.arctan(1./Q_tide) / 2. / ps[1].n # check this / change n to some other frequency?
-    omega = omega_to_n*ps[1].n
+    if one_body:
+        tidal_dt = np.arctan(1./Q_tide) / 2.
+        omega = omega_to_n*2*np.pi
 
-    ps[1].params['tt_omega'] = omega
-    ps[1].params['tt_R'] = R_p
-    ps[1].params['tt_k2'] = k2
-    ps[1].params['tt_tidal_dt'] = tidal_dt
+        ps[i].params['tt_omega'] = omega
+        ps[i].params['tt_R'] = R_p
+        ps[i].params['tt_k2'] = k2
+        ps[i].params['tt_tidal_dt'] = tidal_dt
 
-    sim.dt = dt_frac*np.minimum(ps[1].P, 2*np.pi/omega)
+        sim.dt = dt_frac*2*np.pi/omega
+    else:
+        tidal_dt = np.arctan(1./Q_tide) / 2. / ps[1].n # check this / change n to some other frequency?
+        omega = omega_to_n*ps[1].n
+
+        ps[i].params['tt_omega'] = omega
+        ps[i].params['tt_R'] = R_p
+        ps[i].params['tt_k2'] = k2
+        ps[i].params['tt_tidal_dt'] = tidal_dt
+
+        if omega == 0:
+            sim.dt = dt_frac*ps[1].P
+        else:
+            sim.dt = dt_frac*np.minimum(ps[1].P, 2*np.pi/omega)
 
     return sim
 
 # tests convergence order and makes plot
-def test_convergence(sim_params, n_dts, dtmax):
+# add option to plot the oscillations / make its own function
+def test_convergence(sim_params, n_dts, dtmax, tf_small, tf_big, plot_angle=False, dtheta=np.radians(0.1),step_frac=0.2):
 
     a,Q_tide,R_p,obliquity,omega_to_n,M_p,k2,moment2,moment3,s_k_angle = sim_params
     k2 = 0. # turn off tides
@@ -95,48 +116,114 @@ def test_convergence(sim_params, n_dts, dtmax):
     Ik = Ii*(1+moment3)
 
     sim_params = (a,Q_tide,R_p,obliquity,omega_to_n,M_p,k2,moment2,moment3,s_k_angle)
-    dtheta = np.radians(0.01)
 
-    dts = dtmax / 2**np.arange(int(n_dts-1), -1, -1) # fraction of min(orbital period, spin period)
-    errors = np.zeros(n_dts)
-    
-    for i in range(n_dts):
-        # create simulation
-        sim = create_sim(sim_params,dts[i],dtheta_offset=dtheta)
-        # run simulation
-        sim.integrate(dtmax*a**1.5)
+    if plot_angle:
+        sim = create_sim(sim_params,dtmax,dtheta_offset=dtheta)
         ps = sim.particles
-        rx = ps[0].x - ps[1].x
-        ry = ps[0].y - ps[1].y
-        rz = ps[0].z - ps[1].z
-        r = np.sqrt(rx**2 + ry**2 +rz**2)
-        rx /= r
-        ry /= r
-        rz /= r
-        i_dot_r = ps[1].params['tt_ix']*rx + ps[1].params['tt_iy']*ry + ps[1].params['tt_iz']*rz
-        j_dot_r = ps[1].params['tt_jx']*rx + ps[1].params['tt_jy']*ry + ps[1].params['tt_jz']*rz
-        angle = -np.arctan2(j_dot_r, i_dot_r) # figure out why I need negative sign??
+
+        tf = tf_big*a**1.5
+        out_step = step_frac*a**1.5
+        n = int(tf / out_step)
+
+        ts = np.zeros(n)
+        angles = np.zeros(n)
+        # run simulation
+        for i in range(n):
+            sim.integrate(i*out_step)
+            ts[i] = sim.t
+            rx = ps[0].x - ps[1].x
+            ry = ps[0].y - ps[1].y
+            rz = ps[0].z - ps[1].z
+            r = np.sqrt(rx**2 + ry**2 +rz**2)
+            rx /= r
+            ry /= r
+            rz /= r
+            i_dot_r = ps[1].params['tt_ix']*rx + ps[1].params['tt_iy']*ry + ps[1].params['tt_iz']*rz
+            j_dot_r = ps[1].params['tt_jx']*rx + ps[1].params['tt_jy']*ry + ps[1].params['tt_jz']*rz
+            pi_angle = np.arctan2(j_dot_r, i_dot_r)
+            if pi_angle > 0:
+                angles[i] = pi_angle - np.pi
+            else:
+                angles[i] = np.pi + pi_angle
+
+
+        # analytical solution
+        ts_fine = np.linspace(0,tf_big,200)
         # only correct for M_star = 1, circular orbit
         freq = np.sqrt(3*sim.G*(Ij-Ii)/Ik/(a**3))
-        exact_sol = np.pi - dtheta * np.cos(freq * dtmax*a**1.5)
-        errors[i] = np.abs(angle - exact_sol) / exact_sol
+        angles_true = np.degrees(dtheta * np.cos(freq * ts_fine*a**1.5))
 
-    # make plot
-    fig, (ax) = plt.subplots(1, 1,figsize=(10, 6))
-    # ax.set_yscale('log')
-    # ax.plot(dts, final_residuals[n_dts-1] * (dts / dts[n_dts-1])**2, c='y', lw=0.5,
-    #         label='2nd order')
-    # ax.plot(dts, final_residuals[n_dts-1] * (dts / dts[n_dts-1])**3, c='b', lw=0.5,
-    #         label='3rd order')
-    ax.loglog(dts, errors[n_dts-1] * (dts / dts[n_dts-1])**4, c='r', lw=1.,
-            label='4th order')
-    ax.loglog(dts, errors, 'o',c='black', label='Numerical Error')
-    ax.legend(fontsize=14)
-    ax.set_xlabel("Time step (spin periods)")
-    ax.set_ylabel("Error")
+        # plot
+        fig, ax = plt.subplots(1, 1,figsize=(12, 6))
+        plt.subplots_adjust(left=0.10, bottom=0.15, right=.98, top=0.95, wspace=0.05, hspace=0.)
+        ax.set_ylabel(r"$\phi$ (degrees)", fontsize=20)
+        ax.set_xlabel(r"Time ($P$)", fontsize=20)
+        ax.plot(ts_fine, angles_true, c='red',lw=1.5)
+        ax.plot(ts/(a**1.5), np.degrees(angles), 'o', c='black')
 
-    plt.savefig('convergence.png', dpi=300)
-    plt.clf()
+        plt.savefig('oscillation_'+str(dtmax)+'dt.png', dpi=300)
+        plt.clf()
+
+    else:
+        dts = dtmax / 2**np.arange(int(n_dts-1), -1, -1) # fraction of min(orbital period, spin period)
+        errors = np.zeros(n_dts)
+        tfs = [tf_small*a**1.5,tf_big*a**1.5]
+
+        # make plot
+        fig, ax = plt.subplots(1, 2,figsize=(14, 6),sharey=True)
+        plt.subplots_adjust(left=0.08, bottom=0.15, right=.98, top=0.9, wspace=0.05, hspace=0.)
+        # ax.set_yscale('log')
+        # ax.plot(dts, final_residuals[n_dts-1] * (dts / dts[n_dts-1])**2, c='y', lw=0.5,
+        #         label='2nd order')
+        # ax.plot(dts, final_residuals[n_dts-1] * (dts / dts[n_dts-1])**3, c='b', lw=0.5,
+        #         label='3rd order')
+        ax[0].set_title(r"$t_f/P_s=$ "+str(tf_small))
+        ax[1].set_title(r"$t_f/P_s=$ "+str(tf_big))
+        ax[0].set_ylabel("Error", fontsize=20)
+
+        for j in range(2):
+            for i in range(n_dts):
+                # create simulation
+                sim = create_sim(sim_params,dts[i],dtheta_offset=dtheta)
+                # run simulation
+                sim.integrate(tfs[j])
+                ps = sim.particles
+                rx = ps[0].x - ps[1].x
+                ry = ps[0].y - ps[1].y
+                rz = ps[0].z - ps[1].z
+                r = np.sqrt(rx**2 + ry**2 +rz**2)
+                rx /= r
+                ry /= r
+                rz /= r
+                i_dot_r = ps[1].params['tt_ix']*rx + ps[1].params['tt_iy']*ry + ps[1].params['tt_iz']*rz
+                j_dot_r = ps[1].params['tt_jx']*rx + ps[1].params['tt_jy']*ry + ps[1].params['tt_jz']*rz
+                pi_angle = np.arctan2(j_dot_r, i_dot_r)
+                if pi_angle > 0:
+                    angle = pi_angle - np.pi
+                else:
+                    angle = np.pi + pi_angle
+                # only correct for M_star = 1, circular orbit
+                freq = np.sqrt(3*sim.G*(Ij-Ii)/Ik/(a**3))
+                exact_sol = dtheta * np.cos(freq * tfs[j]) # figure out why I need negative sign??
+                # ##
+                # if i == 0:
+                #     fig, (ax) = plt.subplots(1, 1,figsize=(10, 6))
+                #     ts = np.linspace(0, 10, 100)
+                #     ax.plot(ts, dtheta * np.cos(freq * ts*a**1.5))
+                #     plt.savefig('test.png', dpi=300)
+                #     plt.clf()
+                # ##
+                errors[i] = np.abs((angle - exact_sol) / exact_sol)
+            
+            ax[j].loglog(dts, errors[n_dts-1] * (dts / dts[n_dts-1])**4, c='r', lw=1.,
+                    label='4th order')
+            ax[j].loglog(dts, errors, 'o',c='black', label='Numerical Error')
+            ax[j].legend(fontsize=20)
+            ax[j].set_xlabel(r"$\Delta t/P_s$", fontsize=20)
+
+        
+        plt.savefig('convergence.png', dpi=300)
+        plt.clf()
 
 def test_spin_damp(sim_params, dt_frac, out_step_frac, tf_frac):
 
@@ -178,16 +265,19 @@ def test_spin_damp(sim_params, dt_frac, out_step_frac, tf_frac):
     # in case spin is very large
     max_theta_lag = np.pi/4
     if theta_lag > max_theta_lag:
+        print("WARNING: Max tidal angle lag exceeded!")
         theta_lag = max_theta_lag
     if theta_lag < -max_theta_lag:
+        print("WARNING: Min tidal angle lag exceeded!")
         theta_lag = -max_theta_lag
 
-    exact_sol = ((omega0 - mm) - ts*(15.*k2*sim.G*R_p**3*np.cos(theta_lag)*np.sin(theta_lag)/(2.*M_p*a**6))) / mm
-    ax.plot(ts/(a**1.5), np.array(((omegas)-np.array(ns))/mm), 'ko')
-    ax.plot(ts/(a**1.5), exact_sol, color='tab:blue')
-    ax.legend(['Numerical', 'Analytical'])
-    ax.set_ylabel(r"$\frac{\omega - n}{n}$")
-    ax.set_xlabel('Time (orbital periods)')
+    ts_fine = np.linspace(0,tf_frac,200)
+    exact_sol = (omega0 - ts_fine*a**1.5*(15.*k2*sim.G*R_p**3*np.cos(theta_lag)*np.sin(theta_lag)/(2.*M_p*a**6))) / mm
+    ax.plot(ts_fine, exact_sol, color='red',lw=1.5)
+    ax.plot(ts/(a**1.5), np.array(omegas/mm), 'ko')
+    ax.legend(['Analytical','Numerical'])
+    ax.set_ylabel(r"$\omega/n$")
+    ax.set_xlabel(r'Time ($P$)')
 
     plt.savefig('spin_damp_'+str(dt_frac)+'dt.png', dpi=300)
     plt.clf()
@@ -231,44 +321,177 @@ def test_obl_damp(sim_params, dt_frac, out_step_frac, tf_frac):
     plt.savefig('obl_damp_'+str(dt_frac)+'dt.png', dpi=300)
     plt.clf()
 
-# def test_chandler():
-    # PLOT PRECESSION
-    # ax1.plot(times[:]/a**1.5, kxs, marker='o')
-    # ax1.set_ylabel(r"$k_x$")
-    # ax2.plot(times[:]/a**1.5, omega_xs, marker='o')
-    # ax2.set_ylabel(r"$k_y$")
-    # ax2.set_xlabel('Time (orbital periods)')
+def test_chandler(sim_params, dt_frac, out_step_frac, tf_frac):
+
+    ind = 0
+
+    start = time.time()
+
+    a,Q_tide,R_p,obliquity,omega_to_n,M_p,k2,moment2,moment3,s_k_angle = sim_params
+
+    spin_period = 1./omega_to_n # given omega = omega_to_n*2*pi (see create_sim())
+
+    # create simulation
+    sim = create_sim(sim_params,dt_frac,one_body=True)
+
+    tf = tf_frac*spin_period
+    out_step = out_step_frac*spin_period
+    n = int(tf / out_step)
+
+    if out_step < sim.dt:
+        print("ERROR: output step is smaller than timestep")
+        exit()
+
+    ps = sim.particles
+
+    omega0 = ps[ind].params['tt_omega']
+    si0 = ps[ind].params['tt_si']
+    sj0 = ps[ind].params['tt_sj']
+    sk0 = ps[ind].params['tt_sk']
+
+    ts = np.zeros(n)
+    sis = np.zeros(n)
+    sjs = np.zeros(n)
+    sks = np.zeros(n)
+    omegas = np.zeros(n)
+    for i in range(n):
+        sim.integrate(i*out_step)
+        ts[i] = sim.t
+        sis[i] = ps[ind].params['tt_si']
+        sjs[i] = ps[ind].params['tt_sj']
+        sks[i] = ps[ind].params['tt_sk']
+        omegas[i] = ps[ind].params['tt_omega']
+
+    print("Integration time: "+str(time.time() - start)+" seconds")
+
+    # Plot
+    fig, ax = plt.subplots(4, 1,figsize=(10, 10),sharex=True)
+    plt.subplots_adjust(left=0.1, bottom=0.08, right=.98, top=0.98, wspace=0., hspace=0.05)
+    ax[3].set_xlabel(r'Time ($P_s$)', fontsize=20)
+
+    freq = moment3*omega0*sk0
+    ts_fine = np.linspace(0,tf_frac,200)
+    si_true = si0*np.cos(freq*ts_fine)
+    sj_true = si0*np.sin(freq*ts_fine)
+    sk_true = sk0*np.ones_like(ts_fine)
+    omega_true = omega0*np.ones_like(ts_fine)
+
+    ax[0].plot(ts_fine, si_true, c='red',lw=2.)
+    ax[0].plot(ts/spin_period, sis, 'o', c='black')
+    ax[0].set_ylabel(r"$s_i$", fontsize=20)
+
+    ax[1].plot(ts_fine, sj_true, c='red',lw=2.)
+    ax[1].plot(ts/spin_period, sjs, 'o', c='black')
+    ax[1].set_ylabel(r"$s_j$", fontsize=20)
+
+    ax[2].plot(ts_fine, sk_true, c='red',lw=2.)
+    ax[2].plot(ts/spin_period, sks, 'o', c='black')
+    ax[2].set_ylabel(r"$s_k$", fontsize=20)
+    ax[2].set_ylim(ymin=sk0 - 0.05,ymax=sk0 + 0.05)
+
+    ax[3].plot(ts_fine, omega_true/omega0, c='red',lw=2.)
+    ax[3].plot(ts/spin_period, omegas/omega0, 'o', c='black')
+    ax[3].set_ylabel(r"$\omega / \omega_0$", fontsize=20)
+    ax[3].set_ylim(ymin=0., ymax=2.)
+
+    plt.savefig('chandler_'+str(dt_frac)+'dt.png', dpi=300)
+    plt.clf()
 
 # main function
 if __name__ == '__main__':
 
     # choose simulation params:
     a = .1
-    Q_tide = .01
-    R_p = 1.e-4 # ~ 20 earth radii
-    obliquity = np.radians(1.)
-    omega_to_n = 1.5 # omega / n
+    Q_tide = 1.
+    R_p = 1.e-4 # ~ 2 earth radii
+    obliquity = 0.
+    omega_to_n = 1. # omega / n
     M_p = 1.e-4 # in units of primary body's mass (~ 2 earth masses)
     k2 = 1.5 # 1.5 for uniformly distributed mass
-    moment2 = 0 # 1e-2 # (Ij - Ii) / Ii, < moment3
-    moment3 = 0 # 2e-2 # (Ik - Ii) / Ii, > moment2
+    moment2 = 1e-1 # (Ij - Ii) / Ii, < moment3
+    moment3 = 2e-1 # (Ik - Ii) / Ii, > moment2
     s_k_angle = np.radians(0.) # angle between s and k
 
-    sim_params = (a,Q_tide,R_p,obliquity,omega_to_n,M_p,k2,moment2,moment3,s_k_angle)
-
-    dt_frac = 0.01 # fraction of min(orbital period, spin period)
+    dt_frac = 0.05 # fraction of min(orbital period, spin period)
     tf = 100. # number of orbital periods
-    step = 0.05 # fraction on orbital periods
+    step = 0.05 # fraction of orbital periods
 
-    if sys.argv[1] == '-co':
-        moment2 = 1e-2 # (Ij - Ii) / Ii, < moment3
-        moment3 = 2e-2 # (Ik - Ii) / Ii, > moment2
+    if sys.argv[1] == '-convergence':
+        # change params as needed
+        k2 = 0.
+
+        # create sim_params
         sim_params = (a,Q_tide,R_p,0,omega_to_n,M_p,k2,moment2,moment3,s_k_angle)
-        dtmax = 0.1
-        test_convergence(sim_params,10,dtmax)
 
-    elif sys.argv[1] == '-sp':
+        dtmax = 0.05
+        tf_small = dtmax
+        tf_big = 10.
+
+        test_convergence(sim_params,8,dtmax,tf_small,tf_big)
+
+    elif sys.argv[1] == '-oscillation':
+        # change params as needed
+        k2 = 0.
+
+        # create sim_params
+        sim_params = (a,Q_tide,R_p,0,omega_to_n,M_p,k2,moment2,moment3,s_k_angle)
+
+        dtmax = 0.05
+        tf_small = dtmax
+        tf_big = 10.
+        step = 2.*dt_frac
+
+        dtheta_offset = np.radians(1.)
+
+        test_convergence(sim_params,8,dtmax,tf_small,tf_big,plot_angle=True,dtheta=dtheta_offset,step_frac=step)
+
+    elif sys.argv[1] == '-spin':
+        # change params as needed
+        # turn off triaxial torque
+        moment2 = 0
+        moment3 = 0
+        omega_to_n = 0.
+
+        # create sim_params
+        sim_params = (a,Q_tide,R_p,0,omega_to_n,M_p,k2,moment2,moment3,s_k_angle)
+
+        dt_frac = 0.05 # fraction of min(orbital period, spin period)
+        tf = 10000. # number of orbital periods
+        step = 4000.*dt_frac # fraction of orbital periods
+
         test_spin_damp(sim_params,dt_frac,step,tf)
 
-    elif sys.argv[1] == '-ob':
+    elif sys.argv[1] == '-obliquity':
+        # change params as needed
+        # turn off triaxial torque
+        moment2 = 0
+        moment3 = 0
+        obliquity = np.radians(1.)
+        omega_to_n = 1.5
+
+        # create sim_params
+        sim_params = (a,Q_tide,R_p,obliquity,omega_to_n,M_p,k2,moment2,moment3,s_k_angle)
+
+        dt_frac = 0.05 # fraction of min(orbital period, spin period)
+        tf = 100. # number of orbital periods
+        step = 20.*dt_frac # fraction of orbital periods
+
         test_obl_damp(sim_params,dt_frac,step,tf)
+
+    elif sys.argv[1] == '-chandler':
+        # omega_to_n is just omega/(2pi) here because only 1 body
+        # dt_frac and tf is fraction of spin period because no orbit
+
+        # change params as needed
+        moment2 = 0. # (Ij - Ii) / Ii, < moment3
+        moment3 = 1e-1 # (Ik - Ii) / Ii, > moment2
+        s_k_angle = np.radians(10.)
+        omega_to_n = 1.
+
+        # create sim_params
+        sim_params = (a,Q_tide,R_p,0,omega_to_n,M_p,k2,moment2,moment3,s_k_angle)
+
+        tf = 50.
+        step = 20.*dt_frac
+
+        test_chandler(sim_params,dt_frac,step,tf)
