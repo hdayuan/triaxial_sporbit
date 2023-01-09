@@ -282,6 +282,7 @@ def test_spin_damp(sim_params, dt_frac, out_step_frac, tf_frac):
     plt.savefig('spin_damp_'+str(dt_frac)+'dt.png', dpi=300)
     plt.clf()
 
+# add analytical solution to obliquity
 def test_obl_damp(sim_params, dt_frac, out_step_frac, tf_frac):
     
     start = time.time()
