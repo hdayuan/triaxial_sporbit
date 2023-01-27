@@ -451,7 +451,7 @@ if __name__ == '__main__':
         # turn off triaxial torque
         moment2 = 0
         moment3 = 0
-        omega_to_n = 0.
+        omega_to_n = 1.5
 
         # create sim_params
         sim_params = (a,Q_tide,R_p,0,omega_to_n,M_p,k2,moment2,moment3,s_k_angle)
