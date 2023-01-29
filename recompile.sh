@@ -1,3 +1,3 @@
-cd /Users/henryyuan/Documents/GitHub/reboundx
+cd ~/Documents/Github/reboundx
 pip install -e .
-cd /Users/henryyuan/Documents/GitHub/triaxial_sporbit
+cd ~/Documents/Github/triaxial_sporbit
