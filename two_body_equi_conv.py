@@ -92,7 +92,7 @@ def run_sim(trial_num, tf=1000., n_out=201):
 
     # make output directory and file
     dir_path = "./2body_equi_data"
-    if os.path.exists(dir_path):
+    if not os.path.exists(dir_path):
         os.mkdir(dir_path)
     file_path = os.path.join(dir_path,"trial_"+str(trial_num)+".txt")
     f = open(file_path, "w")
