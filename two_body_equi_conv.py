@@ -5,14 +5,7 @@ import numpy as np
 import time
 import sys
 
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=18)
-plt.rc('lines', lw=2.5)
-plt.rc('xtick', direction='in', top=True, bottom=True)
-plt.rc('ytick', direction='in', left=True, right=True)
+
 
 # make simulation object with given parameters
 # theta = obliquity, phi = azimuthal angle, 
@@ -72,6 +65,9 @@ def create_sim(sim_params,dt_frac=0.05):
     return sim
 
 def run_sim(trial_num, tf=1000., n_out=201):
+
+    start = time.time()
+
     step = tf // (n_out-1)
 
     # parameters
@@ -120,9 +116,10 @@ def run_sim(trial_num, tf=1000., n_out=201):
         f.write(str(phi)+'\n')
     
     f.close()
+    return time.time() - start
 
 # main function
 if __name__ == 'main':
     n_trials = 10
     for i in range(n_trials):
-        run_sim(i)
+        print("Integration Time: "+str(run_sim(i)))
