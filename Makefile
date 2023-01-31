@@ -26,5 +26,4 @@ plot_torque:
 	open *.png
 	
 clean:
-	rm -rf *.txt
 	rm -rf *.png

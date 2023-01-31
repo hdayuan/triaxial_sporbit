@@ -99,11 +99,13 @@ def create_sim(sim_params,dt_frac,dtheta_offset=0.,one_body=False):
         else:
             sim.dt = dt_frac*np.minimum(ps[1].P, 2*np.pi/omega)
 
+    # print(np.degrees((omega-ps[1].n)*tidal_dt))
+
     return sim
 
 # tests convergence order and makes plot
 # add option to plot the oscillations / make its own function
-def test_convergence(sim_params, n_dts, dtmax, tf_small, tf_big, plot_angle=False, dtheta=np.radians(0.1),step_frac=0.2):
+def test_convergence(sim_params, n_dts, dtmax, tf_small, tf_big, plot_angle=False, dtheta=np.radians(0.1),n_data=51):
 
     a,Q_tide,R_p,obliquity,omega_to_n,M_p,k2,moment2,moment3,s_k_angle = sim_params
     k2 = 0. # turn off tides
@@ -121,14 +123,12 @@ def test_convergence(sim_params, n_dts, dtmax, tf_small, tf_big, plot_angle=Fals
         sim = create_sim(sim_params,dtmax,dtheta_offset=dtheta)
         ps = sim.particles
 
-        tf = tf_big*a**1.5
-        out_step = step_frac*a**1.5
-        n = int(tf / out_step)
+        out_step = (tf_big / (n_data-1))*a**1.5
 
-        ts = np.zeros(n)
-        angles = np.zeros(n)
+        ts = np.zeros(n_data)
+        angles = np.zeros(n_data)
         # run simulation
-        for i in range(n):
+        for i in range(n_data):
             sim.integrate(i*out_step)
             ts[i] = sim.t
             rx = ps[0].x - ps[1].x
@@ -154,9 +154,9 @@ def test_convergence(sim_params, n_dts, dtmax, tf_small, tf_big, plot_angle=Fals
         angles_true = np.degrees(dtheta * np.cos(freq * ts_fine*a**1.5))
 
         # plot
-        fig, ax = plt.subplots(1, 1,figsize=(12, 6))
+        fig, ax = plt.subplots(1, 1,figsize=(12, 4))
         plt.subplots_adjust(left=0.10, bottom=0.15, right=.98, top=0.95, wspace=0.05, hspace=0.)
-        ax.set_ylabel(r"$\phi$ (degrees)", fontsize=20)
+        ax.set_ylabel(r"$\alpha$ ($^{\circ}$)", fontsize=20)
         ax.set_xlabel(r"Time ($P$)", fontsize=20)
         ax.plot(ts_fine, angles_true, c='red',lw=1.5)
         ax.plot(ts/(a**1.5), np.degrees(angles), 'o', c='black')
@@ -225,7 +225,7 @@ def test_convergence(sim_params, n_dts, dtmax, tf_small, tf_big, plot_angle=Fals
         plt.savefig('convergence.png', dpi=300)
         plt.clf()
 
-def test_spin_damp(sim_params, dt_frac, out_step_frac, tf_frac):
+def test_spin_damp(sim_params, dt_frac, n_data, tf_frac, dual=False):
 
     start = time.time()
 
@@ -234,9 +234,7 @@ def test_spin_damp(sim_params, dt_frac, out_step_frac, tf_frac):
     # create simulation
     sim = create_sim(sim_params,dt_frac)
 
-    tf = tf_frac*a**1.5
-    out_step = out_step_frac*a**1.5
-    n = int(tf / out_step)
+    out_step = (tf_frac / (n_data-1))*a**1.5
 
     if out_step < sim.dt:
         print("ERROR: output step is smaller than maximum timestep")
@@ -244,10 +242,10 @@ def test_spin_damp(sim_params, dt_frac, out_step_frac, tf_frac):
 
     ps = sim.particles
     mm = ps[1].n
-    ts = np.zeros(n)
-    omegas = np.zeros(n)
-    ns = np.zeros(n)
-    for i in range(n):
+    ts = np.zeros(n_data)
+    omegas = np.zeros(n_data)
+    ns = np.zeros(n_data)
+    for i in range(n_data):
         sim.integrate(i*out_step)
         ts[i] = sim.t
         omegas[i] = ps[1].params['tt_omega']
@@ -256,34 +254,122 @@ def test_spin_damp(sim_params, dt_frac, out_step_frac, tf_frac):
     print("Integration time: "+str(time.time() - start)+" seconds")
 
     # plot
-    fig, (ax) = plt.subplots(1, 1,figsize=(10, 6))
+    if dual:
+        fig, (ax1,ax2) = plt.subplots(2, 1,figsize=(5, 6),sharex=True)
+        plt.subplots_adjust(left=0.20, bottom=0.1, right=.98, top=0.98, wspace=0.05, hspace=0.05)
+        tidal_dt = np.arctan(1./Q_tide) / 2. / mm
+        omega0 = omega_to_n*mm
+        theta_lag = (omega0 - mm) * tidal_dt
 
-    tidal_dt = np.arctan(1./Q_tide) / 2. / mm
-    omega0 = omega_to_n*mm
-    theta_lag = (omega0 - mm) * tidal_dt
+        # in case spin is very large
+        max_theta_lag = np.pi/4
+        if theta_lag > max_theta_lag:
+            print("WARNING: Max tidal angle lag exceeded!")
+            theta_lag = max_theta_lag
+        if theta_lag < -max_theta_lag:
+            print("WARNING: Min tidal angle lag exceeded!")
+            theta_lag = -max_theta_lag
 
-    # in case spin is very large
-    max_theta_lag = np.pi/4
-    if theta_lag > max_theta_lag:
-        print("WARNING: Max tidal angle lag exceeded!")
-        theta_lag = max_theta_lag
-    if theta_lag < -max_theta_lag:
-        print("WARNING: Min tidal angle lag exceeded!")
-        theta_lag = -max_theta_lag
+        ts_fine = np.linspace(0,tf_frac,200)
+        
+        omega_dot = -15.*k2*sim.G*R_p**3*np.cos(theta_lag)*np.sin(theta_lag)/(2.*M_p*a**6)
+        exact_sol = (omega0 + ts_fine*a**1.5*omega_dot) / mm
 
-    ts_fine = np.linspace(0,tf_frac,200)
-    exact_sol = (omega0 - ts_fine*a**1.5*(15.*k2*sim.G*R_p**3*np.cos(theta_lag)*np.sin(theta_lag)/(2.*M_p*a**6))) / mm
-    ax.plot(ts_fine, exact_sol, color='red',lw=1.5)
-    ax.plot(ts/(a**1.5), np.array(omegas/mm), 'ko')
-    ax.legend(['Analytical','Numerical'])
-    ax.set_ylabel(r"$\omega/n$")
-    ax.set_xlabel(r'Time ($P$)')
+        ax1.plot(ts_fine, exact_sol, color='red',lw=1.5)
+        ax1.plot(ts/(a**1.5), np.array(omegas/mm), 'ko')
+        ax1.legend(['Analytical','Numerical'])
+        ax1.set_ylabel(r"$\omega/n$",fontsize=20)
 
-    plt.savefig('spin_damp_'+str(dt_frac)+'dt.png', dpi=300)
-    plt.clf()
+        # run second simulation
+        start = time.time()
+
+        omega_to_n = 2 - omega_to_n
+        sim_params = a,Q_tide,R_p,obliquity,omega_to_n,M_p,k2,moment2,moment3,s_k_angle
+        # create simulation
+        sim = create_sim(sim_params,dt_frac)
+
+        if out_step < sim.dt:
+            print("ERROR: output step is smaller than maximum timestep")
+            exit()
+
+        ps = sim.particles
+        mm = ps[1].n
+        ts = np.zeros(n_data)
+        omegas = np.zeros(n_data)
+        ns = np.zeros(n_data)
+        for i in range(n_data):
+            sim.integrate(i*out_step)
+            ts[i] = sim.t
+            omegas[i] = ps[1].params['tt_omega']
+            ns[i] = ps[1].n
+
+        print("Integration time: "+str(time.time() - start)+" seconds")
+        
+        tidal_dt = np.arctan(1./Q_tide) / 2. / mm
+        omega0 = omega_to_n*mm
+        theta_lag = (omega0 - mm) * tidal_dt
+
+        # in case spin is very large
+        max_theta_lag = np.pi/4
+        if theta_lag > max_theta_lag:
+            print("WARNING: Max tidal angle lag exceeded!")
+            theta_lag = max_theta_lag
+        if theta_lag < -max_theta_lag:
+            print("WARNING: Min tidal angle lag exceeded!")
+            theta_lag = -max_theta_lag
+        
+        omega_dot = -15.*k2*sim.G*R_p**3*np.cos(theta_lag)*np.sin(theta_lag)/(2.*M_p*a**6)
+        exact_sol = (omega0 + ts_fine*a**1.5*omega_dot) / mm
+
+        ax2.plot(ts_fine, exact_sol, color='red',lw=1.5)
+        ax2.plot(ts/(a**1.5), np.array(omegas/mm), 'ko')
+        ax2.set_ylabel(r"$\omega/n$", fontsize=20)
+
+        ax2.set_xlabel(r'Time ($P$)',fontsize=20)
+
+        plt.savefig('spin_damp_'+str(dt_frac)+'dt.png', dpi=300)
+        plt.clf()
+    else:
+        fig, (ax) = plt.subplots(1, 1,figsize=(10, 6))
+        plt.subplots_adjust(left=0.10, bottom=0.15, right=.98, top=0.95, wspace=0.05, hspace=0.)
+
+        tidal_dt = np.arctan(1./Q_tide) / 2. / mm
+        omega0 = omega_to_n*mm
+        theta_lag = (omega0 - mm) * tidal_dt
+
+        # in case spin is very large
+        max_theta_lag = np.pi/4
+        if theta_lag > max_theta_lag:
+            print("WARNING: Max tidal angle lag exceeded!")
+            theta_lag = max_theta_lag
+        if theta_lag < -max_theta_lag:
+            print("WARNING: Min tidal angle lag exceeded!")
+            theta_lag = -max_theta_lag
+
+        ts_fine = np.linspace(0,tf_frac,200)
+        
+        omega_dot = -15.*k2*sim.G*R_p**3*np.cos(theta_lag)*np.sin(theta_lag)/(2.*M_p*a**6)
+        exact_sol = (omega0 + ts_fine*a**1.5*omega_dot) / mm
+
+        ax.plot(ts_fine, exact_sol, color='red',lw=1.5)
+        ax.plot(ts/(a**1.5), np.array(omegas/mm), 'ko')
+        ax.legend(['Analytical','Numerical'])
+        ax.set_ylabel(r"$\omega/n$",fontsize=20)
+        ax.set_xlabel(r'Time ($P$)',fontsize=20)
+
+        plt.savefig('spin_damp_'+str(dt_frac)+'dt.png', dpi=300)
+        plt.clf()
+
+    # # theoretical spin damp from su 2022
+    # t_tide = (8/15)*Q_tide/k2/mm * M_p*(a/R_p)**3
+    # om_dot = (1/t_tide)*(2*(mm-omega0))
+    # su_sol = (omega0 + ts_fine*a**1.5*om_dot) / mm
+    # ax.plot(ts_fine, su_sol, color='green',lw=1.5)
+    # #
+    # print(np.mean((omega_to_n - su_sol[1:])/(omega_to_n - exact_sol[1:])))
 
 # add analytical solution to obliquity
-def test_obl_damp(sim_params, dt_frac, out_step_frac, tf_frac):
+def test_obl_damp(sim_params, dt_frac, n_data, tf_frac, dual=False):
     
     start = time.time()
     a,Q_tide,R_p,obliquity,omega_to_n,M_p,k2,moment2,moment3,s_k_angle = sim_params
@@ -291,9 +377,7 @@ def test_obl_damp(sim_params, dt_frac, out_step_frac, tf_frac):
     # create simulation
     sim = create_sim(sim_params,dt_frac)
 
-    tf = tf_frac*a**1.5
-    out_step = out_step_frac*a**1.5
-    n = int(tf / out_step)
+    out_step = (tf_frac / (n_data-1))*a**1.5
 
     if out_step < sim.dt:
         print("ERROR: output step is smaller than maximum timestep")
@@ -301,28 +385,108 @@ def test_obl_damp(sim_params, dt_frac, out_step_frac, tf_frac):
 
     ps = sim.particles
     mm = ps[1].n
-    ts = np.zeros(n)
-    obliquities = np.zeros(n)
-    for i in range(n):
+    ts = np.zeros(n_data)
+    obliquities = np.zeros(n_data)
+    for i in range(n_data):
         sim.integrate(i*out_step)
         ts[i] = sim.t
         obliquities[i] = np.abs(np.arccos(ps[1].params['tt_kz']))
 
     print("Integration time: "+str(time.time() - start)+" seconds")
 
-    # plot
-    fig, (ax) = plt.subplots(1, 1,figsize=(10, 6))
+    if dual:
+        fig, (ax1,ax2) = plt.subplots(2, 1,figsize=(5, 6),sharex=True)
+        plt.subplots_adjust(left=0.20, bottom=0.1, right=.98, top=0.98, wspace=0.05, hspace=0.05)
+        tidal_dt = np.arctan(1./Q_tide) / 2. / mm
+        omega0 = omega_to_n*mm
+        theta_lag = (omega0 - mm) * tidal_dt
 
-    ax.plot(ts/a**1.5, np.degrees(np.array(obliquities)), 'ko', label='Num')
-    ax.set_ylabel("Obliquity (deg)")
-    ax.set_xlabel('Time (orbital periods)')
+        # in case spin is very large
+        max_theta_lag = np.pi/4
+        if theta_lag > max_theta_lag:
+            print("WARNING: Max tidal angle lag exceeded!")
+            theta_lag = max_theta_lag
+        if theta_lag < -max_theta_lag:
+            print("WARNING: Min tidal angle lag exceeded!")
+            theta_lag = -max_theta_lag
 
-    # ax.legend(['Numerical', 'Analytical'])
+        ts_fine = np.linspace(0,tf_frac,200)
+        t_tide = (8/15)*Q_tide/k2/mm * M_p*(a/R_p)**3
+        theta_dot = -np.sin(obliquity)/t_tide * ((2/omega_to_n)-np.cos(obliquity))
+        exact_sol = np.degrees(obliquity + (ts_fine*a**1.5 * theta_dot))
+        ax1.plot(ts_fine, exact_sol, color='red',lw=1.5)
+        ax1.plot(ts/a**1.5, np.degrees(np.array(obliquities)), 'ko', label='Num')
+        ax1.set_ylabel(r"Obliquity ($^{\circ}$)",fontsize=20)
+        ax1.legend(['Analytical','Numerical'])
 
-    plt.savefig('obl_damp_'+str(dt_frac)+'dt.png', dpi=300)
-    plt.clf()
+        # run second simulation
+        start = time.time()
 
-def test_chandler(sim_params, dt_frac, out_step_frac, tf_frac):
+        omega_to_n = 4 - omega_to_n
+        sim_params = a,Q_tide,R_p,obliquity,omega_to_n,M_p,k2,moment2,moment3,s_k_angle
+        # create simulation
+        sim = create_sim(sim_params,dt_frac)
+
+        if out_step < sim.dt:
+            print("ERROR: output step is smaller than maximum timestep")
+            exit()
+
+        ps = sim.particles
+        mm = ps[1].n
+        ts = np.zeros(n_data)
+        obliquities = np.zeros(n_data)
+        for i in range(n_data):
+            sim.integrate(i*out_step)
+            ts[i] = sim.t
+            obliquities[i] = np.abs(np.arccos(ps[1].params['tt_kz']))
+
+        print("Integration time: "+str(time.time() - start)+" seconds")
+        
+        tidal_dt = np.arctan(1./Q_tide) / 2. / mm
+        omega0 = omega_to_n*mm
+        theta_lag = (omega0 - mm) * tidal_dt
+
+        print(theta_lag/(2*np.pi))
+
+        # in case spin is very large
+        max_theta_lag = np.pi/4
+        if theta_lag > max_theta_lag:
+            print("WARNING: Max tidal angle lag exceeded!")
+            theta_lag = max_theta_lag
+        if theta_lag < -max_theta_lag:
+            print("WARNING: Min tidal angle lag exceeded!")
+            theta_lag = -max_theta_lag
+        
+        theta_dot = -np.sin(obliquity)/t_tide * ((2/omega_to_n)-np.cos(obliquity))
+        exact_sol = np.degrees(obliquity + (ts_fine*a**1.5 * theta_dot))
+        ax2.plot(ts_fine, exact_sol, color='red',lw=1.5)
+        ax2.plot(ts/a**1.5, np.degrees(np.array(obliquities)), 'ko', label='Num')
+        ax2.set_ylabel(r"Obliquity ($^{\circ}$)",fontsize=20)
+
+        ax2.set_xlabel(r'Time ($P$)',fontsize=20)
+
+        plt.savefig('obl_damp_'+str(dt_frac)+'dt.png', dpi=300)
+        plt.clf()
+    
+    else:
+        # plot
+        fig, (ax) = plt.subplots(1, 1,figsize=(10, 6))
+        plt.subplots_adjust(left=0.10, bottom=0.15, right=.98, top=0.95, wspace=0.05, hspace=0.)
+
+        ts_fine = np.linspace(0,tf_frac,200)
+        t_tide = (8/15)*Q_tide/k2/mm * M_p*(a/R_p)**3
+        theta_dot = -np.sin(obliquity)/t_tide * ((2/omega_to_n)-np.cos(obliquity))
+        exact_sol = np.degrees(obliquity + (ts_fine*a**1.5 * theta_dot))
+        ax.plot(ts_fine, exact_sol, color='red',lw=1.5)
+        ax.plot(ts/a**1.5, np.degrees(np.array(obliquities)), 'ko', label='Num')
+        ax.set_ylabel(r"Obliquity ($^{\circ}$)",fontsize=20)
+        ax.set_xlabel(r'Time ($P$)',fontsize=20)
+        ax.legend(['Numerical', 'Analytical'])
+
+        plt.savefig('obl_damp_'+str(dt_frac)+'dt.png', dpi=300)
+        plt.clf()
+
+def test_chandler(sim_params, dt_frac, n_data, tf_frac):
 
     ind = 0
 
@@ -335,9 +499,7 @@ def test_chandler(sim_params, dt_frac, out_step_frac, tf_frac):
     # create simulation
     sim = create_sim(sim_params,dt_frac,one_body=True)
 
-    tf = tf_frac*spin_period
-    out_step = out_step_frac*spin_period
-    n = int(tf / out_step)
+    out_step = (tf_frac / (n_data-1))*spin_period
 
     if out_step < sim.dt:
         print("ERROR: output step is smaller than timestep")
@@ -350,12 +512,12 @@ def test_chandler(sim_params, dt_frac, out_step_frac, tf_frac):
     sj0 = ps[ind].params['tt_sj']
     sk0 = ps[ind].params['tt_sk']
 
-    ts = np.zeros(n)
-    sis = np.zeros(n)
-    sjs = np.zeros(n)
-    sks = np.zeros(n)
-    omegas = np.zeros(n)
-    for i in range(n):
+    ts = np.zeros(n_data)
+    sis = np.zeros(n_data)
+    sjs = np.zeros(n_data)
+    sks = np.zeros(n_data)
+    omegas = np.zeros(n_data)
+    for i in range(n_data):
         sim.integrate(i*out_step)
         ts[i] = sim.t
         sis[i] = ps[ind].params['tt_si']
@@ -403,7 +565,7 @@ if __name__ == '__main__':
 
     # choose simulation params:
     a = .1
-    Q_tide = 1.
+    Q_tide = 10.
     R_p = 1.e-4 # ~ 2 earth radii
     obliquity = 0.
     omega_to_n = 1. # omega / n
@@ -440,11 +602,11 @@ if __name__ == '__main__':
         dtmax = 0.05
         tf_small = dtmax
         tf_big = 10.
-        step = 2.*dt_frac
+        nd = 51
 
         dtheta_offset = np.radians(1.)
 
-        test_convergence(sim_params,8,dtmax,tf_small,tf_big,plot_angle=True,dtheta=dtheta_offset,step_frac=step)
+        test_convergence(sim_params,8,dtmax,tf_small,tf_big,plot_angle=True,dtheta=dtheta_offset,n_data=nd)
 
     elif sys.argv[1] == '-spin':
         # change params as needed
@@ -457,27 +619,27 @@ if __name__ == '__main__':
         sim_params = (a,Q_tide,R_p,0,omega_to_n,M_p,k2,moment2,moment3,s_k_angle)
 
         dt_frac = 0.05 # fraction of min(orbital period, spin period)
-        tf = 10000. # number of orbital periods
-        step = 4000.*dt_frac # fraction of orbital periods
+        tf = 1000. # number of orbital periods
+        n_data = 20 # number of data points
 
-        test_spin_damp(sim_params,dt_frac,step,tf)
+        test_spin_damp(sim_params,dt_frac,n_data,tf,dual=True)
 
     elif sys.argv[1] == '-obliquity':
         # change params as needed
         # turn off triaxial torque
         moment2 = 0
         moment3 = 0
-        obliquity = np.radians(1.)
+        obliquity = np.radians(10.)
         omega_to_n = 1.5
 
         # create sim_params
         sim_params = (a,Q_tide,R_p,obliquity,omega_to_n,M_p,k2,moment2,moment3,s_k_angle)
 
         dt_frac = 0.05 # fraction of min(orbital period, spin period)
-        tf = 100. # number of orbital periods
-        step = 20.*dt_frac # fraction of orbital periods
+        tf = 1000. # number of orbital periods
+        n_data = 20 # number of data points
 
-        test_obl_damp(sim_params,dt_frac,step,tf)
+        test_obl_damp(sim_params,dt_frac,n_data,tf,dual=True)
 
     elif sys.argv[1] == '-chandler':
         # omega_to_n is just omega/(2pi) here because only 1 body
@@ -493,6 +655,6 @@ if __name__ == '__main__':
         sim_params = (a,Q_tide,R_p,0,omega_to_n,M_p,k2,moment2,moment3,s_k_angle)
 
         tf = 50.
-        step = 20.*dt_frac
+        n_data = 35 # number of data points
 
-        test_chandler(sim_params,dt_frac,step,tf)
+        test_chandler(sim_params,dt_frac,n_data,tf)
