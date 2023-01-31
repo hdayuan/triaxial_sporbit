@@ -119,7 +119,7 @@ def run_sim(trial_num, tf=1000., n_out=201):
     return time.time() - start
 
 # main function
-if __name__ == 'main':
+if __name__ == '__main__':
     n_trials = 10
     for i in range(n_trials):
         print("Integration Time: "+str(run_sim(i)))
