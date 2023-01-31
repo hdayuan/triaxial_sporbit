@@ -123,3 +123,6 @@ def run_sim(trial_num, tf=1000., n_out=201):
 
 # main function
 if __name__ == 'main':
+    n_trials = 10
+    for i in range(n_trials):
+        run_sim(i)
