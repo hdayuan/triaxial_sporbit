@@ -81,9 +81,9 @@ def run_sim(trial_num, tf=1000., n_out=201):
     moment2 = 1e-1 # (Ij - Ii) / Ii, < moment3
     moment3 = 2e-1 # (Ik - Ii) / Ii, > moment2
     # vary these
-    theta = np.pi*np.random.Generator.random()
-    phi = 2*np.pi*np.random.Generator.random()
-    omega_to_n = np.random.Generator.random()*2 # 2 because otherwise obliquity is excited # (1+(np.pi/2/np.arctan(1/Q_tide)))
+    theta = np.pi*np.random.default_rng().uniform()
+    phi = 2*np.pi*np.random.default_rng().uniform()
+    omega_to_n = np.random.default_rng().uniform()*2 # 2 because otherwise obliquity is excited # (1+(np.pi/2/np.arctan(1/Q_tide)))
 
     # make sim
     sim_params = a,Q_tide,R_p,theta,phi,omega_to_n,M_p,k2,moment2,moment3,s_k_angle
