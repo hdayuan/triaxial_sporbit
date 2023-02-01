@@ -416,7 +416,7 @@ def test_obl_damp(sim_params, dt_frac, n_data, tf_frac, dual=False):
         exact_sol = np.degrees(obliquity + (ts_fine*a**1.5 * theta_dot))
         ax1.plot(ts_fine, exact_sol, color='red',lw=1.5)
         ax1.plot(ts/a**1.5, np.degrees(np.array(obliquities)), 'ko', label='Num')
-        ax1.set_ylabel(r"Obliquity ($^{\circ}$)",fontsize=20)
+        ax1.set_ylabel(r"$\theta$ ($^{\circ}$)",fontsize=20)
         ax1.legend(['Analytical','Numerical'])
 
         # run second simulation
@@ -461,7 +461,7 @@ def test_obl_damp(sim_params, dt_frac, n_data, tf_frac, dual=False):
         exact_sol = np.degrees(obliquity + (ts_fine*a**1.5 * theta_dot))
         ax2.plot(ts_fine, exact_sol, color='red',lw=1.5)
         ax2.plot(ts/a**1.5, np.degrees(np.array(obliquities)), 'ko', label='Num')
-        ax2.set_ylabel(r"Obliquity ($^{\circ}$)",fontsize=20)
+        ax2.set_ylabel(r"$\theta$ ($^{\circ}$)",fontsize=20)
 
         ax2.set_xlabel(r'Time ($P$)',fontsize=20)
 
@@ -479,7 +479,7 @@ def test_obl_damp(sim_params, dt_frac, n_data, tf_frac, dual=False):
         exact_sol = np.degrees(obliquity + (ts_fine*a**1.5 * theta_dot))
         ax.plot(ts_fine, exact_sol, color='red',lw=1.5)
         ax.plot(ts/a**1.5, np.degrees(np.array(obliquities)), 'ko', label='Num')
-        ax.set_ylabel(r"Obliquity ($^{\circ}$)",fontsize=20)
+        ax.set_ylabel(r"$\theta$ ($^{\circ}$)",fontsize=20)
         ax.set_xlabel(r'Time ($P$)',fontsize=20)
         ax.legend(['Numerical', 'Analytical'])
 
@@ -629,8 +629,8 @@ if __name__ == '__main__':
         # turn off triaxial torque
         moment2 = 0
         moment3 = 0
-        obliquity = np.radians(10.)
-        omega_to_n = 1.5
+        obliquity = np.radians(179.99)
+        omega_to_n = 1.9
 
         # create sim_params
         sim_params = (a,Q_tide,R_p,obliquity,omega_to_n,M_p,k2,moment2,moment3,s_k_angle)

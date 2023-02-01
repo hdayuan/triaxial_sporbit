@@ -82,8 +82,10 @@ def run_sim(trial_num, tf=1000., n_out=201):
     moment3 = 2e-1 # (Ik - Ii) / Ii, > moment2
     # vary these
     theta = np.pi*np.random.default_rng().uniform()
+    print(f"Obliquity: {theta}")
     phi = 2*np.pi*np.random.default_rng().uniform()
     omega_to_n = np.random.default_rng().uniform()*2 # 2 because otherwise obliquity is excited # (1+(np.pi/2/np.arctan(1/Q_tide)))
+    print(f"spin rate / n: {omega}")
 
     # make sim
     sim_params = a,Q_tide,R_p,theta,phi,omega_to_n,M_p,k2,moment2,moment3,s_k_angle
@@ -100,17 +102,18 @@ def run_sim(trial_num, tf=1000., n_out=201):
     # want to plot omega, theta, and phi, so write those to file
     # also write time
     year = ps[1].P
+    mm = ps[1].n
     for i in range(n_out):
         sim.integrate(i*step*year)
-        t = sim.t
-        omega = ps[1].params['tt_omega']
+        t = sim.t / year
+        omega = ps[1].params['tt_omega']/mm
         s_ijk = np.array([ps[1].params['tt_si'],ps[1].params['tt_sj'],ps[1].params['tt_sk']])
         ijk_xyz = np.array([[ps[1].params['tt_ix'],ps[1].params['tt_iy'],ps[1].params['tt_iz']],[ps[1].params['tt_jx'],ps[1].params['tt_jy'],ps[1].params['tt_jz']],[ps[1].params['tt_kx'],ps[1].params['tt_ky'],ps[1].params['tt_kz']]])
         s_xyz = s_ijk[0]*ijk_xyz[0] + s_ijk[1]*ijk_xyz[1] + s_ijk[2]*ijk_xyz[2]
-        theta = np.arccos(s_xyz[2])
-        phi = np.arctan2(s_xyz[1],s_xyz[0])
+        theta = np.degrees(np.arccos(s_xyz[2]))
+        phi = np.degrees(np.arctan2(s_xyz[1],s_xyz[0]))
 
-        f.write(str(sim.t)+'\t')
+        f.write(str(t)+'\t')
         f.write(str(omega)+'\t')
         f.write(str(theta)+'\t')
         f.write(str(phi)+'\n')
