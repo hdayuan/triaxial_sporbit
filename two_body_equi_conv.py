@@ -64,15 +64,16 @@ def create_sim(sim_params,dt_frac=0.05):
 
     return sim
 
-def run_sim(trial_num, tf=10000., n_out=201):
-
+def run_sim(trial_num, tf=1000000., n_out=201):
     start = time.time()
+
+    print(f"Trial {trial_num}:")
 
     step = tf // (n_out-1)
 
     # parameters
     a = .1
-    Q_tide = 1.
+    Q_tide = 10.
     R_p = 1.e-4 # ~ 2 earth radii
     M_p = 1.e-4 # in units of primary body's mass (~ 2 earth masses)
     k2 = 1.5 # 1.5 for uniformly distributed mass
@@ -82,10 +83,9 @@ def run_sim(trial_num, tf=10000., n_out=201):
     moment3 = 2e-1 # (Ik - Ii) / Ii, > moment2
     # vary these
     theta = np.pi*np.random.default_rng().uniform()
-    print(f"Obliquity: {theta}")
     phi = 2*np.pi*np.random.default_rng().uniform()
     omega_to_n = np.random.default_rng().uniform()*2 # 2 because otherwise obliquity is excited # (1+(np.pi/2/np.arctan(1/Q_tide)))
-    print(f"spin rate / n: {omega_to_n}")
+    print(f"Obliquity: {theta} // Spin: {omega_to_n}")
 
     # make sim
     sim_params = a,Q_tide,R_p,theta,phi,omega_to_n,M_p,k2,moment2,moment3,s_k_angle
@@ -123,6 +123,7 @@ def run_sim(trial_num, tf=10000., n_out=201):
 
 # main function
 if __name__ == '__main__':
-    n_trials = 100
+    n_trials = 50
     for i in range(n_trials):
         print("Integration Time: "+str(run_sim(i)))
+        print()
