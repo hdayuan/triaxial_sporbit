@@ -45,6 +45,9 @@ ax2.set_ylabel(r"$\theta$ ($^{\circ}$)")
 ax2.set_xlabel("Time (P)")
 
 for i in range(n_trials):
+    if np.any(omegas[i] > 2.5):
+        print("a")
+        continue
     ax1.plot(ts[i],omegas[i], lw=1., color='black', alpha=0.2)
     ax2.plot(ts[i],thetas[i], lw=1., color='black', alpha=0.2)
 
