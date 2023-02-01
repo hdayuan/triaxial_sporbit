@@ -64,7 +64,7 @@ def create_sim(sim_params,dt_frac=0.05):
 
     return sim
 
-def run_sim(trial_num, tf=1000., n_out=201):
+def run_sim(trial_num, tf=10000., n_out=201):
 
     start = time.time()
 
@@ -123,6 +123,6 @@ def run_sim(trial_num, tf=1000., n_out=201):
 
 # main function
 if __name__ == '__main__':
-    n_trials = 10
+    n_trials = 100
     for i in range(n_trials):
         print("Integration Time: "+str(run_sim(i)))
