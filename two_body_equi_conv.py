@@ -26,14 +26,14 @@ def create_sim(sim_params,dt_frac=0.05):
 
     # add spin to smaller body
     ps = sim.particles
-    ps[1].params['tt_ix'] = np.cos(theta) + ((np.sin(phi)**2) * (1-np.cos(theta)))
-    ps[1].params['tt_iy'] = -np.sin(phi)*np.cos(phi)*(1-np.cos(theta))
-    ps[1].params['tt_iz'] = -np.cos(phi)*np.sin(theta)
-    ps[1].params['tt_jx'] = -np.sin(phi)*np.cos(phi)*(1-np.cos(theta))
-    ps[1].params['tt_jy'] = np.cos(theta) + ((np.cos(phi)**2) * (1-np.cos(theta)))
-    ps[1].params['tt_jz'] = -np.sin(phi)*np.sin(theta)
-    ps[1].params['tt_kx'] = np.sin(theta)*np.cos(phi)
-    ps[1].params['tt_ky'] = np.sin(theta)*np.sin(phi)
+    ps[1].params['tt_ix'] = np.cos(theta) # + ((np.sin(phi)**2) * (1-np.cos(theta)))
+    ps[1].params['tt_iy'] = 0. # -np.sin(phi)*np.cos(phi)*(1-np.cos(theta))
+    ps[1].params['tt_iz'] = -np.sin(theta)# -np.cos(phi)*np.sin(theta)
+    ps[1].params['tt_jx'] = 0. #-np.sin(phi)*np.cos(phi)*(1-np.cos(theta))
+    ps[1].params['tt_jy'] = 1. #np.cos(theta) + ((np.cos(phi)**2) * (1-np.cos(theta)))
+    ps[1].params['tt_jz'] = 0. #-np.sin(phi)*np.sin(theta)
+    ps[1].params['tt_kx'] = np.sin(theta) # *np.cos(phi)
+    ps[1].params['tt_ky'] = 0. # np.sin(theta)*np.sin(phi)
     ps[1].params['tt_kz'] = np.cos(theta)
 
     # (2/5)*MR^2
