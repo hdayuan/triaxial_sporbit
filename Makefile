@@ -34,3 +34,6 @@ plot_torque:
 
 clean:
 	rm -rf *.png
+
+trash_data:
+	rm -rf 2body_equi_data
