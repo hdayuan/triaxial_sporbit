@@ -85,7 +85,7 @@ def run_sim(trial_num, tf=1000., n_out=201):
     print(f"Obliquity: {theta}")
     phi = 2*np.pi*np.random.default_rng().uniform()
     omega_to_n = np.random.default_rng().uniform()*2 # 2 because otherwise obliquity is excited # (1+(np.pi/2/np.arctan(1/Q_tide)))
-    print(f"spin rate / n: {omega}")
+    print(f"spin rate / n: {omega_to_n}")
 
     # make sim
     sim_params = a,Q_tide,R_p,theta,phi,omega_to_n,M_p,k2,moment2,moment3,s_k_angle
