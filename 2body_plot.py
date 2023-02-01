@@ -44,12 +44,17 @@ ax1.set_ylabel(r"$\omega/n$")
 ax2.set_ylabel(r"$\theta$ ($^{\circ}$)")
 ax2.set_xlabel("Time (P)")
 
+n_errs = 0
 for i in range(n_trials):
     if np.any(omegas[i] > 2.5):
-        print("a")
+        n_errs += 1
         continue
+
     ax1.plot(ts[i],omegas[i], lw=1., color='black', alpha=0.2)
     ax2.plot(ts[i],thetas[i], lw=1., color='black', alpha=0.2)
+
+if n_errs > 0:
+    print(f"Omitting {n_errs} trials with spin rates > 2.5 n")
 
 plt.savefig('2body_trials.png', dpi=300)
 plt.clf()

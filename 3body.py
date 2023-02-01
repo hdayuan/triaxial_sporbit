@@ -17,6 +17,7 @@ def create_sim(sim_params,dt_frac=0.05):
 
     sim.add(m=1.)
     sim.add(m=M_p, a=a)
+    sim.add(m=M_out, a=a_out, inc=i_out)
 
     rebx = reboundx.Extras(sim)
     triax = rebx.load_operator('triaxial_torque')
@@ -61,6 +62,30 @@ def create_sim(sim_params,dt_frac=0.05):
         sim.dt = dt_frac*np.minimum(ps[1].P, 2*np.pi/omega)
 
     return sim
+
+# returns orbit normal unit vector for orbit of body at index index
+def calc_orbit_normal(ps, index):
+    r_xyz = np.array([ps[index].x - ps[0].x,ps[index].y - ps[0].y,ps[index].z - ps[0].z]) # here, r is vector from star to planet (opposite from operator code)
+    v_xyz = np.array([ps[index].vx,ps[index].vy,ps[index].vz])
+    r = np.sqrt(np.dot(r_xyz,r_xyz))
+    v = np.sqrt(np.dot(v_xyz,v_xyz))
+    r_hat = r_xyz / r
+    v_hat = v_xyz / v
+    return np.cross(r_hat, v_hat)
+
+# returns (obliquity, phi) of body at index index in degrees
+def get_theta_deg(ps, index):
+    s_ijk = np.array([ps[index].params['tt_si'],ps[index].params['tt_sj'],ps[index].params['tt_sk']])
+    ijk_xyz = np.array([[ps[index].params['tt_ix'],ps[index].params['tt_iy'],ps[index].params['tt_iz']],[ps[index].params['tt_jx'],ps[index].params['tt_jy'],ps[index].params['tt_jz']],[ps[index].params['tt_kx'],ps[index].params['tt_ky'],ps[index].params['tt_kz']]])
+    s_xyz = s_ijk[0]*ijk_xyz[0] + s_ijk[1]*ijk_xyz[1] + s_ijk[2]*ijk_xyz[2]
+    theta = np.degrees(np.arccos(np.dot(calc_orbit_normal(ps,index),s_xyz)))
+    # following definition of phi assumes inclination is 0
+    phi = np.degrees(np.arctan2(s_xyz[1],s_xyz[0])) 
+    return (theta, phi)
+
+# returns spin rate of body at index index in units of mean motion
+def get_omega_to_n(ps, index):
+    return ps[index].params['tt_omega']/ps[index].n 
 
 def run_sim(trial_num, tf=1000000., n_out=201):
     start = time.time()

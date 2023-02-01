@@ -60,16 +60,17 @@ def create_sim(sim_params,dt_frac=0.05):
     if omega == 0:
         sim.dt = dt_frac*ps[1].P
     else:
-        sim.dt = dt_frac*np.minimum(ps[1].P, 2*np.pi/omega/2.) # half the timestep to allow spin rate to grow by up to double its original magnitude
+        sim.dt = dt_frac*ps[1].P/2. # np.minimum(ps[1].P, 2*np.pi/omega)
+        # half the timestep to allow spin rate to grow by up to double its original magnitude
 
     return sim
 
-def run_sim(trial_num, tf=1000000., n_out=201):
+def run_sim(trial_num, tf=300000., n_out=200):
     start = time.time()
 
     print(f"Trial {trial_num}:")
 
-    step = tf // (n_out-1)
+    step = tf / (n_out-1)
 
     # parameters
     a = .1
@@ -93,7 +94,7 @@ def run_sim(trial_num, tf=1000000., n_out=201):
     ps = sim.particles
 
     # make output directory and file
-    dir_path = "./2body_equi_data_halfdt_notriax"
+    dir_path = "./2body_equi_data"
     if not os.path.exists(dir_path):
         os.mkdir(dir_path)
     file_path = os.path.join(dir_path,"trial_"+str(trial_num)+".txt")
