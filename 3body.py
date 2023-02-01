@@ -9,7 +9,7 @@ import sys
 # theta = obliquity, phi = azimuthal angle, 
 # phi = 0 corresponds to initial condition where planet's k axis is tilting directly away from star
 def create_sim(sim_params,dt_frac=0.05):
-    a,Q_tide,R_p,theta,phi,omega_to_n,M_p,k2,moment2,moment3,s_k_angle = sim_params
+    a,Q_tide,R_p,theta,phi,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out = sim_params
 
     sim = rebound.Simulation()
     sim.integrator = 'whfast'
@@ -76,6 +76,9 @@ def run_sim(trial_num, tf=1000000., n_out=201):
     M_p = 1.e-4 # in units of primary body's mass (~ 2 earth masses)
     k2 = 1.5 # 1.5 for uniformly distributed mass
     s_k_angle = np.radians(0.) # angle between s and k
+    a_out = 10. # a of outer planet
+    i_out = np.radians(5.) # inclination of outer planet
+    M_out = 0.1 # mass of outer planet
     # What to do about these?
     moment2 = 1e-1 # (Ij - Ii) / Ii, < moment3
     moment3 = 2e-1 # (Ik - Ii) / Ii, > moment2
@@ -86,7 +89,7 @@ def run_sim(trial_num, tf=1000000., n_out=201):
     print(f"Obliquity: {theta} // Spin: {omega_to_n}")
 
     # make sim
-    sim_params = a,Q_tide,R_p,theta,phi,omega_to_n,M_p,k2,moment2,moment3,s_k_angle
+    sim_params = a,Q_tide,R_p,theta,phi,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out
     sim = create_sim(sim_params)
     ps = sim.particles
 
