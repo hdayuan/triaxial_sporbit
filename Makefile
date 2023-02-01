@@ -21,9 +21,12 @@ osci:
 	python3 triaxial_torque_tests.py -oscillation
 	open *.png
 
+equi:
+	python3 two_body_equi_conv.py
+
 plot_torque:
 	python3 plot_torque.py
 	open *.png
-	
+
 clean:
 	rm -rf *.png
