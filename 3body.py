@@ -74,7 +74,7 @@ def calc_orbit_normal(ps, index):
     return np.cross(r_hat, v_hat)
 
 # returns (obliquity, phi) of body at index index in degrees
-def get_theta_deg(ps, index):
+def get_theta_phi_deg(ps, index):
     s_ijk = np.array([ps[index].params['tt_si'],ps[index].params['tt_sj'],ps[index].params['tt_sk']])
     ijk_xyz = np.array([[ps[index].params['tt_ix'],ps[index].params['tt_iy'],ps[index].params['tt_iz']],[ps[index].params['tt_jx'],ps[index].params['tt_jy'],ps[index].params['tt_jz']],[ps[index].params['tt_kx'],ps[index].params['tt_ky'],ps[index].params['tt_kz']]])
     s_xyz = s_ijk[0]*ijk_xyz[0] + s_ijk[1]*ijk_xyz[1] + s_ijk[2]*ijk_xyz[2]
@@ -87,7 +87,7 @@ def get_theta_deg(ps, index):
 def get_omega_to_n(ps, index):
     return ps[index].params['tt_omega']/ps[index].n 
 
-def run_sim(trial_num, tf=1000000., n_out=200):
+def run_sim(trial_num, tf=10000., n_out=200):
 
     start = time.time()
 
@@ -135,16 +135,11 @@ def run_sim(trial_num, tf=1000000., n_out=200):
     # also write time
     step = tf / (n_out-1)
     year = ps[1].P
-    mm = ps[1].n
     for i in range(n_out):
         sim.integrate(i*step*year)
         t = sim.t / year
-        omega = ps[1].params['tt_omega']/mm
-        s_ijk = np.array([ps[1].params['tt_si'],ps[1].params['tt_sj'],ps[1].params['tt_sk']])
-        ijk_xyz = np.array([[ps[1].params['tt_ix'],ps[1].params['tt_iy'],ps[1].params['tt_iz']],[ps[1].params['tt_jx'],ps[1].params['tt_jy'],ps[1].params['tt_jz']],[ps[1].params['tt_kx'],ps[1].params['tt_ky'],ps[1].params['tt_kz']]])
-        s_xyz = s_ijk[0]*ijk_xyz[0] + s_ijk[1]*ijk_xyz[1] + s_ijk[2]*ijk_xyz[2]
-        theta = np.degrees(np.arccos(s_xyz[2]))
-        phi = np.degrees(np.arctan2(s_xyz[1],s_xyz[0]))
+        omega = get_omega_to_n(ps,1)
+        theta, phi = get_theta_phi_deg(ps,1)
 
         f.write(str(t)+'\t')
         f.write(str(omega)+'\t')
