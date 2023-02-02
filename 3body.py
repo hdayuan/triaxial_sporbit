@@ -163,5 +163,7 @@ def run_sim(trial_num, tf=1.e7, n_out=200):
 # main function
 if __name__ == '__main__':
     n_trials = 30
+    start = time.time()
     with mp.Pool(processes=30) as pool:
         int_times = pool.map(run_sim, range(n_trials))
+    print("Total Runtime: {time.time()-start}")
