@@ -125,7 +125,7 @@ def run_sim(trial_num, tf=1.e7, n_out=200):
     ps = sim.particles
 
     # make output directory and file
-    dir_path = "./3bd_20i_sphere_10Q_0.01dt"
+    dir_path = "./3bd_20i_sphere_10Q_0.025dt"
     if trial_num == 0:
         if os.path.exists(dir_path):
             print("Error: Directory already exists") 
