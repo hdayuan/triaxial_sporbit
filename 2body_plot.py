@@ -7,14 +7,14 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=18)
+plt.rc('font', family='serif', size=10)
 plt.rc('lines', lw=2.5)
 plt.rc('xtick', direction='in', top=True, bottom=True)
 plt.rc('ytick', direction='in', left=True, right=True)
 
 # read data
 n_trials = 50
-n_data = 201
+n_data = 134
 nv = 4
 t_ind = 0
 omega_ind = 1
@@ -38,8 +38,8 @@ for i in range(n_trials):
         phis[i,j] = datum[phi_ind]
 
 # plot
-fig, (ax1,ax2) = plt.subplots(2, 1,figsize=(5, 8), sharex=True)
-plt.subplots_adjust(left=0.15, bottom=0.1, right=.98, top=0.98, wspace=0.05, hspace=0.)
+fig, (ax1,ax2) = plt.subplots(2, 1,figsize=(5, 5), sharex=True)
+plt.subplots_adjust(left=0.10, bottom=0.08, right=.98, top=0.98, wspace=0.05, hspace=0.02)
 ax1.set_ylabel(r"$\omega/n$")
 ax2.set_ylabel(r"$\theta$ ($^{\circ}$)")
 ax2.set_xlabel("Time (P)")

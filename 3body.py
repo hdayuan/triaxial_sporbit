@@ -3,7 +3,7 @@ import rebound
 import reboundx
 import numpy as np
 import time
-import sys
+import multiprocessing as mp
 
 # make simulation object with given parameters
 # theta = obliquity, phi = azimuthal angle, 
@@ -87,31 +87,37 @@ def get_theta_deg(ps, index):
 def get_omega_to_n(ps, index):
     return ps[index].params['tt_omega']/ps[index].n 
 
-def run_sim(trial_num, tf=1000000., n_out=201):
+def run_sim(trial_num, tf=1000000., n_out=200):
+
     start = time.time()
 
-    print(f"Trial {trial_num}:")
+    # some constants
+    Re = 4.263e-5 # radius of Earth in AU
+    Me = 3.003e-6 # mass of Earth in solar masses
+    Mj = 9.542e-4 # mass of Jupiter in solar masses
 
-    step = tf // (n_out-1)
-
-    # parameters
-    a = .1
+    ### SIMULATION PARAMETERS ###
+    # fixed parameters
+    a = .4 # semi-major axis of inner planet
     Q_tide = 10.
-    R_p = 1.e-4 # ~ 2 earth radii
-    M_p = 1.e-4 # in units of primary body's mass (~ 2 earth masses)
+    R_p = 2.*Re # radius of inner planet
+    M_p = 4.*Me # mass of inner planet
     k2 = 1.5 # 1.5 for uniformly distributed mass
     s_k_angle = np.radians(0.) # angle between s and k
-    a_out = 10. # a of outer planet
-    i_out = np.radians(5.) # inclination of outer planet
-    M_out = 0.1 # mass of outer planet
+    a_out = 5. # a of outer planet
+    i_out = np.radians(20.) # inclination of outer planet
+    M_out = Mj # mass of outer planet
     # What to do about these?
-    moment2 = 1e-1 # (Ij - Ii) / Ii, < moment3
-    moment3 = 2e-1 # (Ik - Ii) / Ii, > moment2
-    # vary these
+    moment2 = 0. # 1e-1 # (Ij - Ii) / Ii, < moment3
+    moment3 = 0. # 2e-1 # (Ik - Ii) / Ii, > moment2
+
+    # variable params
     theta = np.pi*np.random.default_rng().uniform()
     phi = 2*np.pi*np.random.default_rng().uniform()
-    omega_to_n = np.random.default_rng().uniform()*2 # 2 because otherwise obliquity is excited # (1+(np.pi/2/np.arctan(1/Q_tide)))
-    print(f"Obliquity: {theta} // Spin: {omega_to_n}")
+    omega_to_n = 2.*np.random.default_rng().uniform() # 2 because otherwise obliquity is excited # (1+(np.pi/2/np.arctan(1/Q_tide)))
+    
+    ### RUN SIMULATION ###
+    print(f"Trial {trial_num} initiated with obliquity {np.degrees(theta)} degrees and spin {omega_to_n} mean-motions.")
 
     # make sim
     sim_params = a,Q_tide,R_p,theta,phi,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out
@@ -119,7 +125,7 @@ def run_sim(trial_num, tf=1000000., n_out=201):
     ps = sim.particles
 
     # make output directory and file
-    dir_path = "./2body_equi_data"
+    dir_path = "./3body_i20_sphere_data"
     if not os.path.exists(dir_path):
         os.mkdir(dir_path)
     file_path = os.path.join(dir_path,"trial_"+str(trial_num)+".txt")
@@ -127,6 +133,7 @@ def run_sim(trial_num, tf=1000000., n_out=201):
 
     # want to plot omega, theta, and phi, so write those to file
     # also write time
+    step = tf / (n_out-1)
     year = ps[1].P
     mm = ps[1].n
     for i in range(n_out):
@@ -145,11 +152,15 @@ def run_sim(trial_num, tf=1000000., n_out=201):
         f.write(str(phi)+'\n')
     
     f.close()
-    return time.time() - start
+    int_time = time.time() - start
+    hrs = int_time // 3600
+    mins = (int_time % 3600) // 60
+    secs = int((int_time % 3600) % 60)
+    print(f"Trial {trial_num} completed in {hrs} hours {mins} minutes {secs} seconds.")
+    return 
 
 # main function
 if __name__ == '__main__':
-    n_trials = 50
-    for i in range(n_trials):
-        print("Integration Time: "+str(run_sim(i)))
-        print()
+    n_trials = 30
+    with mp.Pool(mp.cpu_count) as pool:
+        int_times = pool.map(run_sim, range(n_trials))
