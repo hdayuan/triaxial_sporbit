@@ -25,7 +25,7 @@ equi:
 	python3 two_body_equi_conv.py
 
 3body:
-	python3 3body.py
+	python3 3body.py > output.txt 2> output.txt
 
 eq_plot:
 	python3 2body_plot.py
