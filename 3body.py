@@ -8,7 +8,7 @@ import multiprocessing as mp
 # make simulation object with given parameters
 # theta = obliquity, phi = azimuthal angle, 
 # phi = 0 corresponds to initial condition where planet's k axis is tilting directly away from star
-def create_sim(sim_params,dt_frac=0.05):
+def create_sim(sim_params,dt_frac=0.01):
     a,Q_tide,R_p,theta,phi,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out = sim_params
 
     sim = rebound.Simulation()
@@ -125,7 +125,7 @@ def run_sim(trial_num, tf=10000., n_out=200):
     ps = sim.particles
 
     # make output directory and file
-    dir_path = "./3body_i20_sphere_data"
+    dir_path = "./3bd_20i_sphere_10Q_0.01dt"
     if not os.path.exists(dir_path):
         os.mkdir(dir_path)
     file_path = os.path.join(dir_path,"trial_"+str(trial_num)+".txt")
