@@ -8,7 +8,7 @@ import multiprocessing as mp
 # make simulation object with given parameters
 # theta = obliquity, phi = azimuthal angle, 
 # phi = 0 corresponds to initial condition where planet's k axis is tilting directly away from star
-def create_sim(sim_params,dt_frac=0.01):
+def create_sim(sim_params,dt_frac=0.025):
     a,Q_tide,R_p,theta,phi,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out = sim_params
 
     sim = rebound.Simulation()
@@ -87,7 +87,7 @@ def get_theta_phi_deg(ps, index):
 def get_omega_to_n(ps, index):
     return ps[index].params['tt_omega']/ps[index].n 
 
-def run_sim(trial_num, tf=10000., n_out=200):
+def run_sim(trial_num, tf=1.e7, n_out=200):
 
     start = time.time()
 

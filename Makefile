@@ -27,6 +27,9 @@ equi:
 3body:
 	python3 3body.py > output.txt 2> errors.txt
 
+3bd_plot:
+	python3 3body_plot.py
+
 eq_plot:
 	python3 2body_plot.py
 	open *.png
