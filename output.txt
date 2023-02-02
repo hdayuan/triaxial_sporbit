@@ -1,0 +1,36 @@
+Trial 2 initiated with obliquity 91.50586460878476 degrees and spin 0.9045330956544393 mean-motions.
+Trial 2 completed in 0.0 hours 0.0 minutes 8 seconds.
+Trial 11 initiated with obliquity 78.09106015981315 degrees and spin 0.7343956388380306 mean-motions.
+Trial 11 completed in 0.0 hours 0.0 minutes 8 seconds.
+Trial 15 initiated with obliquity 44.15064358281481 degrees and spin 0.971092376190869 mean-motions.
+Trial 15 completed in 0.0 hours 0.0 minutes 8 seconds.
+Trial 13 initiated with obliquity 144.2930216326826 degrees and spin 0.6920003369778858 mean-motions.
+Trial 13 completed in 0.0 hours 0.0 minutes 8 seconds.
+Trial 8 initiated with obliquity 78.0400378272125 degrees and spin 0.3818447599675423 mean-motions.
+Trial 8 completed in 0.0 hours 0.0 minutes 8 seconds.
+Trial 4 initiated with obliquity 47.539233340863056 degrees and spin 0.641943356850615 mean-motions.
+Trial 4 completed in 0.0 hours 0.0 minutes 8 seconds.
+Trial 21 initiated with obliquity 172.94339265795517 degrees and spin 0.8886111151252949 mean-motions.
+Trial 21 completed in 0.0 hours 0.0 minutes 8 seconds.
+Trial 1 initiated with obliquity 143.2645407525721 degrees and spin 0.8355812753005749 mean-motions.
+Trial 1 completed in 0.0 hours 0.0 minutes 8 seconds.
+Trial 18 initiated with obliquity 96.22556282134711 degrees and spin 1.011704083779194 mean-motions.
+Trial 18 completed in 0.0 hours 0.0 minutes 8 seconds.
+Trial 26 initiated with obliquity 140.86151087687685 degrees and spin 0.00990231270537989 mean-motions.
+Trial 26 completed in 0.0 hours 0.0 minutes 8 seconds.
+Trial 3 initiated with obliquity 159.4981862733798 degrees and spin 1.16672998435963 mean-motions.
+Trial 3 completed in 0.0 hours 0.0 minutes 9 seconds.
+Trial 28 initiated with obliquity 22.23279775076327 degrees and spin 0.28604679291447144 mean-motions.
+Trial 28 completed in 0.0 hours 0.0 minutes 8 seconds.
+Trial 16 initiated with obliquity 131.5617420282264 degrees and spin 1.2235077274621882 mean-motions.
+Trial 16 completed in 0.0 hours 0.0 minutes 9 seconds.
+Trial 0 initiated with obliquity 11.376645909520075 degrees and spin 1.7897417983474446 mean-motions.
+Trial 0 completed in 0.0 hours 0.0 minutes 10 seconds.
+Trial 17 initiated with obliquity 144.75560607214177 degrees and spin 1.3551806797490347 mean-motions.
+Trial 17 completed in 0.0 hours 0.0 minutes 10 seconds.
+Trial 10 initiated with obliquity 137.06896228209592 degrees and spin 1.385519602657693 mean-motions.
+Trial 10 completed in 0.0 hours 0.0 minutes 10 seconds.
+Trial 19 initiated with obliquity 40.68494473839142 degrees and spin 1.3991844076982662 mean-motions.
+Trial 19 completed in 0.0 hours 0.0 minutes 10 seconds.
+Trial 12 initiated with obliquity 52.98066830303369 degrees and spin 1.5185027717368063 mean-motions.
+Trial 12 completed in 0.0 hours 0.0 minutes 11 seconds.

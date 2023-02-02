@@ -126,8 +126,14 @@ def run_sim(trial_num, tf=10000., n_out=200):
 
     # make output directory and file
     dir_path = "./3bd_20i_sphere_10Q_0.01dt"
-    if not os.path.exists(dir_path):
+    if trial_num == 0:
+        if os.path.exists(dir_path):
+            print("Error: Directory already exists") 
         os.mkdir(dir_path)
+    else:
+        while (not os.path.exists(dir_path)):
+            time.sleep(2)
+            
     file_path = os.path.join(dir_path,"trial_"+str(trial_num)+".txt")
     f = open(file_path, "w")
 
