@@ -108,8 +108,8 @@ def run_sim(trial_num, tf=1.e7, n_out=200):
     i_out = np.radians(20.) # inclination of outer planet
     M_out = Mj # mass of outer planet
     # What to do about these?
-    moment2 = 0. # 1e-1 # (Ij - Ii) / Ii, < moment3
-    moment3 = 0. # 2e-1 # (Ik - Ii) / Ii, > moment2
+    moment2 = 1.e-5 # 1e-1 # (Ij - Ii) / Ii, < moment3
+    moment3 = 1.e-5 # 2e-1 # (Ik - Ii) / Ii, > moment2
 
     # variable params
     theta = np.pi*np.random.default_rng().uniform()
@@ -125,14 +125,14 @@ def run_sim(trial_num, tf=1.e7, n_out=200):
     ps = sim.particles
 
     # make output directory and file
-    dir_path = "./3bd_20i_sphere_10Q_0.025dt"
+    dir_path = "./3bd_20i_1e-5j2_10Q_0.025dt"
     if trial_num == 0:
         if os.path.exists(dir_path):
             print("Error: Directory already exists") 
         os.mkdir(dir_path)
     else:
         while (not os.path.exists(dir_path)):
-            time.sleep(2)
+            time.sleep(1)
             
     file_path = os.path.join(dir_path,"trial_"+str(trial_num)+".txt")
     f = open(file_path, "w")
@@ -166,4 +166,4 @@ if __name__ == '__main__':
     start = time.time()
     with mp.Pool(processes=30) as pool:
         int_times = pool.map(run_sim, range(n_trials))
-    print("Total Runtime: {time.time()-start}")
+    print(f"Total Runtime: {time.time()-start}")

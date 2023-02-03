@@ -25,7 +25,8 @@ ts = np.zeros((n_trials, n_data))
 omegas = np.zeros((n_trials, n_data))
 thetas = np.zeros((n_trials, n_data))
 phis = np.zeros((n_trials, n_data))
-fps = ["./3bd_20i_sphere_10Q_0.01dt/trial_"+str(i)+".txt" for i in range(n_trials)]
+fps = ["./3bd_20i_sphere_10Q_0.025dt/trial_"+str(i)+".txt" for i in 
+range(n_trials)]
 
 for i in range(n_trials):
     f = open(fps[i], 'r')
