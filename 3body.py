@@ -87,7 +87,7 @@ def get_theta_phi_deg(ps, index):
 def get_omega_to_n(ps, index):
     return ps[index].params['tt_omega']/ps[index].n 
 
-def run_sim(trial_num, tf=1.e7, n_out=200):
+def run_sim(trial_num, tf=5.e6, n_out=200):
 
     start = time.time()
 
