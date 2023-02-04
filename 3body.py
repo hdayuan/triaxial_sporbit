@@ -165,7 +165,8 @@ def run_sim(trial_num, tf=5.e6, n_out=200):
     dir_path = "./3bd_20i_1e-3j2_100Q_0.025dt"
     if trial_num == 0:
         if os.path.exists(dir_path):
-            print("Error: Directory already exists") 
+            print("Error: Directory already exists")
+            exit()
         os.mkdir(dir_path)
     else:
         while (not os.path.exists(dir_path)):
