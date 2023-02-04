@@ -55,6 +55,10 @@ def create_sim(sim_params,dt_frac=0.025,rand_ijk=True):
 
     else:
         i, j, k = get_rand_ijk()
+        print(mp.dot(i,j))
+        print(mp.dot(i,k))
+        print(mp.dot(k,j))
+
         ps[1].params['tt_ix'] = i[0]
         ps[1].params['tt_iy'] = i[1]
         ps[1].params['tt_iz'] = i[2]
@@ -154,7 +158,7 @@ def run_sim(trial_num, tf=5.e6, n_out=200):
     omega_to_n = max_omega*np.random.default_rng().uniform()
 
     ### RUN SIMULATION ###
-    print(f"Trial {trial_num} initiated with obliquity {np.degrees(theta)} degrees and spin {omega_to_n} mean-motions.")
+    print(f"Trial {trial_num} initiated")
 
     # make sim
     sim_params = a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out
