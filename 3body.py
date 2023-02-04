@@ -55,9 +55,9 @@ def create_sim(sim_params,dt_frac=0.025,rand_ijk=True):
 
     else:
         i, j, k = get_rand_ijk()
-        print(mp.dot(i,j))
-        print(mp.dot(i,k))
-        print(mp.dot(k,j))
+        print(np.dot(i,j))
+        print(np.dot(i,k))
+        print(np.dot(k,j))
 
         ps[1].params['tt_ix'] = i[0]
         ps[1].params['tt_iy'] = i[1]

@@ -40,3 +40,4 @@ plot_torque:
 
 clean:
 	rm -rf *.png
+	rm -rf *.txt
