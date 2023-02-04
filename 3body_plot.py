@@ -39,11 +39,12 @@ for i in range(n_trials):
         phis[i,j] = datum[phi_ind]
 
 # plot
-fig, (ax1,ax2) = plt.subplots(2, 1,figsize=(5, 5), sharex=True)
+fig, (ax1,ax2,ax3) = plt.subplots(3, 1,figsize=(5, 8), sharex=True)
 plt.subplots_adjust(left=0.10, bottom=0.08, right=.98, top=0.98, wspace=0.05, hspace=0.02)
 ax1.set_ylabel(r"$\omega/n$")
 ax2.set_ylabel(r"$\theta$ ($^{\circ}$)")
-ax2.set_xlabel("Time (P)")
+ax3.set_ylabel(r"$\phi$ ($^{\circ}$)")
+ax3.set_xlabel("Time (P)")
 
 n_errs = 0
 for i in range(n_trials):
@@ -53,9 +54,20 @@ for i in range(n_trials):
 
     ax1.plot(ts[i],omegas[i], lw=1., color='black', alpha=0.2)
     ax2.plot(ts[i],thetas[i], lw=1., color='black', alpha=0.2)
+    ax3.plot(ts[i],phis[i], lw=1., color='black', alpha=0.2)
 
 if n_errs > 0:
     print(f"Omitting {n_errs} trials with spin rates > 2.5 n")
 
 plt.savefig('3body_trials.png', dpi=300)
+plt.clf()
+
+# plot trajectories (theta vs omega)
+fig, (ax) = plt.subplots(1, 1,figsize=(5, 5))
+plt.subplots_adjust(left=0.10, bottom=0.10, right=.98, top=0.98, wspace=0.02, hspace=0.02)
+ax.set_ylabel(r"$\theta$ ($^{\circ}$)")
+ax.set_xlabel(r"$\omega/n$")
+for i in range(n_trials):
+    ax.plot(omegas[i],thetas[i], lw=1., color='black', alpha=0.2)
+plt.savefig('3body_trajs.png', dpi=300)
 plt.clf()
