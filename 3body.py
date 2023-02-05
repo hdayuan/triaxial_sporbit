@@ -154,7 +154,7 @@ def run_sim(trial_num, tf=1.5e7, n_out=200):
     omega_to_n = max_omega*np.random.default_rng().uniform()
 
     ### RUN SIMULATION ###
-    print(f"Trial {trial_num} initiated")
+    print(f"Trial {trial_num} initiated",flush=True)
 
     # make sim
     sim_params = a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out
@@ -195,7 +195,7 @@ def run_sim(trial_num, tf=1.5e7, n_out=200):
     hrs = int_time // 3600
     mins = (int_time % 3600) // 60
     secs = int((int_time % 3600) % 60)
-    print(f"Trial {trial_num} completed in {hrs} hours {mins} minutes {secs} seconds.")
+    print(f"Trial {trial_num} completed in {hrs} hours {mins} minutes {secs} seconds.", flush=True)
     return 
 
 # main function
@@ -209,4 +209,4 @@ if __name__ == '__main__':
     hrs = tot_time // 3600
     mins = (tot_time % 3600) // 60
     secs = int((tot_time % 3600) % 60)
-    print(f"Total Runtime: {hrs} hours {mins} minutes {secs} seconds")
+    print(f"Total Runtime: {hrs} hours {mins} minutes {secs} seconds", flush=True)
