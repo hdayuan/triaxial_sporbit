@@ -29,6 +29,7 @@ equi:
 
 3bd_plot:
 	python3 3body_plot.py
+	open *.png
 
 eq_plot:
 	python3 2body_plot.py

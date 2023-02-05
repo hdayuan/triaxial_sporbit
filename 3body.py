@@ -124,7 +124,7 @@ def get_theta_phi_deg(ps):
 def get_omega_to_n(ps):
     return ps[1].params['tt_omega']/ps[1].n 
 
-def run_sim(trial_num, tf=5.e6, n_out=200):
+def run_sim(trial_num, tf=1.5e7, n_out=200):
 
     start = time.time()
 
@@ -150,7 +150,7 @@ def run_sim(trial_num, tf=5.e6, n_out=200):
 
     # variable params
     theta = 0. # np.pi*np.random.default_rng().uniform()
-    max_omega = 2. # 2 because otherwise obliquity is excited # (1+(np.pi/2/np.arctan(1/Q_tide)))
+    max_omega = 4. # 2 because otherwise obliquity is excited # (1+(np.pi/2/np.arctan(1/Q_tide)))
     omega_to_n = max_omega*np.random.default_rng().uniform()
 
     ### RUN SIMULATION ###
@@ -162,7 +162,7 @@ def run_sim(trial_num, tf=5.e6, n_out=200):
     ps = sim.particles
 
     # make output directory and file
-    dir_path = "./3bd_20i_1e-3j2_100Q_0.025dt"
+    dir_path = "./3bd_20i_4otn_1e-3j2_100Q_0.025dt"
     if trial_num == 0:
         if os.path.exists(dir_path):
             print("Error: Directory already exists")
