@@ -150,7 +150,7 @@ def integrate_sim(dir_path,sim_params,trial_num_dec,tf,nv,inds):
     # want to plot omega, theta, phi, psi, eccentricity, and inclination so save those to array
     # also write time
     year = ps[1].P
-    n_out = ((tf* year) // sim.dt) + 1
+    n_out = int(((tf* year) // sim.dt) + 1)
     nv = 7
     out_data = np.zeros((nv,n_out))
     omega_ind,theta_ind,phi_ind,psi_ind,e_ind,inc_ind,t_ind = inds
