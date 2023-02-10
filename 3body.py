@@ -228,7 +228,7 @@ def run_sim(trial_num, tf=5.e7):
     i, j, k = get_rand_ijk()
 
     # make output directory and file
-    dir_path = "./v2_3bd_"+str(i_out)+"i_3j2_5tri_"+str(Q_tide)+"Q_0.025dt"
+    dir_path = "./v2_3bd_"+str(int(np.degrees(i_out)))+"i_3j2_5tri_"+str(Q_tide)+"Q_0.025dt"
     if trial_num == 0:
         if os.path.exists(dir_path):
             print("Error: Directory already exists")
