@@ -25,7 +25,7 @@ def get_rand_ijk():
 # theta = obliquity, phi = azimuthal angle, 
 # phi = 0 corresponds to initial condition where planet's k axis is tilting directly away from star
 def create_sim(sim_params,dt_frac=0.025,rand_ijk=True):
-    a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out = sim_params
+    i,j,k,a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out = sim_params
 
     sim = rebound.Simulation()
     sim.integrator = 'whfast'
@@ -54,7 +54,6 @@ def create_sim(sim_params,dt_frac=0.025,rand_ijk=True):
         ps[1].params['tt_kz'] = np.cos(theta)
 
     else:
-        i, j, k = get_rand_ijk()
         ps[1].params['tt_ix'] = i[0]
         ps[1].params['tt_iy'] = i[1]
         ps[1].params['tt_iz'] = i[2]
@@ -104,19 +103,19 @@ def calc_orbit_normal(ps, index):
     return np.cross(r_hat, v_hat)
 
 # returns (obliquity, phi) of body at index 1 in degrees
-def get_theta_phi_deg(ps):
+def get_theta_phi(ps):
     # calculate theta
     s_ijk = np.array([ps[1].params['tt_si'],ps[1].params['tt_sj'],ps[1].params['tt_sk']])
     ijk_xyz = np.array([[ps[1].params['tt_ix'],ps[1].params['tt_iy'],ps[1].params['tt_iz']],[ps[1].params['tt_jx'],ps[1].params['tt_jy'],ps[1].params['tt_jz']],[ps[1].params['tt_kx'],ps[1].params['tt_ky'],ps[1].params['tt_kz']]])
     s_xyz = s_ijk[0]*ijk_xyz[0] + s_ijk[1]*ijk_xyz[1] + s_ijk[2]*ijk_xyz[2]
     n_hat = calc_orbit_normal(ps,1) # orbit normal of triaxial planet
-    theta = np.degrees(np.arccos(np.dot(n_hat,s_xyz)))
+    theta = np.arccos(np.dot(n_hat,s_xyz))
     
     # calculate phi
     n_p_hat = calc_orbit_normal(ps,2) # orbit normal of perturbing planet
     y_hat = np.cross(n_p_hat, n_hat) # unrelated to y basis unit vector
     x_hat = np.cross(y_hat, n_hat) # unrelated to x basis unit vector
-    phi = np.degrees(np.arctan2(np.dot(s_xyz,y_hat),np.dot(s_xyz,x_hat))) 
+    phi = np.arctan2(np.dot(s_xyz,y_hat),np.dot(s_xyz,x_hat)) 
     
     return (theta, phi)
 
@@ -124,9 +123,75 @@ def get_theta_phi_deg(ps):
 def get_omega_to_n(ps):
     return ps[1].params['tt_omega']/ps[1].n 
 
-def run_sim(trial_num, tf=1.5e7, n_out=200):
+def get_psi(ps):
+    r_vec = np.array([ps[1].x - ps[0].x, ps[1].y - ps[0].y, ps[1].z - ps[0].z])
+    r = np.sqrt(np.dot(r_vec,r_vec))
+    r_hat = r_vec / r
+    i_hat = np.array([ps[1].params['tt_ix'], ps[1].params['tt_iy'], ps[1].params['tt_iz']])
+    j_hat = np.array([ps[1].params['tt_jx'], ps[1].params['tt_jy'], ps[1].params['tt_jz']])
+    n_hat = calc_orbit_normal(ps,1)
+    # subtact component of i that is not in orbital plane
+    i_pl = i_hat - (np.dot(i_hat,n_hat)*n_hat)
+    i_pl_hat = i_pl / np.sqrt(np.dot(i_pl,i_pl))
+    j_pl_hat = np.cross(n_hat, i_pl_hat)
 
+    i_dot_r = np.dot(i_pl_hat,r_hat)
+    j_dot_r = np.dot(j_pl_hat,r_hat)
+    return np.arctan2(j_dot_r, i_dot_r)
+
+def integrate_sim(dir_path,sim_params,trial_num_dec,tf,nv,inds):
     start = time.time()
+    print(f"Trial {trial_num_dec} initiated",flush=True)
+
+    # make sim
+    sim = create_sim(sim_params)
+    ps = sim.particles
+
+    # want to plot omega, theta, phi, psi, eccentricity, and inclination so save those to array
+    # also write time
+    year = ps[1].P
+    n_out = ((tf* year) // sim.dt) + 1
+    nv = 7
+    out_data = np.zeros((nv,n_out))
+    omega_ind,theta_ind,phi_ind,psi_ind,e_ind,inc_ind,t_ind = inds
+
+    for i in range(n_out):
+        sim.integrate(i*sim.dt)
+        t = sim.t / year
+        omega = get_omega_to_n(ps)
+        theta, phi = get_theta_phi(ps)
+        psi = get_psi(ps)
+        e = ps[1].e
+        inc = ps[1].inc
+
+        out_data[omega_ind,i] = omega
+        out_data[theta_ind,i] = theta
+        out_data[phi_ind,i] = phi
+        out_data[psi_ind,i] = psi
+        out_data[e_ind,i] = e
+        out_data[inc_ind,i] = inc
+        out_data[t_ind,i] = t
+
+    # unwrap phi and psi, convert all angles to degrees
+    theta_temp = np.degrees(out_data[theta_ind])
+    phi_temp = np.degrees(np.unwrap(out_data[phi_ind]))
+    psi_temp = np.degrees(np.unwrap(out_data[psi_ind]))
+    out_data[theta_ind] = theta_temp
+    out_data[phi_ind] = phi_temp
+    out_data[psi_ind] = psi_temp
+
+    file_path = os.path.join(dir_path,"trial_"+str(trial_num_dec)+".txt")
+    
+    with open(file_path, 'wb') as f:
+        np.save(f, out_data)
+    
+    int_time = time.time() - start
+    hrs = int_time // 3600
+    mins = (int_time % 3600) // 60
+    secs = int((int_time % 3600) % 60)
+    print(f"Trial {trial_num_dec} completed in {hrs} hours {mins} minutes {secs} seconds.", flush=True) 
+
+def run_sim(trial_num, tf=5.e7):
 
     # some constants
     Re = 4.263e-5 # radius of Earth in AU
@@ -136,7 +201,7 @@ def run_sim(trial_num, tf=1.5e7, n_out=200):
     ### SIMULATION PARAMETERS ###
     # fixed parameters
     a = .4 # semi-major axis of inner planet
-    Q_tide = 100.
+    Q_tide = 300.
     R_p = 2.*Re # radius of inner planet
     M_p = 4.*Me # mass of inner planet
     k2 = 1.5 # 1.5 for uniformly distributed mass
@@ -145,24 +210,25 @@ def run_sim(trial_num, tf=1.5e7, n_out=200):
     i_out = np.radians(20.) # inclination of outer planet
     M_out = Mj # mass of outer planet
     # What to do about these?
-    moment2 = 1.e-3 # 1e-1 # (Ij - Ii) / Ii, < moment3
+    moment2 = 1.e-5 # 1e-1 # (Ij - Ii) / Ii, < moment3
     moment3 = 1.e-3 # 2e-1 # (Ik - Ii) / Ii, > moment2
 
     # variable params
     theta = 0. # np.pi*np.random.default_rng().uniform()
-    max_omega = 4. # 2 because otherwise obliquity is excited # (1+(np.pi/2/np.arctan(1/Q_tide)))
-    omega_to_n = max_omega*np.random.default_rng().uniform()
+    # max_omega = 4. # 2 because otherwise obliquity is excited # (1+(np.pi/2/np.arctan(1/Q_tide)))
+    # omega_to_n = max_omega*np.random.default_rng().uniform()
+    omega_hi = 2.5
+    omega_lo = 1.5
+    if trial_num % 2 == 0:
+        omega_to_n = omega_hi
+    else:
+        omega_to_n = omega_lo
 
-    ### RUN SIMULATION ###
-    print(f"Trial {trial_num} initiated",flush=True)
-
-    # make sim
-    sim_params = a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out
-    sim = create_sim(sim_params)
-    ps = sim.particles
+    # generate random i,j,k
+    i, j, k = get_rand_ijk()
 
     # make output directory and file
-    dir_path = "./3bd_20i_4otn_1e-3j2_100Q_0.025dt"
+    dir_path = "./v2_3bd_"+str(i_out)+"i_3j2_5tri_"+str(Q_tide)+"Q_0.025dt"
     if trial_num == 0:
         if os.path.exists(dir_path):
             print("Error: Directory already exists")
@@ -171,39 +237,34 @@ def run_sim(trial_num, tf=1.5e7, n_out=200):
     else:
         while (not os.path.exists(dir_path)):
             time.sleep(1)
-            
-    file_path = os.path.join(dir_path,"trial_"+str(trial_num)+".txt")
-    f = open(file_path, "w")
 
-    # want to plot omega, theta, and phi, so write those to file
-    # also write time
-    step = tf / (n_out-1)
-    year = ps[1].P
-    for i in range(n_out):
-        sim.integrate(i*step*year)
-        t = sim.t / year
-        omega = get_omega_to_n(ps)
-        theta, phi = get_theta_phi_deg(ps)
+    # output format params
+    nv = 7
+    omega_ind = 0
+    theta_ind = 1
+    phi_ind = 2
+    psi_ind = 3
+    e_ind = 4
+    inc_ind = 5
+    t_ind = 6
+    inds = (omega_ind,theta_ind,phi_ind,psi_ind,e_ind,inc_ind,t_ind)
 
-        f.write(str(t)+'\t')
-        f.write(str(omega)+'\t')
-        f.write(str(theta)+'\t')
-        f.write(str(phi)+'\n')
-    
-    f.close()
-    int_time = time.time() - start
-    hrs = int_time // 3600
-    mins = (int_time % 3600) // 60
-    secs = int((int_time % 3600) % 60)
-    print(f"Trial {trial_num} completed in {hrs} hours {mins} minutes {secs} seconds.", flush=True)
-    return 
+    ### RUN SIMULATION ###
+    sim_params = i,j,k,a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out
+    integrate_sim(dir_path,sim_params,trial_num,tf,nv,inds)
+
+    ### Re-RUN SIMULATION with same parameters, except just j2 ###
+    trial_num_2 = trial_num + 0.1
+    moment2 = 0.
+    sim_params = i,j,k,a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out
+    integrate_sim(dir_path,sim_params,trial_num,tf,nv,inds)
 
 # main function
 if __name__ == '__main__':
-    n_trials = 30
+    n_trials = 20
     start = time.time()
-    with mp.Pool(processes=30) as pool:
-        int_times = pool.map(run_sim, range(n_trials))
+    with mp.Pool(processes=n_trials) as pool:
+        pool.map(run_sim, range(n_trials))
     
     tot_time = time.time() - start
     hrs = tot_time // 3600
