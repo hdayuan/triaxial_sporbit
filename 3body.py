@@ -151,9 +151,9 @@ def integrate_sim(dir_path,sim_params,trial_num_dec,tf,nv,inds,step):
     # also write time
     year = ps[1].P
     n_out = int((tf // step) + 1)
-    nv = 7
-    out_data = np.zeros((nv,n_out))
-    omega_ind,theta_ind,phi_ind,psi_ind,e_ind,inc_ind,t_ind = inds
+    nv = 6
+    out_data = np.zeros((nv,n_out), dtype=np.half)
+    omega_ind,theta_ind,phi_ind,psi_ind,e_ind,t_ind = inds
 
     for i in range(n_out):
         sim.integrate(i*step*year)
@@ -162,25 +162,20 @@ def integrate_sim(dir_path,sim_params,trial_num_dec,tf,nv,inds,step):
         theta, phi = get_theta_phi(ps)
         psi = get_psi(ps)
         e = ps[1].e
-        inc = ps[1].inc
 
         out_data[omega_ind,i] = omega
         out_data[theta_ind,i] = theta
         out_data[phi_ind,i] = phi
         out_data[psi_ind,i] = psi
         out_data[e_ind,i] = e
-        out_data[inc_ind,i] = inc
         out_data[t_ind,i] = t
 
     # unwrap phi and psi, convert all angles to degrees
-    theta_temp = np.degrees(out_data[theta_ind])
-    phi_temp = np.degrees(np.unwrap(out_data[phi_ind]))
-    psi_temp = np.degrees(np.unwrap(out_data[psi_ind]))
-    out_data[theta_ind] = theta_temp
-    out_data[phi_ind] = phi_temp
-    out_data[psi_ind] = psi_temp
+    out_data[theta_ind] = np.degrees(out_data[theta_ind])
+    out_data[phi_ind] = np.degrees(np.unwrap(out_data[phi_ind]))
+    out_data[psi_ind] = np.degrees(np.unwrap(out_data[psi_ind]))
 
-    file_path = os.path.join(dir_path,"trial_"+str(trial_num_dec)+".txt")
+    file_path = os.path.join(dir_path,"trial_"+str(trial_num_dec)+".npy")
     
     with open(file_path, 'wb') as f:
         np.save(f, out_data)
@@ -191,7 +186,7 @@ def integrate_sim(dir_path,sim_params,trial_num_dec,tf,nv,inds,step):
     secs = int((int_time % 3600) % 60)
     print(f"Trial {trial_num_dec} completed in {hrs} hours {mins} minutes {secs} seconds.", flush=True) 
 
-def run_sim(trial_num, tf=2.e7, out_step=100.):
+def run_sim(trial_num, tf=3.e7, out_step=10.):
 
     # some constants
     Re = 4.263e-5 # radius of Earth in AU
@@ -228,7 +223,7 @@ def run_sim(trial_num, tf=2.e7, out_step=100.):
     i, j, k = get_rand_ijk()
 
     # make output directory and file
-    dir_path = "./v2_3bd_"+str(int(np.degrees(i_out)))+"i_3j2_5tri_"+str(Q_tide)+"Q_0.025dt"
+    dir_path = "./v2_3bd_"+str(int(np.degrees(i_out)))+"i_3j2_5tri_"+str(int(Q_tide))+"Q_0.025dt"
     if trial_num == 0:
         if os.path.exists(dir_path):
             print("Error: Directory already exists")
@@ -239,15 +234,15 @@ def run_sim(trial_num, tf=2.e7, out_step=100.):
             time.sleep(1)
 
     # output format params
-    nv = 7
+    nv = 6
     omega_ind = 0
     theta_ind = 1
     phi_ind = 2
     psi_ind = 3
     e_ind = 4
-    inc_ind = 5
-    t_ind = 6
-    inds = (omega_ind,theta_ind,phi_ind,psi_ind,e_ind,inc_ind,t_ind)
+    # inc_ind = 5
+    t_ind = 5
+    inds = (omega_ind,theta_ind,phi_ind,psi_ind,e_ind,t_ind)
 
     ### RUN SIMULATION ###
     sim_params = i,j,k,a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out
