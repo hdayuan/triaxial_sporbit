@@ -68,3 +68,14 @@ Trial 7.1 completed in 1.0 hours 54.0 minutes 40 seconds.
 Trial 17.1 completed in 1.0 hours 54.0 minutes 40 seconds.
 Trial 19.1 completed in 1.0 hours 54.0 minutes 43 seconds.
 Trial 11.1 completed in 1.0 hours 54.0 minutes 48 seconds.
+Trial 6.1 completed in 3.0 hours 7.0 minutes 32 seconds.
+Trial 8.1 completed in 3.0 hours 7.0 minutes 48 seconds.
+Trial 0.1 completed in 3.0 hours 7.0 minutes 33 seconds.
+Trial 16.1 completed in 3.0 hours 7.0 minutes 35 seconds.
+Trial 18.1 completed in 3.0 hours 7.0 minutes 50 seconds.
+Trial 2.1 completed in 3.0 hours 7.0 minutes 31 seconds.
+Trial 14.1 completed in 3.0 hours 7.0 minutes 55 seconds.
+Trial 4.1 completed in 3.0 hours 7.0 minutes 56 seconds.
+Trial 10.1 completed in 3.0 hours 7.0 minutes 49 seconds.
+Trial 12.1 completed in 3.0 hours 7.0 minutes 54 seconds.
+Total Runtime: 6.0 hours 14.0 minutes 38 seconds

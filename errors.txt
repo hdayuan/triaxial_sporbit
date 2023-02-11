@@ -1,0 +1,20 @@
+3body.py:112: RuntimeWarning: invalid value encountered in arccos
+  theta = np.arccos(np.dot(n_hat,s_xyz))
+3body.py:112: RuntimeWarning: invalid value encountered in arccos
+  theta = np.arccos(np.dot(n_hat,s_xyz))
+3body.py:112: RuntimeWarning: invalid value encountered in arccos
+  theta = np.arccos(np.dot(n_hat,s_xyz))
+3body.py:112: RuntimeWarning: invalid value encountered in arccos
+  theta = np.arccos(np.dot(n_hat,s_xyz))
+3body.py:112: RuntimeWarning: invalid value encountered in arccos
+  theta = np.arccos(np.dot(n_hat,s_xyz))
+3body.py:112: RuntimeWarning: invalid value encountered in arccos
+  theta = np.arccos(np.dot(n_hat,s_xyz))
+3body.py:112: RuntimeWarning: invalid value encountered in arccos
+  theta = np.arccos(np.dot(n_hat,s_xyz))
+3body.py:112: RuntimeWarning: invalid value encountered in arccos
+  theta = np.arccos(np.dot(n_hat,s_xyz))
+3body.py:112: RuntimeWarning: invalid value encountered in arccos
+  theta = np.arccos(np.dot(n_hat,s_xyz))
+3body.py:112: RuntimeWarning: invalid value encountered in arccos
+  theta = np.arccos(np.dot(n_hat,s_xyz))
