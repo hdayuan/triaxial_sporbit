@@ -139,7 +139,7 @@ def get_psi(ps):
     j_dot_r = np.dot(j_pl_hat,r_hat)
     return np.arctan2(j_dot_r, i_dot_r)
 
-def integrate_sim(dir_path,sim_params,trial_num_dec,tf,nv,inds):
+def integrate_sim(dir_path,sim_params,trial_num_dec,tf,nv,inds,step):
     start = time.time()
     print(f"Trial {trial_num_dec} initiated",flush=True)
 
@@ -150,13 +150,13 @@ def integrate_sim(dir_path,sim_params,trial_num_dec,tf,nv,inds):
     # want to plot omega, theta, phi, psi, eccentricity, and inclination so save those to array
     # also write time
     year = ps[1].P
-    n_out = int(((tf* year) // sim.dt) + 1)
+    n_out = int((tf // step) + 1)
     nv = 7
     out_data = np.zeros((nv,n_out))
     omega_ind,theta_ind,phi_ind,psi_ind,e_ind,inc_ind,t_ind = inds
 
     for i in range(n_out):
-        sim.integrate(i*sim.dt)
+        sim.integrate(i*step*year)
         t = sim.t / year
         omega = get_omega_to_n(ps)
         theta, phi = get_theta_phi(ps)
@@ -191,7 +191,7 @@ def integrate_sim(dir_path,sim_params,trial_num_dec,tf,nv,inds):
     secs = int((int_time % 3600) % 60)
     print(f"Trial {trial_num_dec} completed in {hrs} hours {mins} minutes {secs} seconds.", flush=True) 
 
-def run_sim(trial_num, tf=5.e7):
+def run_sim(trial_num, tf=2.e7, out_step=100.):
 
     # some constants
     Re = 4.263e-5 # radius of Earth in AU
@@ -251,13 +251,13 @@ def run_sim(trial_num, tf=5.e7):
 
     ### RUN SIMULATION ###
     sim_params = i,j,k,a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out
-    integrate_sim(dir_path,sim_params,trial_num,tf,nv,inds)
+    integrate_sim(dir_path,sim_params,trial_num,tf,nv,inds,out_step)
 
     ### Re-RUN SIMULATION with same parameters, except just j2 ###
     trial_num_2 = trial_num + 0.1
     moment2 = 0.
     sim_params = i,j,k,a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out
-    integrate_sim(dir_path,sim_params,trial_num,tf,nv,inds)
+    integrate_sim(dir_path,sim_params,trial_num_2,tf,nv,inds,out_step)
 
 # main function
 if __name__ == '__main__':

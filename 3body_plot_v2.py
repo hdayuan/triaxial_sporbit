@@ -47,7 +47,7 @@ def plot_trial(fig,axs,triax_out_data,j2_out_data,inds,ds):
 
 if __name__=="__main__":
 
-    together = False
+    together = True
 
     # read data
     n_trials = 20
