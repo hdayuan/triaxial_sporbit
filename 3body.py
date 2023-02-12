@@ -152,7 +152,7 @@ def integrate_sim(dir_path,sim_params,trial_num_dec,tf,nv,inds,step):
     year = ps[1].P
     n_out = int((tf // step) + 1)
     nv = 6
-    out_data = np.zeros((nv,n_out), dtype=np.half)
+    out_data = np.zeros((nv,n_out), dtype=np.float32)
     omega_ind,theta_ind,phi_ind,psi_ind,e_ind,t_ind = inds
 
     for i in range(n_out):

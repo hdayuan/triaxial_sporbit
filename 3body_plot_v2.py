@@ -13,7 +13,7 @@ plt.rc('xtick', direction='in', top=True, bottom=True)
 plt.rc('ytick', direction='in', left=True, right=True)
 
 def get_fig_axs(nv):
-    fig, axs = plt.subplots(6, 2,figsize=(10, 16), sharex=True)
+    fig, axs = plt.subplots(nv-1, 2,figsize=(10, 16), sharex=True)
     plt.subplots_adjust(left=0.15, bottom=0.1, right=.98, top=0.92, wspace=0.1, hspace=0.1)
     ylabels = [r"$\omega/n$",r"$\theta$ ($^{\circ}$)",r"$\phi$ ($^{\circ}$)",r"$\psi$ ($^{\circ}$)",r"Eccentricity",r"Inclination"]
     for i in range(nv-1):
@@ -27,7 +27,7 @@ def get_fig_axs(nv):
 
 # ds is ds
 def plot_trial(fig,axs,triax_out_data,j2_out_data,inds,ds):
-    omega_ind,theta_ind,phi_ind,psi_ind,e_ind,inc_ind,t_ind = inds
+    omega_ind,theta_ind,phi_ind,psi_ind,e_ind,t_ind = inds
     triax_ts = triax_out_data[t_ind,::ds]
     j2_ts = j2_out_data[t_ind,::ds]
 
@@ -36,14 +36,14 @@ def plot_trial(fig,axs,triax_out_data,j2_out_data,inds,ds):
     axs[phi_ind,0].plot(triax_ts,triax_out_data[phi_ind,::ds], lw=.5, color='black', alpha=0.2)
     axs[psi_ind,0].plot(triax_ts,triax_out_data[psi_ind,::ds], lw=.5, color='black', alpha=0.2)
     axs[e_ind,0].plot(triax_ts,triax_out_data[e_ind,::ds], lw=.5, color='black', alpha=0.2)
-    axs[inc_ind,0].plot(triax_ts,triax_out_data[inc_ind,::ds], lw=.5, color='black', alpha=0.2)
+    #axs[inc_ind,0].plot(triax_ts,triax_out_data[inc_ind,::ds], lw=.5, color='black', alpha=0.2)
 
     axs[omega_ind,1].plot(j2_ts,j2_out_data[omega_ind,::ds], lw=.5, color='black', alpha=0.2)
     axs[theta_ind,1].plot(j2_ts,j2_out_data[theta_ind,::ds], lw=.5, color='black', alpha=0.2)
     axs[phi_ind,1].plot(j2_ts,j2_out_data[phi_ind,::ds], lw=.5, color='black', alpha=0.2)
     axs[psi_ind,1].plot(j2_ts,j2_out_data[psi_ind,::ds], lw=.5, color='black', alpha=0.2)
     axs[e_ind,1].plot(j2_ts,j2_out_data[e_ind,::ds], lw=.5, color='black', alpha=0.2)
-    axs[inc_ind,1].plot(j2_ts,j2_out_data[inc_ind,::ds], lw=.5, color='black', alpha=0.2)
+    #axs[inc_ind,1].plot(j2_ts,j2_out_data[inc_ind,::ds], lw=.5, color='black', alpha=0.2)
 
 if __name__=="__main__":
 
@@ -51,21 +51,21 @@ if __name__=="__main__":
 
     # read data
     n_trials = 20
-    nv = 7
+    nv = 6
     omega_ind = 0
     theta_ind = 1
     phi_ind = 2
     psi_ind = 3
     e_ind = 4
-    inc_ind = 5
-    t_ind = 6
-    inds = omega_ind,theta_ind,phi_ind,psi_ind,e_ind,inc_ind,t_ind
+    # inc_ind = 5
+    t_ind = 5
+    inds = omega_ind,theta_ind,phi_ind,psi_ind,e_ind,t_ind
 
-    ds = int(100)
+    ds = int(1000)
 
-    dir_path = "./v2_3bd_20i_3j2_5tri_300.0Q_0.025dt"
-    triax_fs = [dir_path+"/trial_"+str(i)+".txt" for i in range(n_trials)]
-    j2_fs = [dir_path+"/trial_"+str(i)+".1.txt" for i in range(n_trials)]
+    dir_path = "./v2_3bd_20i_3j2_5tri_300Q_0.025dt"
+    triax_fs = [dir_path+"/trial_"+str(i)+".npy" for i in range(n_trials)]
+    j2_fs = [dir_path+"/trial_"+str(i)+".1.npy" for i in range(n_trials)]
 
     if together:
         fig, axs = get_fig_axs(nv)
