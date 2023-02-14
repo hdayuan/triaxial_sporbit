@@ -31,6 +31,9 @@ def plot_trial(fig,axs,triax_out_data,j2_out_data,inds,ds):
     triax_ts = triax_out_data[t_ind,::ds]
     j2_ts = j2_out_data[t_ind,::ds]
 
+    # triax_ts = np.arange(0,3.e7 + 1,10000)
+    # j2_ts = np.arange(0,3.e7 + 1,10000)
+
     axs[omega_ind,0].plot(triax_ts,triax_out_data[omega_ind,::ds], lw=.5, color='black', alpha=0.2)
     axs[theta_ind,0].plot(triax_ts,triax_out_data[theta_ind,::ds], lw=.5, color='black', alpha=0.2)
     axs[phi_ind,0].plot(triax_ts,triax_out_data[phi_ind,::ds], lw=.5, color='black', alpha=0.2)
@@ -48,6 +51,8 @@ def plot_trial(fig,axs,triax_out_data,j2_out_data,inds,ds):
 if __name__=="__main__":
 
     together = True
+
+    skip_trials = [6] # trials that didn't complete, skip them
 
     # read data
     n_trials = 20
@@ -72,6 +77,8 @@ if __name__=="__main__":
 
     # n_errs = 0
     for i in range(n_trials):
+        if i in skip_trials:
+            continue
         if not together:
             fig, axs = get_fig_axs(nv)
 
@@ -104,6 +111,9 @@ if __name__=="__main__":
     ax1.set_title("Triaxial")
     ax2.set_title("Oblate")
     for i in range(n_trials):
+        if i in skip_trials:
+            continue
+        
         f_triax = open(triax_fs[i], 'rb')
         triax_out_data = np.load(f_triax)
 
