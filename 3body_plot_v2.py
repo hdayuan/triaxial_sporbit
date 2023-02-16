@@ -26,33 +26,34 @@ def get_fig_axs(nv):
     return fig,axs
 
 # ds is ds
-def plot_trial(fig,axs,triax_out_data,j2_out_data,inds,ds):
+def plot_trial(fig,axs,triax_out_data,j2_out_data,inds,ds,alpha):
     omega_ind,theta_ind,phi_ind,psi_ind,e_ind,t_ind = inds
     triax_ts = triax_out_data[t_ind,::ds]
     j2_ts = j2_out_data[t_ind,::ds]
 
     # triax_ts = np.arange(0,3.e7 + 1,10000)
     # j2_ts = np.arange(0,3.e7 + 1,10000)
+    # print(np.shape(triax_out_data))
 
-    axs[omega_ind,0].plot(triax_ts,triax_out_data[omega_ind,::ds], lw=.5, color='black', alpha=0.2)
-    axs[theta_ind,0].plot(triax_ts,triax_out_data[theta_ind,::ds], lw=.5, color='black', alpha=0.2)
-    axs[phi_ind,0].plot(triax_ts,triax_out_data[phi_ind,::ds], lw=.5, color='black', alpha=0.2)
-    axs[psi_ind,0].plot(triax_ts,triax_out_data[psi_ind,::ds], lw=.5, color='black', alpha=0.2)
-    axs[e_ind,0].plot(triax_ts,triax_out_data[e_ind,::ds], lw=.5, color='black', alpha=0.2)
-    #axs[inc_ind,0].plot(triax_ts,triax_out_data[inc_ind,::ds], lw=.5, color='black', alpha=0.2)
+    axs[omega_ind,0].plot(triax_ts,triax_out_data[omega_ind,::ds], lw=.5, color='black', alpha=alpha)
+    axs[theta_ind,0].plot(triax_ts,triax_out_data[theta_ind,::ds], lw=.5, color='black', alpha=alpha)
+    axs[phi_ind,0].plot(triax_ts,triax_out_data[phi_ind,::ds], lw=.5, color='black', alpha=alpha)
+    axs[psi_ind,0].plot(triax_ts,triax_out_data[psi_ind,::ds], lw=.5, color='black', alpha=alpha)
+    axs[e_ind,0].plot(triax_ts,triax_out_data[e_ind,::ds], lw=.5, color='black', alpha=alpha)
+    #axs[inc_ind,0].plot(triax_ts,triax_out_data[inc_ind,::ds], lw=.5, color='black', alpha=alpha)
 
-    axs[omega_ind,1].plot(j2_ts,j2_out_data[omega_ind,::ds], lw=.5, color='black', alpha=0.2)
-    axs[theta_ind,1].plot(j2_ts,j2_out_data[theta_ind,::ds], lw=.5, color='black', alpha=0.2)
-    axs[phi_ind,1].plot(j2_ts,j2_out_data[phi_ind,::ds], lw=.5, color='black', alpha=0.2)
-    axs[psi_ind,1].plot(j2_ts,j2_out_data[psi_ind,::ds], lw=.5, color='black', alpha=0.2)
-    axs[e_ind,1].plot(j2_ts,j2_out_data[e_ind,::ds], lw=.5, color='black', alpha=0.2)
-    #axs[inc_ind,1].plot(j2_ts,j2_out_data[inc_ind,::ds], lw=.5, color='black', alpha=0.2)
+    axs[omega_ind,1].plot(j2_ts,j2_out_data[omega_ind,::ds], lw=.5, color='black', alpha=alpha)
+    axs[theta_ind,1].plot(j2_ts,j2_out_data[theta_ind,::ds], lw=.5, color='black', alpha=alpha)
+    axs[phi_ind,1].plot(j2_ts,j2_out_data[phi_ind,::ds], lw=.5, color='black', alpha=alpha)
+    axs[psi_ind,1].plot(j2_ts,j2_out_data[psi_ind,::ds], lw=.5, color='black', alpha=alpha)
+    axs[e_ind,1].plot(j2_ts,j2_out_data[e_ind,::ds], lw=.5, color='black', alpha=alpha)
+    #axs[inc_ind,1].plot(j2_ts,j2_out_data[inc_ind,::ds], lw=.5, color='black', alpha=alpha)
 
 if __name__=="__main__":
 
     together = True
 
-    skip_trials = [6] # trials that didn't complete, skip them
+    skip_trials = [18] # trials that didn't complete, skip them
 
     # read data
     n_trials = 20
@@ -66,7 +67,7 @@ if __name__=="__main__":
     t_ind = 5
     inds = omega_ind,theta_ind,phi_ind,psi_ind,e_ind,t_ind
 
-    ds = int(1000)
+    ds = int(1.e4)
 
     dir_path = "./v2_3bd_20i_3j2_5tri_300Q_0.025dt"
     triax_fs = [dir_path+"/trial_"+str(i)+".npy" for i in range(n_trials)]
@@ -74,6 +75,9 @@ if __name__=="__main__":
 
     if together:
         fig, axs = get_fig_axs(nv)
+        alpha = 0.2
+    else:
+        alpha = 1.
 
     # n_errs = 0
     for i in range(n_trials):
@@ -89,40 +93,41 @@ if __name__=="__main__":
         j2_out_data = np.load(f_j2)
         # j2_out_data = np.zeros_like(triax_out_data)
         
-        plot_trial(fig,axs,triax_out_data,j2_out_data,inds,ds)
+        plot_trial(fig,axs,triax_out_data,j2_out_data,inds,ds,alpha)
 
         if not together:
-            plt.savefig('3body_trial_'+str(i)+'.png', dpi=300)
+            plt.savefig(os.path.join(dir_path,'plots','3body_trial_'+str(i)+'.png'), dpi=300)
             plt.clf()
 
     # if n_errs > 0:
     #     print(f"Omitting {n_errs} trials with spin rates > 8n")
 
     if together:
-        plt.savefig('3body_trials.png', dpi=300)
+        plt.savefig(os.path.join(dir_path,'plots','3body_trials.png'), dpi=300)
         plt.clf()
 
-    # plot trajectories (theta vs omega)
-    fig, (ax1,ax2) = plt.subplots(1, 2,figsize=(10, 5), sharey=True)
-    plt.subplots_adjust(left=0.10, bottom=0.10, right=.98, top=0.90, wspace=0.02, hspace=0.02)
-    ax1.set_ylabel(r"$\theta$ ($^{\circ}$)")
-    ax1.set_xlabel(r"$\omega/n$")
-    ax2.set_xlabel(r"$\omega/n$")
-    ax1.set_title("Triaxial")
-    ax2.set_title("Oblate")
-    for i in range(n_trials):
-        if i in skip_trials:
-            continue
-        
-        f_triax = open(triax_fs[i], 'rb')
-        triax_out_data = np.load(f_triax)
+    if together:
+        # plot trajectories (theta vs omega)
+        fig, (ax1,ax2) = plt.subplots(1, 2,figsize=(10, 5), sharey=True)
+        plt.subplots_adjust(left=0.10, bottom=0.10, right=.98, top=0.90, wspace=0.02, hspace=0.02)
+        ax1.set_ylabel(r"$\theta$ ($^{\circ}$)")
+        ax1.set_xlabel(r"$\omega/n$")
+        ax2.set_xlabel(r"$\omega/n$")
+        ax1.set_title("Triaxial")
+        ax2.set_title("Oblate")
+        for i in range(n_trials):
+            if i in skip_trials:
+                continue
+            
+            f_triax = open(triax_fs[i], 'rb')
+            triax_out_data = np.load(f_triax)
 
-        f_j2 = open(j2_fs[i], 'rb')
-        j2_out_data = np.load(f_j2)
-        # j2_out_data = np.zeros_like(triax_out_data)
+            f_j2 = open(j2_fs[i], 'rb')
+            j2_out_data = np.load(f_j2)
+            # j2_out_data = np.zeros_like(triax_out_data)
 
-        ax1.plot(triax_out_data[omega_ind,::ds],triax_out_data[theta_ind,::ds], lw=1., color='black', alpha=0.2)
-        ax2.plot(j2_out_data[omega_ind,::ds],j2_out_data[theta_ind,::ds], lw=1., color='black', alpha=0.2)
+            ax1.plot(triax_out_data[omega_ind,::ds],triax_out_data[theta_ind,::ds], lw=1., color='black', alpha=0.2)
+            ax2.plot(j2_out_data[omega_ind,::ds],j2_out_data[theta_ind,::ds], lw=1., color='black', alpha=0.2)
 
-    plt.savefig('3body_trajs.png', dpi=300)
-    plt.clf()
+        plt.savefig(os.path.join(dir_path,'plots','3body_trajs.png'), dpi=300)
+        plt.clf()

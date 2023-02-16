@@ -24,7 +24,7 @@ def get_rand_ijk():
 # make simulation object with given parameters
 # theta = obliquity, phi = azimuthal angle, 
 # phi = 0 corresponds to initial condition where planet's k axis is tilting directly away from star
-def create_sim(sim_params,dt_frac=0.025,rand_ijk=True):
+def create_sim(sim_params,dt_frac=0.05,rand_ijk=True):
     i,j,k,a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out = sim_params
 
     sim = rebound.Simulation()
@@ -167,7 +167,7 @@ def integrate_sim(dir_path,sim_params,trial_num_dec,tf,nv,inds,step):
         out_data[theta_ind,i] = theta
         out_data[phi_ind,i] = phi
         out_data[psi_ind,i] = psi
-        out_data[e_ind,i] = e
+        out_data[e_ind,i] = phi
         out_data[t_ind,i] = t
 
     # unwrap phi and psi, convert all angles to degrees
@@ -186,7 +186,7 @@ def integrate_sim(dir_path,sim_params,trial_num_dec,tf,nv,inds,step):
     secs = int((int_time % 3600) % 60)
     print(f"Trial {trial_num_dec} completed in {hrs} hours {mins} minutes {secs} seconds.", flush=True) 
 
-def run_sim(trial_num, tf=3.e7, out_step=10.):
+def run_sim(trial_num, tf=3.e7, out_step=50.):
 
     # some constants
     Re = 4.263e-5 # radius of Earth in AU
@@ -212,18 +212,14 @@ def run_sim(trial_num, tf=3.e7, out_step=10.):
     theta = 0. # np.pi*np.random.default_rng().uniform()
     # max_omega = 4. # 2 because otherwise obliquity is excited # (1+(np.pi/2/np.arctan(1/Q_tide)))
     # omega_to_n = max_omega*np.random.default_rng().uniform()
-    omega_hi = 2.5
-    omega_lo = 1.5
-    if trial_num % 2 == 0:
-        omega_to_n = omega_hi
-    else:
-        omega_to_n = omega_lo
+    omegas = [1.5,2.5,3.5,4.5]
+    omega_to_n = omegas[trial_num % 4]
 
     # generate random i,j,k
     i, j, k = get_rand_ijk()
 
     # make output directory and file
-    dir_path = "./v2_3bd_"+str(int(np.degrees(i_out)))+"i_3j2_5tri_"+str(int(Q_tide))+"Q_0.025dt"
+    dir_path = "./v2_3bd_4sp_"+str(int(np.degrees(i_out)))+"i_3j2_5tri_"+str(int(Q_tide))+"Q_0.05dt"
     if trial_num == 0:
         if os.path.exists(dir_path):
             print("Error: Directory already exists")
@@ -256,7 +252,7 @@ def run_sim(trial_num, tf=3.e7, out_step=10.):
 
 # main function
 if __name__ == '__main__':
-    n_trials = 20
+    n_trials = 40
     start = time.time()
     with mp.Pool(processes=n_trials) as pool:
         pool.map(run_sim, range(n_trials))
