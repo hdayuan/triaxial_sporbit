@@ -24,7 +24,7 @@ def get_rand_ijk():
 # make simulation object with given parameters
 # theta = obliquity, phi = azimuthal angle, 
 # phi = 0 corresponds to initial condition where planet's k axis is tilting directly away from star
-def create_sim(sim_params,dt_frac=0.05,rand_ijk=True):
+def create_sim(sim_params,dt_frac=0.025,rand_ijk=True):
     i,j,k,a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out = sim_params
 
     sim = rebound.Simulation()
@@ -219,7 +219,7 @@ def run_sim(trial_num, tf=3.e7, out_step=50.):
     i, j, k = get_rand_ijk()
 
     # make output directory and file
-    dir_path = "./v2_3bd_4sp_"+str(int(np.degrees(i_out)))+"i_3j2_5tri_"+str(int(Q_tide))+"Q_0.05dt"
+    dir_path = "./v2_3bd_4sp_"+str(int(np.degrees(i_out)))+"i_3j2_5tri_"+str(int(Q_tide))+"Q_0.025dt"
     if trial_num == 0:
         if os.path.exists(dir_path):
             print("Error: Directory already exists")
