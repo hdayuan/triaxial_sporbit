@@ -1,0 +1,32 @@
+General Shorthands / Notation
+
+> j2 = (K-I) / I, tri = (J-I) / I
+> otn = omega to n ratio
+
+--------------------------------------------------------------------------
+
+Version Notes (for simulation runners and plotters)
+
+> If version not specified, it is old (made before versions created)
+> Each integer version (not sub-versions) has a corresponding plotting script with the version in the title
+> All versions are 3-body simulations (2 planets, 1 star)
+
+v2:
+
+> pretty self-explanatory, all params in directory names
+> only differences are what are plotted
+> plots omega, theta, phi, psi, eccentricity (replaced with wrapped phi for some directories)
+    - phi, psi are unwrapped, but this doesn't seem to work since the data output step is
+    much larger than the spin period.
+
+    v2.1:
+
+    > 20 degree mutual inclination between inner and outer orbital planes
+    > (K-I) / I = 1e-3 (J2 moment)
+    > (J-I) / I = 1e-5 (triaxil moment)
+    > Q = 300
+    > dt = 0.025 of smallest orbital or spin period
+    > plots omega, theta, phi, psi, sk_angle (angle between s hat and k hat)
+        - all angles in degrees and remain wrapped
+
+

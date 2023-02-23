@@ -102,7 +102,7 @@ def calc_orbit_normal(ps, index):
     v_hat = v_xyz / v
     return np.cross(r_hat, v_hat)
 
-# returns (obliquity, phi) of body at index 1 in degrees
+# returns (obliquity, phi) of body at index 1 in radians
 def get_theta_phi(ps):
     # calculate theta
     s_ijk = np.array([ps[1].params['tt_si'],ps[1].params['tt_sj'],ps[1].params['tt_sk']])
@@ -115,7 +115,11 @@ def get_theta_phi(ps):
     n_p_hat = calc_orbit_normal(ps,2) # orbit normal of perturbing planet
     y_hat = np.cross(n_p_hat, n_hat) # unrelated to y basis unit vector
     x_hat = np.cross(y_hat, n_hat) # unrelated to x basis unit vector
-    phi = np.arctan2(np.dot(s_xyz,y_hat),np.dot(s_xyz,x_hat)) 
+    phi = np.arctan2(np.dot(s_xyz,y_hat),np.dot(s_xyz,x_hat))
+
+    # range from 0 to 360
+    if phi < 0:
+        phi = (2*np.pi) + phi
     
     return (theta, phi)
 
@@ -123,12 +127,13 @@ def get_theta_phi(ps):
 def get_omega_to_n(ps):
     return ps[1].params['tt_omega']/ps[1].n 
 
+# returns angle in rad
 def get_psi(ps):
     r_vec = np.array([ps[1].x - ps[0].x, ps[1].y - ps[0].y, ps[1].z - ps[0].z])
     r = np.sqrt(np.dot(r_vec,r_vec))
     r_hat = r_vec / r
     i_hat = np.array([ps[1].params['tt_ix'], ps[1].params['tt_iy'], ps[1].params['tt_iz']])
-    j_hat = np.array([ps[1].params['tt_jx'], ps[1].params['tt_jy'], ps[1].params['tt_jz']])
+    # j_hat = np.array([ps[1].params['tt_jx'], ps[1].params['tt_jy'], ps[1].params['tt_jz']])
     n_hat = calc_orbit_normal(ps,1)
     # subtact component of i that is not in orbital plane
     i_pl = i_hat - (np.dot(i_hat,n_hat)*n_hat)
@@ -137,7 +142,17 @@ def get_psi(ps):
 
     i_dot_r = np.dot(i_pl_hat,r_hat)
     j_dot_r = np.dot(j_pl_hat,r_hat)
-    return np.arctan2(j_dot_r, i_dot_r)
+    psi = np.arctan2(j_dot_r, i_dot_r)
+
+    # range from 0 to 360
+    if psi < 0:
+        psi = (2*np.pi) + psi
+
+    return psi
+
+# returns angle in rad
+def get_sk_angle(ps):
+    return np.arccos(ps[1].params['tt_sk'])
 
 def integrate_sim(dir_path,sim_params,trial_num_dec,tf,nv,inds,step):
     start = time.time()
@@ -153,7 +168,7 @@ def integrate_sim(dir_path,sim_params,trial_num_dec,tf,nv,inds,step):
     n_out = int((tf // step) + 1)
     nv = 6
     out_data = np.zeros((nv,n_out), dtype=np.float32)
-    omega_ind,theta_ind,phi_ind,psi_ind,e_ind,t_ind = inds
+    omega_ind,theta_ind,phi_ind,psi_ind,sk_ind,t_ind = inds
 
     for i in range(n_out):
         sim.integrate(i*step*year)
@@ -161,19 +176,20 @@ def integrate_sim(dir_path,sim_params,trial_num_dec,tf,nv,inds,step):
         omega = get_omega_to_n(ps)
         theta, phi = get_theta_phi(ps)
         psi = get_psi(ps)
-        e = ps[1].e
+        sk_angle = get_sk_angle(ps)
 
         out_data[omega_ind,i] = omega
         out_data[theta_ind,i] = theta
         out_data[phi_ind,i] = phi
         out_data[psi_ind,i] = psi
-        out_data[e_ind,i] = phi
+        out_data[sk_ind,i] = sk_angle
         out_data[t_ind,i] = t
 
-    # unwrap phi and psi, convert all angles to degrees
+    # convert all angles to degrees
     out_data[theta_ind] = np.degrees(out_data[theta_ind])
-    out_data[phi_ind] = np.degrees(np.unwrap(out_data[phi_ind]))
-    out_data[psi_ind] = np.degrees(np.unwrap(out_data[psi_ind]))
+    out_data[phi_ind] = np.degrees(out_data[phi_ind])
+    out_data[psi_ind] = np.degrees(out_data[psi_ind])
+    out_data[sk_ind] = np.degrees(out_data[sk_ind])
 
     file_path = os.path.join(dir_path,"trial_"+str(trial_num_dec)+".npy")
     
@@ -186,7 +202,7 @@ def integrate_sim(dir_path,sim_params,trial_num_dec,tf,nv,inds,step):
     secs = int((int_time % 3600) % 60)
     print(f"Trial {trial_num_dec} completed in {hrs} hours {mins} minutes {secs} seconds.", flush=True) 
 
-def run_sim(trial_num, tf=3.e7, out_step=50.):
+def run_sim(trial_num, tf=2.e7, out_step=50.):
 
     # some constants
     Re = 4.263e-5 # radius of Earth in AU
@@ -212,14 +228,14 @@ def run_sim(trial_num, tf=3.e7, out_step=50.):
     theta = 0. # np.pi*np.random.default_rng().uniform()
     # max_omega = 4. # 2 because otherwise obliquity is excited # (1+(np.pi/2/np.arctan(1/Q_tide)))
     # omega_to_n = max_omega*np.random.default_rng().uniform()
-    omegas = [1.5,2.5,3.5,4.5]
-    omega_to_n = omegas[trial_num % 4]
+    omegas = [1.2,2.2]
+    omega_to_n = omegas[trial_num % 2]
 
     # generate random i,j,k
     i, j, k = get_rand_ijk()
 
     # make output directory and file
-    dir_path = "./v2_3bd_4sp_"+str(int(np.degrees(i_out)))+"i_3j2_5tri_"+str(int(Q_tide))+"Q_0.025dt"
+    dir_path = "./v2.1_data1"
     if trial_num == 0:
         if os.path.exists(dir_path):
             print("Error: Directory already exists")
@@ -235,10 +251,10 @@ def run_sim(trial_num, tf=3.e7, out_step=50.):
     theta_ind = 1
     phi_ind = 2
     psi_ind = 3
-    e_ind = 4
+    sk_ind = 4
     # inc_ind = 5
     t_ind = 5
-    inds = (omega_ind,theta_ind,phi_ind,psi_ind,e_ind,t_ind)
+    inds = (omega_ind,theta_ind,phi_ind,psi_ind,sk_ind,t_ind)
 
     ### RUN SIMULATION ###
     sim_params = i,j,k,a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out
@@ -252,7 +268,7 @@ def run_sim(trial_num, tf=3.e7, out_step=50.):
 
 # main function
 if __name__ == '__main__':
-    n_trials = 40
+    n_trials = 100
     start = time.time()
     with mp.Pool(processes=n_trials) as pool:
         pool.map(run_sim, range(n_trials))
