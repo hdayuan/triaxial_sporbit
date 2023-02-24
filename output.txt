@@ -1,0 +1,385 @@
+Trial 0 initiated
+Trial 6 initiated
+Trial 18 initiated
+Trial 2 initiated
+Trial 4 initiated
+Trial 30 initiated
+Trial 3 initiated
+Trial 5 initiated
+Trial 8 initiated
+Trial 34 initiated
+Trial 22 initiated
+Trial 20 initiated
+Trial 35 initiated
+Trial 33 initiated
+Trial 9 initiated
+Trial 10 initiated
+Trial 32 initiated
+Trial 1 initiated
+Trial 23 initiated
+Trial 48 initiated
+Trial 50 initiated
+Trial 46 initiated
+Trial 67 initiated
+Trial 49 initiated
+Trial 44 initiated
+Trial 40 initiated
+Trial 72 initiated
+Trial 15 initiated
+Trial 58 initiated
+Trial 38 initiated
+Trial 37 initiated
+Trial 51 initiated
+Trial 36 initiated
+Trial 61 initiated
+Trial 93 initiated
+Trial 59 initiated
+Trial 92 initiated
+Trial 17 initiated
+Trial 90 initiated
+Trial 31 initiated
+Trial 68 initiated
+Trial 83 initiated
+Trial 69 initiated
+Trial 71 initiated
+Trial 66 initiated
+Trial 94 initiated
+Trial 52 initiated
+Trial 91 initiated
+Trial 85 initiated
+Trial 63 initiated
+Trial 39 initiated
+Trial 62 initiated
+Trial 56 initiated
+Trial 55 initiated
+Trial 14 initiated
+Trial 28 initiated
+Trial 25 initiated
+Trial 41 initiated
+Trial 82 initiated
+Trial 64 initiated
+Trial 13 initiated
+Trial 45 initiated
+Trial 65 initiated
+Trial 77 initiated
+Trial 75 initiated
+Trial 79 initiated
+Trial 78 initiated
+Trial 57 initiated
+Trial 86 initiated
+Trial 54 initiated
+Trial 88 initiated
+Trial 97 initiated
+Trial 80 initiated
+Trial 70 initiated
+Trial 29 initiated
+Trial 95 initiated
+Trial 81 initiated
+Trial 7 initiated
+Trial 19 initiated
+Trial 21 initiated
+Trial 27 initiated
+Trial 60 initiated
+Trial 87 initiated
+Trial 26 initiated
+Trial 84 initiated
+Trial 42 initiated
+Trial 99 initiated
+Trial 24 initiated
+Trial 11 initiated
+Trial 98 initiated
+Trial 96 initiated
+Trial 16 initiated
+Trial 53 initiated
+Trial 12 initiated
+Trial 89 initiated
+Trial 47 initiated
+Trial 43 initiated
+Trial 73 initiated
+Trial 76 initiated
+Trial 74 initiated
+Trial 12 completed in 2.0 hours 8.0 minutes 55 seconds.
+Trial 12.1 initiated
+Trial 72 completed in 2.0 hours 10.0 minutes 13 seconds.
+Trial 72.1 initiated
+Trial 32 completed in 2.0 hours 10.0 minutes 18 seconds.
+Trial 32.1 initiated
+Trial 34 completed in 2.0 hours 11.0 minutes 18 seconds.
+Trial 34.1 initiated
+Trial 46 completed in 2.0 hours 12.0 minutes 13 seconds.
+Trial 46.1 initiated
+Trial 10 completed in 2.0 hours 12.0 minutes 53 seconds.
+Trial 10.1 initiated
+Trial 38 completed in 2.0 hours 14.0 minutes 2 seconds.
+Trial 38.1 initiated
+Trial 68 completed in 2.0 hours 15.0 minutes 6 seconds.
+Trial 68.1 initiated
+Trial 18 completed in 2.0 hours 15.0 minutes 16 seconds.
+Trial 18.1 initiated
+Trial 36 completed in 2.0 hours 15.0 minutes 34 seconds.
+Trial 36.1 initiated
+Trial 48 completed in 2.0 hours 16.0 minutes 15 seconds.
+Trial 48.1 initiated
+Trial 26 completed in 2.0 hours 16.0 minutes 32 seconds.
+Trial 26.1 initiated
+Trial 6 completed in 2.0 hours 16.0 minutes 39 seconds.
+Trial 6.1 initiated
+Trial 88 completed in 2.0 hours 17.0 minutes 3 seconds.
+Trial 88.1 initiated
+Trial 2 completed in 2.0 hours 17.0 minutes 7 seconds.
+Trial 2.1 initiated
+Trial 64 completed in 2.0 hours 17.0 minutes 41 seconds.
+Trial 64.1 initiated
+Trial 50 completed in 2.0 hours 17.0 minutes 54 seconds.
+Trial 50.1 initiated
+Trial 62 completed in 2.0 hours 17.0 minutes 57 seconds.
+Trial 62.1 initiated
+Trial 42 completed in 2.0 hours 18.0 minutes 20 seconds.
+Trial 42.1 initiated
+Trial 20 completed in 2.0 hours 18.0 minutes 23 seconds.
+Trial 20.1 initiated
+Trial 60 completed in 2.0 hours 18.0 minutes 36 seconds.
+Trial 60.1 initiated
+Trial 16 completed in 2.0 hours 18.0 minutes 37 seconds.
+Trial 16.1 initiated
+Trial 54 completed in 2.0 hours 19.0 minutes 2 seconds.
+Trial 54.1 initiated
+Trial 8 completed in 2.0 hours 19.0 minutes 15 seconds.
+Trial 8.1 initiated
+Trial 70 completed in 2.0 hours 19.0 minutes 20 seconds.
+Trial 70.1 initiated
+Trial 40 completed in 2.0 hours 19.0 minutes 29 seconds.
+Trial 40.1 initiated
+Trial 58 completed in 2.0 hours 19.0 minutes 38 seconds.
+Trial 58.1 initiated
+Trial 78 completed in 2.0 hours 19.0 minutes 46 seconds.
+Trial 78.1 initiated
+Trial 22 completed in 2.0 hours 20.0 minutes 17 seconds.
+Trial 22.1 initiated
+Trial 80 completed in 2.0 hours 20.0 minutes 18 seconds.
+Trial 80.1 initiated
+Trial 94 completed in 2.0 hours 20.0 minutes 27 seconds.
+Trial 94.1 initiated
+Trial 90 completed in 2.0 hours 20.0 minutes 53 seconds.
+Trial 90.1 initiated
+Trial 4 completed in 2.0 hours 21.0 minutes 6 seconds.
+Trial 4.1 initiated
+Trial 92 completed in 2.0 hours 21.0 minutes 10 seconds.
+Trial 92.1 initiated
+Trial 96 completed in 2.0 hours 21.0 minutes 25 seconds.
+Trial 96.1 initiated
+Trial 82 completed in 2.0 hours 21.0 minutes 28 seconds.
+Trial 82.1 initiated
+Trial 14 completed in 2.0 hours 21.0 minutes 43 seconds.
+Trial 14.1 initiated
+Trial 0 completed in 2.0 hours 21.0 minutes 49 seconds.
+Trial 0.1 initiated
+Trial 86 completed in 2.0 hours 21.0 minutes 49 seconds.
+Trial 86.1 initiated
+Trial 44 completed in 2.0 hours 21.0 minutes 55 seconds.
+Trial 44.1 initiated
+Trial 98 completed in 2.0 hours 22.0 minutes 42 seconds.
+Trial 98.1 initiated
+Trial 84 completed in 2.0 hours 22.0 minutes 48 seconds.
+Trial 84.1 initiated
+Trial 30 completed in 2.0 hours 22.0 minutes 52 seconds.
+Trial 30.1 initiated
+Trial 76 completed in 2.0 hours 22.0 minutes 53 seconds.
+Trial 76.1 initiated
+Trial 24 completed in 2.0 hours 23.0 minutes 15 seconds.
+Trial 24.1 initiated
+Trial 52 completed in 2.0 hours 24.0 minutes 13 seconds.
+Trial 52.1 initiated
+Trial 66 completed in 2.0 hours 24.0 minutes 22 seconds.
+Trial 66.1 initiated
+Trial 37 completed in 3.0 hours 49.0 minutes 9 seconds.
+Trial 37.1 initiated
+Trial 23 completed in 3.0 hours 50.0 minutes 23 seconds.
+Trial 23.1 initiated
+Trial 87 completed in 3.0 hours 50.0 minutes 43 seconds.
+Trial 87.1 initiated
+Trial 61 completed in 3.0 hours 52.0 minutes 56 seconds.
+Trial 61.1 initiated
+Trial 33 completed in 3.0 hours 53.0 minutes 58 seconds.
+Trial 33.1 initiated
+Trial 47 completed in 3.0 hours 55.0 minutes 24 seconds.
+Trial 47.1 initiated
+Trial 3 completed in 3.0 hours 56.0 minutes 39 seconds.
+Trial 3.1 initiated
+Trial 35 completed in 3.0 hours 57.0 minutes 4 seconds.
+Trial 35.1 initiated
+Trial 13 completed in 3.0 hours 57.0 minutes 5 seconds.
+Trial 13.1 initiated
+Trial 93 completed in 3.0 hours 57.0 minutes 17 seconds.
+Trial 93.1 initiated
+Trial 17 completed in 3.0 hours 57.0 minutes 45 seconds.
+Trial 17.1 initiated
+Trial 89 completed in 3.0 hours 58.0 minutes 0 seconds.
+Trial 89.1 initiated
+Trial 41 completed in 3.0 hours 58.0 minutes 15 seconds.
+Trial 41.1 initiated
+Trial 19 completed in 3.0 hours 58.0 minutes 52 seconds.
+Trial 19.1 initiated
+Trial 39 completed in 3.0 hours 59.0 minutes 18 seconds.
+Trial 39.1 initiated
+Trial 59 completed in 3.0 hours 59.0 minutes 37 seconds.
+Trial 59.1 initiated
+Trial 77 completed in 4.0 hours 0.0 minutes 0 seconds.
+Trial 77.1 initiated
+Trial 51 completed in 4.0 hours 0.0 minutes 45 seconds.
+Trial 51.1 initiated
+Trial 9 completed in 4.0 hours 1.0 minutes 44 seconds.
+Trial 9.1 initiated
+Trial 85 completed in 4.0 hours 2.0 minutes 55 seconds.
+Trial 85.1 initiated
+Trial 27 completed in 4.0 hours 5.0 minutes 7 seconds.
+Trial 27.1 initiated
+Trial 91 completed in 4.0 hours 5.0 minutes 47 seconds.
+Trial 91.1 initiated
+Trial 1 completed in 4.0 hours 5.0 minutes 52 seconds.
+Trial 1.1 initiated
+Trial 7 completed in 4.0 hours 6.0 minutes 1 seconds.
+Trial 7.1 initiated
+Trial 11 completed in 4.0 hours 6.0 minutes 30 seconds.
+Trial 11.1 initiated
+Trial 57 completed in 4.0 hours 6.0 minutes 39 seconds.
+Trial 57.1 initiated
+Trial 71 completed in 4.0 hours 6.0 minutes 43 seconds.
+Trial 71.1 initiated
+Trial 95 completed in 4.0 hours 6.0 minutes 45 seconds.
+Trial 95.1 initiated
+Trial 73 completed in 4.0 hours 7.0 minutes 1 seconds.
+Trial 73.1 initiated
+Trial 25 completed in 4.0 hours 7.0 minutes 15 seconds.
+Trial 25.1 initiated
+Trial 53 completed in 4.0 hours 7.0 minutes 21 seconds.
+Trial 53.1 initiated
+Trial 99 completed in 4.0 hours 7.0 minutes 30 seconds.
+Trial 99.1 initiated
+Trial 55 completed in 4.0 hours 7.0 minutes 32 seconds.
+Trial 55.1 initiated
+Trial 5 completed in 4.0 hours 7.0 minutes 42 seconds.
+Trial 5.1 initiated
+Trial 69 completed in 4.0 hours 7.0 minutes 47 seconds.
+Trial 69.1 initiated
+Trial 43 completed in 4.0 hours 7.0 minutes 50 seconds.
+Trial 43.1 initiated
+Trial 49 completed in 4.0 hours 8.0 minutes 43 seconds.
+Trial 49.1 initiated
+Trial 65 completed in 4.0 hours 8.0 minutes 44 seconds.
+Trial 65.1 initiated
+Trial 67 completed in 4.0 hours 8.0 minutes 50 seconds.
+Trial 67.1 initiated
+Trial 15 completed in 4.0 hours 9.0 minutes 14 seconds.
+Trial 15.1 initiated
+Trial 83 completed in 4.0 hours 9.0 minutes 59 seconds.
+Trial 83.1 initiated
+Trial 29 completed in 4.0 hours 10.0 minutes 6 seconds.
+Trial 29.1 initiated
+Trial 79 completed in 4.0 hours 10.0 minutes 20 seconds.
+Trial 79.1 initiated
+Trial 31 completed in 4.0 hours 10.0 minutes 42 seconds.
+Trial 31.1 initiated
+Trial 63 completed in 4.0 hours 10.0 minutes 50 seconds.
+Trial 63.1 initiated
+Trial 21 completed in 4.0 hours 12.0 minutes 9 seconds.
+Trial 21.1 initiated
+Trial 81 completed in 4.0 hours 12.0 minutes 15 seconds.
+Trial 81.1 initiated
+Trial 45 completed in 4.0 hours 13.0 minutes 3 seconds.
+Trial 45.1 initiated
+Trial 46.1 completed in 2.0 hours 5.0 minutes 36 seconds.
+Trial 32.1 completed in 2.0 hours 7.0 minutes 50 seconds.
+Trial 12.1 completed in 2.0 hours 10.0 minutes 57 seconds.
+Trial 2.1 completed in 2.0 hours 6.0 minutes 46 seconds.
+Trial 60.1 completed in 2.0 hours 5.0 minutes 46 seconds.
+Trial 54.1 completed in 2.0 hours 5.0 minutes 43 seconds.
+Trial 20.1 completed in 2.0 hours 6.0 minutes 25 seconds.
+Trial 72.1 completed in 2.0 hours 17.0 minutes 8 seconds.
+Trial 96.1 completed in 2.0 hours 6.0 minutes 20 seconds.
+Trial 10.1 completed in 2.0 hours 15.0 minutes 12 seconds.
+Trial 68.1 completed in 2.0 hours 13.0 minutes 7 seconds.
+Trial 44.1 completed in 2.0 hours 6.0 minutes 26 seconds.
+Trial 34.1 completed in 2.0 hours 17.0 minutes 4 seconds.
+Trial 18.1 completed in 2.0 hours 14.0 minutes 9 seconds.
+Trial 86.1 completed in 2.0 hours 7.0 minutes 43 seconds.
+Trial 64.1 completed in 2.0 hours 12.0 minutes 7 seconds.
+Trial 88.1 completed in 2.0 hours 13.0 minutes 48 seconds.
+Trial 48.1 completed in 2.0 hours 14.0 minutes 52 seconds.
+Trial 6.1 completed in 2.0 hours 14.0 minutes 48 seconds.
+Trial 36.1 completed in 2.0 hours 15.0 minutes 53 seconds.
+Trial 38.1 completed in 2.0 hours 18.0 minutes 7 seconds.
+Trial 26.1 completed in 2.0 hours 16.0 minutes 27 seconds.
+Trial 62.1 completed in 2.0 hours 15.0 minutes 2 seconds.
+Trial 78.1 completed in 2.0 hours 13.0 minutes 39 seconds.
+Trial 16.1 completed in 2.0 hours 14.0 minutes 51 seconds.
+Trial 50.1 completed in 2.0 hours 16.0 minutes 1 seconds.
+Trial 70.1 completed in 2.0 hours 14.0 minutes 57 seconds.
+Trial 8.1 completed in 2.0 hours 15.0 minutes 51 seconds.
+Trial 42.1 completed in 2.0 hours 16.0 minutes 57 seconds.
+Trial 94.1 completed in 2.0 hours 15.0 minutes 6 seconds.
+Trial 80.1 completed in 2.0 hours 15.0 minutes 54 seconds.
+Trial 58.1 completed in 2.0 hours 16.0 minutes 39 seconds.
+Trial 4.1 completed in 2.0 hours 15.0 minutes 36 seconds.
+Trial 92.1 completed in 2.0 hours 15.0 minutes 34 seconds.
+Trial 90.1 completed in 2.0 hours 16.0 minutes 33 seconds.
+Trial 40.1 completed in 2.0 hours 17.0 minutes 59 seconds.
+Trial 76.1 completed in 2.0 hours 14.0 minutes 42 seconds.
+Trial 22.1 completed in 2.0 hours 17.0 minutes 26 seconds.
+Trial 0.1 completed in 2.0 hours 16.0 minutes 27 seconds.
+Trial 82.1 completed in 2.0 hours 16.0 minutes 54 seconds.
+Trial 14.1 completed in 2.0 hours 16.0 minutes 39 seconds.
+Trial 52.1 completed in 2.0 hours 14.0 minutes 45 seconds.
+Trial 66.1 completed in 2.0 hours 14.0 minutes 37 seconds.
+Trial 24.1 completed in 2.0 hours 16.0 minutes 0 seconds.
+Trial 30.1 completed in 2.0 hours 16.0 minutes 30 seconds.
+Trial 84.1 completed in 2.0 hours 16.0 minutes 41 seconds.
+Trial 98.1 completed in 2.0 hours 16.0 minutes 55 seconds.
+Trial 37.1 completed in 3.0 hours 15.0 minutes 9 seconds.
+Trial 23.1 completed in 3.0 hours 15.0 minutes 23 seconds.
+Trial 89.1 completed in 3.0 hours 13.0 minutes 15 seconds.
+Trial 87.1 completed in 3.0 hours 20.0 minutes 53 seconds.
+Trial 61.1 completed in 3.0 hours 19.0 minutes 23 seconds.
+Trial 47.1 completed in 3.0 hours 17.0 minutes 35 seconds.
+Trial 85.1 completed in 3.0 hours 11.0 minutes 52 seconds.
+Trial 35.1 completed in 3.0 hours 17.0 minutes 55 seconds.
+Trial 33.1 completed in 3.0 hours 21.0 minutes 10 seconds.
+Trial 3.1 completed in 3.0 hours 18.0 minutes 52 seconds.
+Trial 13.1 completed in 3.0 hours 18.0 minutes 37 seconds.
+Trial 59.1 completed in 3.0 hours 16.0 minutes 41 seconds.
+Trial 7.1 completed in 3.0 hours 10.0 minutes 30 seconds.
+Trial 17.1 completed in 3.0 hours 18.0 minutes 54 seconds.
+Trial 93.1 completed in 3.0 hours 19.0 minutes 26 seconds.
+Trial 91.1 completed in 3.0 hours 11.0 minutes 22 seconds.
+Trial 19.1 completed in 3.0 hours 18.0 minutes 23 seconds.
+Trial 41.1 completed in 3.0 hours 19.0 minutes 2 seconds.
+Trial 77.1 completed in 3.0 hours 17.0 minutes 19 seconds.
+Trial 51.1 completed in 3.0 hours 17.0 minutes 17 seconds.
+Trial 39.1 completed in 3.0 hours 19.0 minutes 9 seconds.
+Trial 9.1 completed in 3.0 hours 17.0 minutes 29 seconds.
+Trial 5.1 completed in 3.0 hours 13.0 minutes 11 seconds.
+Trial 57.1 completed in 3.0 hours 14.0 minutes 32 seconds.
+Trial 1.1 completed in 3.0 hours 15.0 minutes 33 seconds.
+Trial 53.1 completed in 3.0 hours 14.0 minutes 34 seconds.
+Trial 11.1 completed in 3.0 hours 15.0 minutes 27 seconds.
+Trial 55.1 completed in 3.0 hours 14.0 minutes 26 seconds.
+Trial 71.1 completed in 3.0 hours 15.0 minutes 30 seconds.
+Trial 27.1 completed in 3.0 hours 17.0 minutes 14 seconds.
+Trial 65.1 completed in 3.0 hours 14.0 minutes 1 seconds.
+Trial 95.1 completed in 3.0 hours 16.0 minutes 14 seconds.
+Trial 73.1 completed in 3.0 hours 15.0 minutes 59 seconds.
+Trial 43.1 completed in 3.0 hours 15.0 minutes 15 seconds.
+Trial 49.1 completed in 3.0 hours 14.0 minutes 23 seconds.
+Trial 69.1 completed in 3.0 hours 15.0 minutes 24 seconds.
+Trial 67.1 completed in 3.0 hours 14.0 minutes 28 seconds.
+Trial 15.1 completed in 3.0 hours 14.0 minutes 58 seconds.
+Trial 99.1 completed in 3.0 hours 16.0 minutes 56 seconds.
+Trial 63.1 completed in 3.0 hours 13.0 minutes 37 seconds.
+Trial 25.1 completed in 3.0 hours 17.0 minutes 14 seconds.
+Trial 79.1 completed in 3.0 hours 14.0 minutes 46 seconds.
+Trial 45.1 completed in 3.0 hours 12.0 minutes 42 seconds.
+Trial 83.1 completed in 3.0 hours 16.0 minutes 1 seconds.
+Trial 29.1 completed in 3.0 hours 16.0 minutes 5 seconds.
+Trial 31.1 completed in 3.0 hours 15.0 minutes 38 seconds.
+Trial 21.1 completed in 3.0 hours 14.0 minutes 51 seconds.
+Trial 81.1 completed in 3.0 hours 14.0 minutes 48 seconds.
