@@ -15,7 +15,7 @@ plt.rc('ytick', direction='in', left=True, right=True)
 def get_fig_axs(nv):
     fig, axs = plt.subplots(nv-1, 2,figsize=(10, 16), sharex=True)
     plt.subplots_adjust(left=0.15, bottom=0.1, right=.98, top=0.92, wspace=0.1, hspace=0.1)
-    ylabels = [r"$\omega/n$",r"$\theta$ ($^{\circ}$)",r"$\phi$ ($^{\circ}$)",r"$\psi$ ($^{\circ}$)",r"$\phi$ ($^{\circ}$)",r"Inclination"]
+    ylabels = [r"$\omega/n$",r"$\theta$ ($^{\circ}$)",r"$\phi$ ($^{\circ}$)",r"$\psi$ ($^{\circ}$)",r"$\beta$ ($^{\circ}$)"] # ,r"Inclination"]
     for i in range(nv-1):
         axs[i,0].set_ylabel(ylabels[i])
     axs[nv-2,0].set_xlabel("Time (P)")
@@ -27,7 +27,7 @@ def get_fig_axs(nv):
 
 # ds is ds
 def plot_trial(fig,axs,triax_out_data,j2_out_data,inds,ds,alpha):
-    omega_ind,theta_ind,phi_ind,psi_ind,e_ind,t_ind = inds
+    omega_ind,theta_ind,phi_ind,psi_ind,sk_ind,t_ind = inds
     triax_ts = triax_out_data[t_ind,::ds]
     j2_ts = j2_out_data[t_ind,::ds]
 
@@ -39,37 +39,37 @@ def plot_trial(fig,axs,triax_out_data,j2_out_data,inds,ds,alpha):
     axs[theta_ind,0].plot(triax_ts,triax_out_data[theta_ind,::ds], lw=.5, color='black', alpha=alpha)
     axs[phi_ind,0].plot(triax_ts,triax_out_data[phi_ind,::ds], lw=.5, color='black', alpha=alpha)
     axs[psi_ind,0].plot(triax_ts,triax_out_data[psi_ind,::ds], lw=.5, color='black', alpha=alpha)
-    axs[e_ind,0].plot(triax_ts,triax_out_data[e_ind,::ds], lw=.5, color='black', alpha=alpha)
+    axs[sk_ind,0].plot(triax_ts,triax_out_data[sk_ind,::ds], lw=.5, color='black', alpha=alpha)
     #axs[inc_ind,0].plot(triax_ts,triax_out_data[inc_ind,::ds], lw=.5, color='black', alpha=alpha)
 
     axs[omega_ind,1].plot(j2_ts,j2_out_data[omega_ind,::ds], lw=.5, color='black', alpha=alpha)
     axs[theta_ind,1].plot(j2_ts,j2_out_data[theta_ind,::ds], lw=.5, color='black', alpha=alpha)
     axs[phi_ind,1].plot(j2_ts,j2_out_data[phi_ind,::ds], lw=.5, color='black', alpha=alpha)
     axs[psi_ind,1].plot(j2_ts,j2_out_data[psi_ind,::ds], lw=.5, color='black', alpha=alpha)
-    axs[e_ind,1].plot(j2_ts,j2_out_data[e_ind,::ds], lw=.5, color='black', alpha=alpha)
+    axs[sk_ind,1].plot(j2_ts,j2_out_data[sk_ind,::ds], lw=.5, color='black', alpha=alpha)
     #axs[inc_ind,1].plot(j2_ts,j2_out_data[inc_ind,::ds], lw=.5, color='black', alpha=alpha)
 
 if __name__=="__main__":
 
-    together = True
-
-    skip_trials = [26,32] # trials that didn't complete, skip them
+    # Params to change each time
+    together = False
+    dir_path = "./v2.1_data1"
+    n_trials = 100
+    skip_trials = [80] # trials that didn't complete, skip them
 
     # read data
-    n_trials = 20
     nv = 6
     omega_ind = 0
     theta_ind = 1
     phi_ind = 2
     psi_ind = 3
-    e_ind = 4
+    sk_ind = 4
     # inc_ind = 5
     t_ind = 5
-    inds = omega_ind,theta_ind,phi_ind,psi_ind,e_ind,t_ind
+    inds = omega_ind,theta_ind,phi_ind,psi_ind,sk_ind,t_ind
 
     ds = int(1.e3)
 
-    dir_path = "./v2_3bd_4sp_20i_3j2_5tri_300Q_0.025dt"
     plots_dir = os.path.join(dir_path,"plots")
     if not os.path.exists(plots_dir):
         os.mkdir(plots_dir)
@@ -101,6 +101,7 @@ if __name__=="__main__":
         if not together:
             plt.savefig(os.path.join(plots_dir,'3body_trial_'+str(i)+'.png'), dpi=300)
             plt.clf()
+            plt.close(fig)
 
     # if n_errs > 0:
     #     print(f"Omitting {n_errs} trials with spin rates > 8n")
@@ -108,6 +109,7 @@ if __name__=="__main__":
     if together:
         plt.savefig(os.path.join(plots_dir,'3body_trials.png'), dpi=300)
         plt.clf()
+        plt.close(fig)
 
     if together:
         # plot trajectories (theta vs omega)
@@ -134,3 +136,4 @@ if __name__=="__main__":
 
         plt.savefig(os.path.join(plots_dir,'3body_trajs.png'), dpi=300)
         plt.clf()
+        plt.close(fig)

@@ -17,7 +17,8 @@ def get_rand_ijk():
             cont_bool = False
 
     j = pre_j / np.sqrt(np.dot(pre_j,pre_j))
-    k = np.cross(i,j)
+    proto_k = np.cross(i,j)
+    k = proto_k / np.sqrt(np.dot(proto_k,proto_k))
 
     return (i,j,k)
 
@@ -100,7 +101,9 @@ def calc_orbit_normal(ps, index):
     v = np.sqrt(np.dot(v_xyz,v_xyz))
     r_hat = r_xyz / r
     v_hat = v_xyz / v
-    return np.cross(r_hat, v_hat)
+    n = np.cross(r_hat, v_hat)
+    n_hat = n/np.sqrt(np.dot(n,n))
+    return n_hat
 
 # returns (obliquity, phi) of body at index 1 in radians
 def get_theta_phi(ps):
@@ -108,13 +111,16 @@ def get_theta_phi(ps):
     s_ijk = np.array([ps[1].params['tt_si'],ps[1].params['tt_sj'],ps[1].params['tt_sk']])
     ijk_xyz = np.array([[ps[1].params['tt_ix'],ps[1].params['tt_iy'],ps[1].params['tt_iz']],[ps[1].params['tt_jx'],ps[1].params['tt_jy'],ps[1].params['tt_jz']],[ps[1].params['tt_kx'],ps[1].params['tt_ky'],ps[1].params['tt_kz']]])
     s_xyz = s_ijk[0]*ijk_xyz[0] + s_ijk[1]*ijk_xyz[1] + s_ijk[2]*ijk_xyz[2]
+    s_xyz /= np.sqrt(np.dot(s_xyz,s_xyz))
     n_hat = calc_orbit_normal(ps,1) # orbit normal of triaxial planet
     theta = np.arccos(np.dot(n_hat,s_xyz))
     
     # calculate phi
     n_p_hat = calc_orbit_normal(ps,2) # orbit normal of perturbing planet
-    y_hat = np.cross(n_p_hat, n_hat) # unrelated to y basis unit vector
-    x_hat = np.cross(y_hat, n_hat) # unrelated to x basis unit vector
+    y = np.cross(n_p_hat, n_hat) # unrelated to y basis unit vector
+    y_hat = y/np.sqrt(np.dot(y,y))
+    x = np.cross(y_hat, n_hat) # unrelated to x basis unit vector
+    x_hat = x/np.sqrt(np.dot(x,x))
     phi = np.arctan2(np.dot(s_xyz,y_hat),np.dot(s_xyz,x_hat))
 
     # range from 0 to 360
@@ -235,7 +241,7 @@ def run_sim(trial_num, tf=2.e7, out_step=50.):
     i, j, k = get_rand_ijk()
 
     # make output directory and file
-    dir_path = "./v2.1_data1"
+    dir_path = "./v2.2_data"
     if trial_num == 0:
         if os.path.exists(dir_path):
             print("Error: Directory already exists")

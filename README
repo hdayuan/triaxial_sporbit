@@ -4,7 +4,15 @@ General Shorthands / Notation
 > otn = omega to n ratio
 
 --------------------------------------------------------------------------
+Interesting trials
 
+v2_3bd_4sp_20i_3j2_5tri_300Q_0.025dt
+    [1, 8, 31, 36]
+
+v2.2_data1
+    [2,30,32,33,34,36,38,44,47,51,52,58,64,66,67,68,74,88,90,92,]
+
+--------------------------------------------------------------------------
 Version Notes (for simulation runners and plotters)
 
 > If version not specified, it is old (made before versions created)
@@ -29,4 +37,7 @@ v2:
     > plots omega, theta, phi, psi, sk_angle (angle between s hat and k hat)
         - all angles in degrees and remain wrapped
 
+    v2.2:
+
+    > fixed some normalization bugs when calculating angles and generating random ijk
 
