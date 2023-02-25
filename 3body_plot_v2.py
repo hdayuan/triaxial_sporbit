@@ -53,9 +53,9 @@ if __name__=="__main__":
 
     # Params to change each time
     together = False
-    dir_path = "./v2.1_data1"
+    dir_path = "./v2.2_data"
     n_trials = 100
-    skip_trials = [80] # trials that didn't complete, skip them
+    skip_trials = [28,56,74,75,97] # trials that didn't complete, skip them
 
     # read data
     nv = 6

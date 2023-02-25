@@ -241,7 +241,7 @@ def run_sim(trial_num, tf=2.e7, out_step=50.):
     i, j, k = get_rand_ijk()
 
     # make output directory and file
-    dir_path = "./v2.2_data"
+    dir_path = "./data/v2.2_data"
     if trial_num == 0:
         if os.path.exists(dir_path):
             print("Error: Directory already exists")
