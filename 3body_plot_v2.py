@@ -12,6 +12,69 @@ plt.rc('lines', lw=2.5)
 plt.rc('xtick', direction='in', top=True, bottom=True)
 plt.rc('ytick', direction='in', left=True, right=True)
 
+# returns orbit normal unit vector for orbit of body at index index
+def calc_orbit_normal(ps, index):
+    r_xyz = np.array([ps[index].x - ps[0].x,ps[index].y - ps[0].y,ps[index].z - ps[0].z]) # here, r is vector from star to planet (opposite from operator code)
+    v_xyz = np.array([ps[index].vx,ps[index].vy,ps[index].vz])
+    r = np.sqrt(np.dot(r_xyz,r_xyz))
+    v = np.sqrt(np.dot(v_xyz,v_xyz))
+    r_hat = r_xyz / r
+    v_hat = v_xyz / v
+    n = np.cross(r_hat, v_hat)
+    n_hat = n/np.sqrt(np.dot(n,n))
+    return n_hat
+
+# returns (obliquity, phi) of body at index 1 in radians
+def get_theta_phi(ps):
+    # calculate theta
+    s_ijk = np.array([ps[1].params['tt_si'],ps[1].params['tt_sj'],ps[1].params['tt_sk']])
+    ijk_xyz = np.array([[ps[1].params['tt_ix'],ps[1].params['tt_iy'],ps[1].params['tt_iz']],[ps[1].params['tt_jx'],ps[1].params['tt_jy'],ps[1].params['tt_jz']],[ps[1].params['tt_kx'],ps[1].params['tt_ky'],ps[1].params['tt_kz']]])
+    s_xyz = s_ijk[0]*ijk_xyz[0] + s_ijk[1]*ijk_xyz[1] + s_ijk[2]*ijk_xyz[2]
+    s_xyz /= np.sqrt(np.dot(s_xyz,s_xyz))
+    n_hat = calc_orbit_normal(ps,1) # orbit normal of triaxial planet
+    theta = np.arccos(np.dot(n_hat,s_xyz))
+    
+    # calculate phi
+    n_p_hat = calc_orbit_normal(ps,2) # orbit normal of perturbing planet
+    y = np.cross(n_p_hat, n_hat) # unrelated to y basis unit vector
+    y_hat = y/np.sqrt(np.dot(y,y))
+    x = np.cross(y_hat, n_hat) # unrelated to x basis unit vector
+    x_hat = x/np.sqrt(np.dot(x,x))
+    phi = np.arctan2(np.dot(s_xyz,y_hat),np.dot(s_xyz,x_hat))
+
+    # range from 0 to 360
+    if phi < 0:
+        phi = (2*np.pi) + phi
+    
+    return (theta, phi) 
+
+# returns angle in rad
+def get_psi(ps):
+    r_vec = np.array([ps[1].x - ps[0].x, ps[1].y - ps[0].y, ps[1].z - ps[0].z])
+    r = np.sqrt(np.dot(r_vec,r_vec))
+    r_hat = r_vec / r
+    i_hat = np.array([ps[1].params['tt_ix'], ps[1].params['tt_iy'], ps[1].params['tt_iz']])
+    # j_hat = np.array([ps[1].params['tt_jx'], ps[1].params['tt_jy'], ps[1].params['tt_jz']])
+    n_hat = calc_orbit_normal(ps,1)
+    # subtact component of i that is not in orbital plane
+    i_pl = i_hat - (np.dot(i_hat,n_hat)*n_hat)
+    i_pl_hat = i_pl / np.sqrt(np.dot(i_pl,i_pl))
+    j_pl_hat = np.cross(n_hat, i_pl_hat)
+
+    i_dot_r = np.dot(i_pl_hat,r_hat)
+    j_dot_r = np.dot(j_pl_hat,r_hat)
+    psi = np.arctan2(j_dot_r, i_dot_r)
+
+    # range from 0 to 360
+    if psi < 0:
+        psi = (2*np.pi) + psi
+
+    return psi
+
+# returns angle in rad
+def get_sk_angle(ps):
+    return np.arccos(ps[1].params['tt_sk'])
+
 def get_fig_axs(nv):
     fig, axs = plt.subplots(nv-1, 2,figsize=(10, 16), sharex=True)
     plt.subplots_adjust(left=0.15, bottom=0.1, right=.98, top=0.92, wspace=0.1, hspace=0.1)

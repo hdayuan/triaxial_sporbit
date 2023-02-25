@@ -44,3 +44,35 @@ v2:
 
     > fixed some normalization bugs when calculating angles and generating random ijk
 
+    v2.3:
+
+    > all defining params of sim saved at every output step
+        parameter, index in data array, units
+        ix, 0, none
+        iy, 1, none
+        iz, 2, none
+        jx, 3, none
+        jy, 4, none
+        jz, 5, none
+        kx, 6, none
+        ky, 7, none
+        kz, 8, none
+        si, 9, none
+        sj, 10, none
+        sk, 11, none
+        omega, 12, mean-motion
+        rx, 13, simulation units (AU)
+        ry, 14, simulation units (AU)
+        rz, 15, simulation units (AU)
+        vx, 16, simulation units (AU/year)
+        vy, 17, simulation units (AU/year)
+        vz, 18, simulation units (AU/year)
+        t, 19, orbital period (calculated once at beginning of simulation)
+
+        > NOTE: r is vector from PLANET to STAR !
+
+
+To-do:
+
+- easy way to scp or rsync: makefile? .sh file? 
+- save output and error file to directory?
