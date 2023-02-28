@@ -218,7 +218,7 @@ def run_sim(trial_num, tf=2.e7, out_step=200.):
     trial_num_2 = trial_num + 0.1
     moment2 = 0.
     sim_params = i,j,k,a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out
-    integrate_sim(dir_path,sim_params,trial_num_2,tf,nv,out_step)
+    integrate_sim(dir_path,sim_params,trial_num_2,tf,out_step)
 
 # main function
 if __name__ == '__main__':
