@@ -16,7 +16,7 @@ v2.2_data
     [1,4,5,6,9,12,16,19,20,23,34,36,40,46,48,59,61,63,64,66,67,68,76,79,82,90,96]
 
 --------------------------------------------------------------------------
-Version Notes (for simulation runners and plotters)
+Version Notes (for simulation runners, plotters, and data)
 
 > If version not specified, it is old (made before versions created)
 > Each integer version (not sub-versions) has a corresponding plotting script with the version in the title
@@ -71,6 +71,9 @@ v2:
 
         > NOTE: r is vector from PLANET to STAR !
 
+    v2.4:
+
+    > added r vector from perturbing planet to star
 
 To-do:
 

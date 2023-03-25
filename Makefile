@@ -27,6 +27,9 @@ equi:
 3body:
 	python3 3body.py > output.txt 2> errors.txt
 
+plt_omdot:
+	python3 plot_sp_dot.py
+
 3bd_plot:
 	python3 3body_plot_v2.py
 
