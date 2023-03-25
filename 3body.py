@@ -106,14 +106,13 @@ def integrate_sim(dir_path,sim_params,trial_num_dec,tf,step,rand_ijk=True):
     # also write time
     year = ps[1].P
     n_out = int((tf // step) + 1)
-    nv = 20
-    out_data = np.zeros((nv,n_out), dtype=np.float32)
-
     if len(ps) == 3:
         val_names = ["ix","iy","iz","jx","jy","jz","kx","ky","kz","si","sj","sk","omega","rx","ry","rz","vx","vy","vz","rpx","rpy","rpz","t"] # r is vector from planet to star !
     else:
         val_names = ["ix","iy","iz","jx","jy","jz","kx","ky","kz","si","sj","sk","omega","rx","ry","rz","vx","vy","vz","t"] # r is vector from planet to star !
     inds = {val_names[i]:i for i in range(len(val_names))}
+    nv = len(val_names)
+    out_data = np.zeros((nv,n_out), dtype=np.float32)
 
     for i in range(n_out):
         sim.integrate(i*step*year)
