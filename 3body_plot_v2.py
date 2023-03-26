@@ -221,13 +221,13 @@ if __name__=="__main__":
     # Params to change each time
     version = 2.4
     perturber = True
-    together = False
+    together = True
     if perturber:
         dir_name = "v"+str(version)+"_3body_data"
     else:
         dir_name = "v"+str(version)+"_2body_data"
     n_trials = 50
-    skip_trials = [32] # trials that didn't complete, skip them
+    skip_trials = [] # trials that didn't complete, skip them
     ds = int(1.e2)
     # End of params block
 

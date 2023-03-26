@@ -94,7 +94,7 @@ def run_sim(trial_num, tf=300000., n_out=200):
     ps = sim.particles
 
     # make output directory and file
-    dir_path = "./2body_equi_data"
+    dir_path = "./data/2body_equi_data"
     if not os.path.exists(dir_path):
         os.mkdir(dir_path)
     file_path = os.path.join(dir_path,"trial_"+str(trial_num)+".txt")

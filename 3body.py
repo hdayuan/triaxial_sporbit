@@ -187,7 +187,7 @@ def run_sim(trial_num, tf=1.e7, out_step=1.e3, perturber=True, rand_ijk=False, n
     if rand_ijk:
         theta = 0.
     else:
-        thetas = np.linspace(0,180,int(n_trials / len(omegas)))
+        thetas = np.radians(np.linspace(0,180,int(n_trials / len(omegas))))
         theta = thetas[trial_num//2]
 
     # generate random i,j,k
