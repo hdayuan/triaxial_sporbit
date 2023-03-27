@@ -106,53 +106,97 @@ def get_fig_axs(nw,nh,sharex=False,sharey=False,share_titles=False,share_xlab=Fa
 
     return fig,axs
 
+def calc_om_dot(ts,omegas):
+    min_delta_t = n/4
+    n = len(omegas)
+    sorted_inds = np.argsort(omegas)
+
+    # try mins
+    indi = sorted_inds[0]
+    i = 1
+    while np.abs(sorted_inds[i] - indi) < min_delta_t:
+        if i == n-1:
+            break
+        i += 1
+    indf = sorted_inds[i]
+    dist = np.abs(indf - indi)
+
+    # if not min_delta_t apart, try maxes:
+    if dist < min_delta_t:
+        indii = sorted_inds[-1]
+        i = -2
+        while np.abs(sorted_inds[i] - indii) < min_delta_t:
+            if i == 0:
+                break
+            i -= 1
+        indff = sorted_inds[i]
+        if np.abs(indff - indii) > dist:
+            indi = indii
+            indf == indff
+
+    if indf < indi:
+        temp = indi
+        indi = indf
+        indf = temp
+
+    delta_t = ts[indf] - ts[indi]
+    delta_omega = omegas[indf] - omegas[indi]
+    return delta_omega/delta_t
+
 def integrate_sim(sim_params,tf,theta_bool=False):
 
     # make sim
     sim = create_sim(sim_params)
     ps = sim.particles
-    if theta_bool:
-        s_ijk = np.array([ps[1].params['tt_si'],ps[1].params['tt_sj'],ps[1].params['tt_sk']])
-        i_xyz = np.array([ps[1].params['tt_ix'],ps[1].params['tt_iy'],ps[1].params['tt_iz']])
-        j_xyz = np.array([ps[1].params['tt_jx'],ps[1].params['tt_jy'],ps[1].params['tt_jz']])
-        k_xyz = np.array([ps[1].params['tt_kx'],ps[1].params['tt_ky'],ps[1].params['tt_kz']])
-        r_xyz = np.array([ps[0].x - ps[1].x,ps[0].y - ps[1].y,ps[0].z - ps[1].z])
-        v_xyz = np.array([ps[1].vx,ps[1].vy,ps[1].vz])
-        
-        theta0 = get_theta(s_ijk,i_xyz,j_xyz,k_xyz,r_xyz,v_xyz)
-    else:
-        omega0 = ps[1].params['tt_omega']
-
     year = ps[1].P
     n = ps[1].n
-
-    avrg_interval = tf / 2
-
-    na = 20
-    omegas = np.zeros(na)
-    step = year * avrg_interval / na
-    for i in range(na):
-        sim.integrate(i*step)
-        omegas[i] = ps[1].params['tt_omega']
-    omega0 = np.mean(omegas)
-
-    sim.integrate((tf-avrg_interval)*year)
-    
-    for i in range(na):
-        sim.integrate((tf-avrg_interval)*year + i*step)
+    omegas = np.zeros(tf)
+    ts = np.arange(int(tf))
+    for i in range(tf):
+        sim.integrate(i*year)
         omegas[i] = ps[1].params['tt_omega']
 
-    if theta_bool:
-        s_ijk = np.array([ps[1].params['tt_si'],ps[1].params['tt_sj'],ps[1].params['tt_sk']])
-        i_xyz = np.array([ps[1].params['tt_ix'],ps[1].params['tt_iy'],ps[1].params['tt_iz']])
-        j_xyz = np.array([ps[1].params['tt_jx'],ps[1].params['tt_jy'],ps[1].params['tt_jz']])
-        k_xyz = np.array([ps[1].params['tt_kx'],ps[1].params['tt_ky'],ps[1].params['tt_kz']])
-        r_xyz = np.array([ps[0].x - ps[1].x,ps[0].y - ps[1].y,ps[0].z - ps[1].z])
-        v_xyz = np.array([ps[1].vx,ps[1].vy,ps[1].vz])
-        return (get_theta(s_ijk,i_xyz,j_xyz,k_xyz,r_xyz,v_xyz) - theta0) / sim.t
+    return calc_om_dot(ts,omegas)
+
+    # if theta_bool:
+    #     s_ijk = np.array([ps[1].params['tt_si'],ps[1].params['tt_sj'],ps[1].params['tt_sk']])
+    #     i_xyz = np.array([ps[1].params['tt_ix'],ps[1].params['tt_iy'],ps[1].params['tt_iz']])
+    #     j_xyz = np.array([ps[1].params['tt_jx'],ps[1].params['tt_jy'],ps[1].params['tt_jz']])
+    #     k_xyz = np.array([ps[1].params['tt_kx'],ps[1].params['tt_ky'],ps[1].params['tt_kz']])
+    #     r_xyz = np.array([ps[0].x - ps[1].x,ps[0].y - ps[1].y,ps[0].z - ps[1].z])
+    #     v_xyz = np.array([ps[1].vx,ps[1].vy,ps[1].vz])
+        
+    #     theta0 = get_theta(s_ijk,i_xyz,j_xyz,k_xyz,r_xyz,v_xyz)
+    # else:
+    #     omega0 = ps[1].params['tt_omega']
+
+    # avrg_interval = tf / 2
+
+    # na = 20
+    # omegas = np.zeros(na)
+    # step = year * avrg_interval / na
+    # for i in range(na):
+    #     sim.integrate(i*step)
+    #     omegas[i] = ps[1].params['tt_omega']
+    # omega0 = np.mean(omegas)
+
+    # sim.integrate((tf-avrg_interval)*year)
     
-    else:
-        return ((np.mean(omegas) - omega0)/n) / (tf-avrg_interval)
+    # for i in range(na):
+    #     sim.integrate((tf-avrg_interval)*year + i*step)
+    #     omegas[i] = ps[1].params['tt_omega']
+
+    # if theta_bool:
+    #     s_ijk = np.array([ps[1].params['tt_si'],ps[1].params['tt_sj'],ps[1].params['tt_sk']])
+    #     i_xyz = np.array([ps[1].params['tt_ix'],ps[1].params['tt_iy'],ps[1].params['tt_iz']])
+    #     j_xyz = np.array([ps[1].params['tt_jx'],ps[1].params['tt_jy'],ps[1].params['tt_jz']])
+    #     k_xyz = np.array([ps[1].params['tt_kx'],ps[1].params['tt_ky'],ps[1].params['tt_kz']])
+    #     r_xyz = np.array([ps[0].x - ps[1].x,ps[0].y - ps[1].y,ps[0].z - ps[1].z])
+    #     v_xyz = np.array([ps[1].vx,ps[1].vy,ps[1].vz])
+    #     return (get_theta(s_ijk,i_xyz,j_xyz,k_xyz,r_xyz,v_xyz) - theta0) / sim.t
+    
+    # else:
+    #     return ((np.mean(omegas) - omega0)/n) / (tf-avrg_interval)
     
 # 2d plot (omega dot vs omega for a few theta values)
 def plot_2d():

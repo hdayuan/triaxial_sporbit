@@ -228,7 +228,7 @@ if __name__=="__main__":
         dir_name = "v"+str(version)+"_2body_data"
     n_trials = 50
     skip_trials = [] # trials that didn't complete, skip them
-    ds = int(1.e2)
+    ds = int(1.e1)
     # End of params block
 
     if version == 2.3:
