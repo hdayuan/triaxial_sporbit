@@ -96,7 +96,7 @@ def integrate_sim(dir_path,sim_params,trial_num_dec,tf,step,rand_ijk=True):
     secs = int((int_time % 3600) % 60)
     print(f"Trial {trial_num_dec} completed in {hrs} hours {mins} minutes {secs} seconds.", flush=True) 
 
-def run_sim(trial_num, tf=300., out_step=1., perturber=False):
+def run_sim_grid(trial_num, tf=300., out_step=1., perturber=False):
 
     omega_lo = 1.9
     omega_hi = 2.05
@@ -167,9 +167,8 @@ if __name__ == '__main__':
     start = time.time()
     # n_cpus = mp.cpu_count()
     # print(type(n_cpus))
-    with mp.Pool(processes=n_trials) as pool:
-        print("a")
-        pool.map(run_sim, range(n_trials))
+    with mp.Pool() as pool:
+        pool.map(run_sim_grid, range(n_trials))
     
     tot_time = time.time() - start
     hrs = tot_time // 3600
