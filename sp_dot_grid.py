@@ -166,7 +166,7 @@ if __name__ == '__main__':
     n_trials = 1200 # make sure this is equal to n_thetas*n_omegas in run_sim()
     start = time.time()
     n_cpus = mp.cpu_count()
-    n_groups = np.ceil(n_trials / n_cpus)
+    n_groups = int(np.ceil(n_trials / n_cpus))
     for i in range(n_groups):
         n_added = n_cpus
         if i == n_groups - 1:
