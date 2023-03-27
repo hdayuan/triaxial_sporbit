@@ -33,6 +33,12 @@ plt_omdot:
 3bd_plot:
 	python3 3body_plot_v2.py
 
+grid:
+	python3 sp_dot_grid.py
+
+grid_plot:
+	python3 plot_grid.py
+
 eq_plot:
 	python3 2body_plot.py
 	open *.png
