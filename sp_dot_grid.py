@@ -166,7 +166,7 @@ if __name__ == '__main__':
     n_trials = 50 # make sure this is equal to n_thetas*n_omegas in run_sim()
     start = time.time()
     n_cpus = mp.cpu_count()
-    print(n_cpus)
+    print(type(n_cpus))
     with mp.Pool(processes=mp.cpu_count()) as pool:
         pool.map(run_sim, range(n_trials))
     
