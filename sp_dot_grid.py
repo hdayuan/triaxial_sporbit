@@ -165,8 +165,14 @@ if __name__ == '__main__':
     # to change params, see keyword args in run_sim()
     n_trials = 1200 # make sure this is equal to n_thetas*n_omegas in run_sim()
     start = time.time()
-    with mp.Pool(processes=mp.cpu_count()) as pool:
-        pool.map(run_sim, range(n_trials))
+    n_cpus = mp.cpu_count()
+    n_groups = np.ceil(n_trials / n_cpus)
+    for i in range(n_groups):
+        n_added = n_cpus
+        if i == n_groups - 1:
+            n_added = n_trials % n_cpus
+        with mp.Pool(processes=mp.cpu_count()) as pool:
+            pool.map(run_sim, range(i*n_cpus, (i*n_cpus)+n_added))
     
     tot_time = time.time() - start
     hrs = tot_time // 3600
