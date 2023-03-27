@@ -5,6 +5,26 @@ import numpy as np
 import time
 import multiprocessing as mp
 
+# global variables (params)
+editing=True
+edit_trials = [49,78,858,888,918,948,978]
+if editing:
+    tf=1000.
+else:
+    tf=1000.
+out_step=1.
+perturber=False
+omega_lo = 1.95
+omega_hi = 2.05
+n_omegas = 30
+theta_lo = 0.
+theta_hi = 180.
+n_thetas = 40
+if perturber:
+    dir_path = "./data/grid/3body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
+else:
+    dir_path = "./data/grid/2body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
+
 # make simulation object with given parameters
 # theta = obliquity, phi = azimuthal angle, 
 # phi = 0 corresponds to initial condition where planet's k axis is tilting directly away from star
@@ -65,23 +85,23 @@ def create_sim(sim_params,dt_frac=0.025):
 
     return sim
 
-def integrate_sim(dir_path,sim_params,trial_num_dec,tf,step,rand_ijk=True):
+def integrate_sim(sim_params,trial_num_dec):
     start = time.time()
     print(f"Trial {trial_num_dec} initiated",flush=True)
 
     # make sim
-    sim = create_sim(sim_params,rand_ijk=rand_ijk)
+    sim = create_sim(sim_params)
     ps = sim.particles
 
     # want to plot omega, theta, phi, psi, eccentricity, and inclination so save those to array
     # also write time
     year = ps[1].P
-    n_out = int((tf // step) + 1)
+    n_out = int((tf // out_step) + 1)
     nv = 2
     out_data = np.zeros((nv,n_out), dtype=np.float32)
 
     for i in range(n_out):
-        sim.integrate(i*step*year)
+        sim.integrate(i*out_step*year)
         out_data[0,i] = ps[1].params['tt_omega']/ps[1].n
         out_data[1,i] = sim.t / year
 
@@ -96,14 +116,7 @@ def integrate_sim(dir_path,sim_params,trial_num_dec,tf,step,rand_ijk=True):
     secs = int((int_time % 3600) % 60)
     print(f"Trial {trial_num_dec} completed in {hrs} hours {mins} minutes {secs} seconds.", flush=True) 
 
-def run_sim_grid(trial_num, tf=300., out_step=1., perturber=False):
-
-    omega_lo = 1.9
-    omega_hi = 2.05
-    n_omegas = 30
-    theta_lo = 0.
-    theta_hi = 180.
-    n_thetas = 40
+def run_sim_grid(trial_num):
     
     # some constants
     Re = 4.263e-5 # radius of Earth in AU
@@ -120,6 +133,7 @@ def run_sim_grid(trial_num, tf=300., out_step=1., perturber=False):
     s_k_angle = np.radians(0.) # angle between s and k
     a_out = 5. # a of outer planet
     i_out = np.radians(20.) # inclination of outer planet
+
     if perturber:
         M_out = Mj # mass of outer planet
     else:
@@ -136,39 +150,32 @@ def run_sim_grid(trial_num, tf=300., out_step=1., perturber=False):
     thetas = np.radians(np.linspace(theta_lo,theta_hi,n_thetas))
     theta = thetas[trial_num//len(omegas)]
 
-    # make output directory and file
-    if perturber:
-        dir_path = "./data/grid/3body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
-    else:
-        dir_path = "./data/grid/2body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
-    if trial_num == 0:
-        if os.path.exists(dir_path):
-            print("Error: Directory already exists")
-            exit()
-        os.mkdir(dir_path)
-    else:
-        while (not os.path.exists(dir_path)):
-            time.sleep(1)
-
     ### RUN SIMULATION ###
     sim_params = a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out
-    integrate_sim(dir_path,sim_params,trial_num,tf,out_step)
+    integrate_sim(sim_params,trial_num)
 
     ### Re-RUN SIMULATION with same parameters, except just j2 ###
     trial_num_2 = trial_num + 0.1
     moment2 = 0.
     sim_params = a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out
-    integrate_sim(dir_path,sim_params,trial_num_2,tf,out_step)
+    integrate_sim(sim_params,trial_num_2)
 
 # main function
 if __name__ == '__main__':
-    # to change params, see keyword args in run_sim()
-    n_trials = 50 # make sure this is equal to n_thetas*n_omegas in run_sim()
+    if not editing:
+        if os.path.exists(dir_path):
+            print("Error: Directory already exists")
+            exit()
+        os.mkdir(dir_path)
+
+    n_trials = n_omegas*n_thetas
     start = time.time()
-    # n_cpus = mp.cpu_count()
-    # print(type(n_cpus))
     with mp.Pool() as pool:
-        pool.map(run_sim_grid, range(n_trials))
+        if editing:
+            pool.map(run_sim_grid, edit_trials)
+        else:
+            pool.map(run_sim_grid, range(n_trials))
+        
     
     tot_time = time.time() - start
     hrs = tot_time // 3600
