@@ -167,7 +167,7 @@ if __name__ == '__main__':
     start = time.time()
     n_cpus = mp.cpu_count()
     print(type(n_cpus))
-    with mp.Pool(processes=mp.cpu_count()) as pool:
+    with mp.Pool(processes=n_trials) as pool:
         pool.map(run_sim, range(n_trials))
     
     tot_time = time.time() - start
