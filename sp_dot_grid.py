@@ -11,8 +11,8 @@ edit_trials = [49,78,858,888,918,948,978]
 if editing:
     tf=1000.
 else:
-    tf=1000.
-out_step=1.
+    tf=3000.
+out_step=10.
 perturber=False
 omega_lo = 1.95
 omega_hi = 2.05
