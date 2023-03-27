@@ -6,7 +6,7 @@ import time
 import multiprocessing as mp
 
 # global variables (params)
-editing=True
+editing=False
 edit_trials = [49,78,858,888,918,948,978]
 if editing:
     tf=1000.
