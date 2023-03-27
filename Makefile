@@ -34,7 +34,7 @@ plt_omdot:
 	python3 3body_plot_v2.py
 
 grid:
-	python3 sp_dot_grid.py
+	python3 sp_dot_grid.py > output.txt 2> errors.txt
 
 grid_plot:
 	python3 plot_grid.py

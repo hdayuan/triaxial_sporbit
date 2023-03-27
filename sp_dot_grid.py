@@ -138,9 +138,9 @@ def run_sim(trial_num, tf=300., out_step=1., perturber=False):
 
     # make output directory and file
     if perturber:
-        dir_path = "./data/grid_3body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
+        dir_path = "./data/grid/3body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
     else:
-        dir_path = "./data/grid_2body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
+        dir_path = "./data/grid/2body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
     if trial_num == 0:
         if os.path.exists(dir_path):
             print("Error: Directory already exists")
