@@ -66,7 +66,7 @@ def calc_om_dot(ts,omegas):
 if __name__=="__main__":
     # tf=300.
     # out_step=1.
-    from_file=True
+    from_file=False
     perturber=False
     omega_lo = 1.95
     omega_hi = 2.05
@@ -118,7 +118,7 @@ if __name__=="__main__":
 
 
     # plot results
-    fig, axs = plt.subplots(2, 1,figsize=(8, 4), sharex=True,sharey=True)
+    fig, axs = plt.subplots(2, 1,figsize=(8, 8), sharex=True,sharey=True)
     plt.subplots_adjust(left=0.1, bottom=0.1, right=.95, top=0.92, wspace=0.1, hspace=0.1)
     # axs[0].set_xlabel(r"$\Omega/n$")
     axs[1].set_xlabel(r"$\Omega/n$")

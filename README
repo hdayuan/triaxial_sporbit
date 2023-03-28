@@ -1,3 +1,15 @@
+pull_data.sh:
+    > First argument: 
+        > 0 if syncing data from regular 3 body simulation step
+        > 1 if syncing data from grid simulation
+        > 2 for syncing specific file
+    > Second argument:
+        > if 0, directory name starting from current directory = data
+        > if 1, directory name starting from current directory = grid
+        > if 2, directory name starting from current directory = data
+    > Third argument:
+        > if 2, file name within directory specified in argument 2
+
 General Shorthands / Notation
 
 > j2 = (K-I) / I, tri = (J-I) / I

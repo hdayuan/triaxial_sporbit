@@ -16,14 +16,14 @@ out_step=1.
 perturber=False
 omega_lo = 0.
 omega_hi = 3.
-n_omegas = 900
+n_omegas = 20
 theta_lo = 0.
 theta_hi = 180.
-n_thetas = 360
+n_thetas = 40
 if perturber:
-    dir_path = "./data/grid/3body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
+    dir_path = "./data/grid/3body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
 else:
-    dir_path = "./data/grid/2body_data_"+str(n_thetas)+":"+str(int(theta_lo))+"-"+str(int(theta_hi))
+    dir_path = "./data/grid/2body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
 
 # make simulation object with given parameters
 # theta = obliquity, phi = azimuthal angle, 
