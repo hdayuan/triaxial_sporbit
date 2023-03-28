@@ -14,8 +14,8 @@ else:
     tf=1000.
 out_step=1.
 perturber=False
-omega_lo = 0.
-omega_hi = 3.
+omega_lo = 1.98
+omega_hi = 2.
 n_omegas = 20
 theta_lo = 0.
 theta_hi = 180.
