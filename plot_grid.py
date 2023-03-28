@@ -98,7 +98,7 @@ if __name__=="__main__":
                 f = open(file_path, 'rb')
                 data = np.load(f)
                 omega_dots[k,i,j] = calc_om_dot(data[1],data[0])
-                if omega_dots[k,i,j] > 1.e-6:
+                if omega_dots[k,i,j] > 0: #(omega_grid[i,j] <= 2 and omega_grid[i,j] > 1.995):
                     plt.scatter(data[1],data[0],color='black',s=0.5)
                     plt.savefig(os.path.join(plots_dir,"trial_"+str(trial_num_dec)+".png"), dpi=300)
                     plt.clf()

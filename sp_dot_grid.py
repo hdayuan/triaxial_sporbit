@@ -11,15 +11,15 @@ edit_trials = [49,78,858,888,918,948,978]
 if editing:
     tf=1000.
 else:
-    tf=3000.
-out_step=10.
+    tf=1000.
+out_step=1.
 perturber=False
-omega_lo = 1.95
-omega_hi = 2.05
-n_omegas = 30
+omega_lo = 0.
+omega_hi = 3.
+n_omegas = 900
 theta_lo = 0.
 theta_hi = 180.
-n_thetas = 40
+n_thetas = 360
 if perturber:
     dir_path = "./data/grid/3body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
 else:
