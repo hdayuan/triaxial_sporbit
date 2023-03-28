@@ -23,7 +23,7 @@ n_thetas = 360
 if perturber:
     dir_path = "./data/grid/3body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
 else:
-    dir_path = "./data/grid/2body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
+    dir_path = "./data/grid/2body_data_"+str(n_thetas)+":"+str(int(theta_lo))+"-"+str(int(theta_hi))
 
 # make simulation object with given parameters
 # theta = obliquity, phi = azimuthal angle, 

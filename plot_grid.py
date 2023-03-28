@@ -5,6 +5,7 @@ import numpy as np
 # import time
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import scipy.stats as stats
 
 def get_fig_axs(nw,nh,sharex=False,sharey=False,share_titles=False,share_xlab=False,share_ylab=False,titles=None,xlabels=None,ylabels=None):
     fig, axs = plt.subplots(nh, nw,figsize=(6*nw, 4*nh), sharex=sharex,sharey=sharey)
@@ -20,6 +21,10 @@ def get_fig_axs(nw,nh,sharex=False,sharey=False,share_titles=False,share_xlab=Fa
     # ylabels = np.array([[r"$\Omega/n$",r"$\theta$ ($^{\circ}$)",r"$\phi$ ($^{\circ}$)",r"$\psi$ ($^{\circ}$)"],[r"$\beta$ ($^{\circ}$)",r"$\theta_{kl}$ ($^{\circ}$)",r"$tan^{-1}(s_y/s_x)$ ($^{\circ}$)",r"$\theta '$ ($^{\circ}$)"]]) # ,r"Inclination"]
 
     return fig,axs
+
+def calc_om_dot_lr(ts,omegas):
+    result = stats.linregress(ts,omegas)
+    return result.slope
 
 def calc_om_dot(ts,omegas):
     n = len(omegas)
@@ -61,6 +66,7 @@ def calc_om_dot(ts,omegas):
 if __name__=="__main__":
     # tf=300.
     # out_step=1.
+    from_file=True
     perturber=False
     omega_lo = 1.95
     omega_hi = 2.05
@@ -83,32 +89,41 @@ if __name__=="__main__":
     omegas = np.linspace(omega_lo, omega_hi, n_omegas)
     thetas = np.linspace(theta_lo,theta_hi,n_thetas)
     omega_grid, theta_grid = np.meshgrid(omegas,thetas)
-    omega_dots = np.zeros((2,n_thetas,n_omegas)) # first dimension corresponds to triax (0) or oblate (1)
 
-    for i in range(n_thetas):
-        for j in range(n_omegas):
-            trial_num = i*n_omegas + j
-            for k in range(2):
-                if k==1:
-                    trial_num_dec = trial_num + .1
-                else:
-                    trial_num_dec = int(trial_num)
+    if not from_file:
+        omega_dots = np.zeros((2,n_thetas,n_omegas)) # first dimension corresponds to triax (0) or oblate (1)
 
-                file_path = os.path.join(dir_path,"trial_"+str(trial_num_dec)+".npy")
-                f = open(file_path, 'rb')
-                data = np.load(f)
-                omega_dots[k,i,j] = calc_om_dot(data[1],data[0])
-                if omega_dots[k,i,j] > 0: #(omega_grid[i,j] <= 2 and omega_grid[i,j] > 1.995):
-                    plt.scatter(data[1],data[0],color='black',s=0.5)
-                    plt.savefig(os.path.join(plots_dir,"trial_"+str(trial_num_dec)+".png"), dpi=300)
-                    plt.clf()
+        for i in range(n_thetas):
+            for j in range(n_omegas):
+                trial_num = i*n_omegas + j
+                for k in range(2):
+                    if k==1:
+                        trial_num_dec = trial_num + .1
+                    else:
+                        trial_num_dec = int(trial_num)
+
+                    file_path = os.path.join(dir_path,"trial_"+str(trial_num_dec)+".npy")
+                    f = open(file_path, 'rb')
+                    data = np.load(f)
+                    omega_dots[k,i,j] = calc_om_dot_lr(data[1],data[0])
+                    if omega_dots[k,i,j] > 0: #(omega_grid[i,j] <= 2 and omega_grid[i,j] > 1.995):
+                        plt.scatter(data[1],data[0],color='black',s=0.5)
+                        plt.savefig(os.path.join(plots_dir,"trial_"+str(trial_num_dec)+".png"), dpi=300)
+                        plt.clf()
+
+    else:
+        file_path = os.path.join(dir_path,"grid_data.npy")
+        f = open(file_path, 'rb')
+        omega_dots = np.load(f)
+
 
     # plot results
-    fig, axs = plt.subplots(1, 2,figsize=(8, 4), sharex=True,sharey=True)
-    plt.subplots_adjust(left=0.1, bottom=0.1, right=.95, top=0.92, wspace=0.1, hspace=0.05)
-    axs[0].set_xlabel(r"$\Omega/n$")
+    fig, axs = plt.subplots(2, 1,figsize=(8, 4), sharex=True,sharey=True)
+    plt.subplots_adjust(left=0.1, bottom=0.1, right=.95, top=0.92, wspace=0.1, hspace=0.1)
+    # axs[0].set_xlabel(r"$\Omega/n$")
     axs[1].set_xlabel(r"$\Omega/n$")
     axs[0].set_ylabel(r"$\theta$ ($^{\circ}$)")
+    axs[1].set_ylabel(r"$\theta$ ($^{\circ}$)")
     
     axs[0].set_title("Triaxial")
     axs[1].set_title("Oblate")
