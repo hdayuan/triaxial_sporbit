@@ -22,9 +22,74 @@ def get_fig_axs(nw,nh,sharex=False,sharey=False,share_titles=False,share_xlab=Fa
 
     return fig,axs
 
-def calc_om_dot_lr(ts,omegas):
+def calc_om_dot_lr(ts,omegas,tnd,plots_dir):
     result = stats.linregress(ts,omegas)
+    if omegas[0] > 1.998:
+        plt.scatter(ts,omegas,color='black',s=0.5)
+        plt.plot(ts,result.slope*ts + omegas[0],color="red")
+        plt.savefig(os.path.join(plots_dir,"trial_"+str(tnd)+".png"), dpi=300)
+        plt.clf()
+
     return result.slope
+
+def calc_om_dot_v2(ts,omegas,tnd,plots_dir):
+    n_data = len(omegas)
+    d_omegas = omegas[1:] - omegas[:-1]
+    dd_omegas = d_omegas[1:] - d_omegas[:-1]
+
+    # test for roughly linear
+    if np.all(d_omegas >= 0) or np.all(d_omegas <= 0):
+        slope = stats.linregress(ts,omegas).slope
+    
+    # otherwise assume sinusoidal
+    else:
+        squared_d_oms = d_omegas*d_omegas
+        sorted_ds = np.argsort(squared_d_oms)
+        min_inds = []
+        max_inds = []
+        count = 0
+        for i in range(len(d_omegas)):
+            if count >= n_data//50:
+                break
+            ind = sorted_ds[i]
+            if ind == 0 or ind == len(d_omegas) - 1:
+                continue
+
+            if dd_omegas[ind-1] > 0 and dd_omegas[ind] > 0:
+                # then this is a local minimum
+                min_inds.append(ind)
+                count += 1
+                continue
+
+            if dd_omegas[ind-1] < 0 and dd_omegas[ind] < 0:
+                # then this is a local maximum
+                max_inds.append(ind)
+                count += 1
+
+        if len(min_inds) == 0 and len(max_inds) == 0:
+            print(tnd)
+            plt.scatter(ts,omegas,color='black',s=0.5)
+            plt.savefig(os.path.join(plots_dir,"trial_"+str(tnd)+".png"), dpi=300)
+            plt.clf()
+            return 0
+        
+        if len(min_inds) > len(max_inds):
+            inds = np.array(min_inds)
+        else:
+            inds = np.array(max_inds)
+
+        indi = np.min(inds)
+        indf = np.max(inds)
+        slope = (np.mean(omegas[indf:indf+1]) - np.mean(omegas[indi:indi+1])) / (ts[indf]-ts[indi])
+    
+    if omegas[0] > 1.998:
+        plt.scatter(ts,omegas,color='black',s=0.5)
+        plt.plot(ts,slope*ts + omegas[0],color="red")
+        plt.savefig(os.path.join(plots_dir,"trial_"+str(tnd)+".png"), dpi=300)
+        plt.clf()
+
+    return slope
+
 
 def calc_om_dot(ts,omegas):
     n = len(omegas)
@@ -68,18 +133,17 @@ if __name__=="__main__":
     # out_step=1.
     from_file=False
     perturber=False
-    omega_lo = 1.95
-    omega_hi = 2.05
-    n_omegas = 30
+    omega_lo = 1.98
+    omega_hi = 2.0
+    n_omegas = 20
     theta_lo = 0.
     theta_hi = 180.
     n_thetas = 40
     if perturber:
-        dir = "3body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
-        dir_path = "./data/grid/"+dir
+        dir = "3body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
     else:
-        dir = "2body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
-        dir_path = "./data/grid/"+dir
+        dir = "2body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
+    dir_path = "./data/grid/"+dir
 
     plots_dir = os.path.join("plots","grid",dir)
     if not os.path.exists(plots_dir):
@@ -105,11 +169,11 @@ if __name__=="__main__":
                     file_path = os.path.join(dir_path,"trial_"+str(trial_num_dec)+".npy")
                     f = open(file_path, 'rb')
                     data = np.load(f)
-                    omega_dots[k,i,j] = calc_om_dot_lr(data[1],data[0])
-                    if omega_dots[k,i,j] > 0: #(omega_grid[i,j] <= 2 and omega_grid[i,j] > 1.995):
-                        plt.scatter(data[1],data[0],color='black',s=0.5)
-                        plt.savefig(os.path.join(plots_dir,"trial_"+str(trial_num_dec)+".png"), dpi=300)
-                        plt.clf()
+                    omega_dots[k,i,j] = calc_om_dot_v2(data[1],data[0],trial_num_dec,plots_dir)
+                    # if omega_dots[k,i,j] > 0: #(omega_grid[i,j] <= 2 and omega_grid[i,j] > 1.995):
+                    #     plt.scatter(data[1],data[0],color='black',s=0.5)
+                    #     plt.savefig(os.path.join(plots_dir,"trial_"+str(trial_num_dec)+".png"), dpi=300)
+                    #     plt.clf()
 
     else:
         file_path = os.path.join(dir_path,"grid_data.npy")

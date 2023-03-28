@@ -36,7 +36,7 @@ plt_omdot:
 grid:
 	python3 sp_dot_grid.py > output.txt 2> errors.txt
 
-grid_plot:
+plot_grid:
 	python3 plot_grid.py
 
 calc_grid:
