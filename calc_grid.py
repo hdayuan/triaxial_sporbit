@@ -44,7 +44,7 @@ if __name__=="__main__":
     omega_dots = np.zeros((2,n_thetas,n_omegas)) # first dimension corresponds to triax (0) or oblate (1)
 
     with mp.Pool() as pool:
-        om_dots = pool.map(calc_om_dot_lr, range(n_omegas*n_thetas))
+        om_dots = pool.map(mp_calc_om_dot, range(n_omegas*n_thetas))
 
     for i in range(n_thetas):
         for j in range(n_omegas):
