@@ -24,6 +24,7 @@ def mp_calc_om_dot(trial_num):
     return om_dots
 
 if __name__=="__main__":
+    start = time.time()
     # tf=300.
     # out_step=1.
     perturber=False
@@ -55,3 +56,5 @@ if __name__=="__main__":
     
     with open(file_path, 'wb') as f:
         np.save(f, omega_dots)
+
+    print(time.time()-start)

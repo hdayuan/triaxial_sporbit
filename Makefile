@@ -39,6 +39,9 @@ grid:
 grid_plot:
 	python3 plot_grid.py
 
+cal_grid:
+	python3 calc_grid.py
+
 eq_plot:
 	python3 2body_plot.py
 	open *.png
