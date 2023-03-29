@@ -4,7 +4,7 @@ import time
 import scipy.stats as stats
 import multiprocessing as mp
 
-def calc_om_dot_v2(ts,omegas):
+def calc_om_dot_v2(ts,omegas,tnd):
     buffer = 10
     ds = 2
     max_nex = 16
@@ -91,6 +91,7 @@ def calc_om_dot_v2(ts,omegas):
             slope = max_slope
         else:
             slope = stats.linregress(ts,omegas).slope
+            print(f"Warning: Not enough extremes for trial {tnd}")
 
     return slope
 
@@ -105,7 +106,7 @@ def mp_calc_om_dot(trial_num):
         file_path = os.path.join(dir_path,"trial_"+str(trial_num_dec)+".npy")
         f = open(file_path, 'rb')
         data = np.load(f)
-        om_dots[k] = calc_om_dot_v2(data[1],data[0])
+        om_dots[k] = calc_om_dot_v2(data[1],data[0],trial_num_dec)
 
     return om_dots
 
