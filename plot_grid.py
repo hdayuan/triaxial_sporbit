@@ -33,9 +33,13 @@ def calc_om_dot_lr(ts,omegas,tnd,plots_dir):
     return result.slope
 
 def calc_om_dot_v2(ts,omegas,tnd,plots_dir):
+    buffer = 10
+    ds = 2
+    max_nex = 16
+    ts = ts[::ds]
+    omegas = omegas[::ds]
     n_data = len(omegas)
     d_omegas = omegas[1:] - omegas[:-1]
-    dd_omegas = d_omegas[1:] - d_omegas[:-1]
 
     # test for roughly linear
     if np.all(d_omegas >= 0) or np.all(d_omegas <= 0):
@@ -47,46 +51,106 @@ def calc_om_dot_v2(ts,omegas,tnd,plots_dir):
         sorted_ds = np.argsort(squared_d_oms)
         min_inds = []
         max_inds = []
-        count = 0
+        min_count = 0
+        max_count = 0
         for i in range(len(d_omegas)):
-            if count >= n_data//50:
+            if min_count >= max_nex // 2 and max_count >= max_nex // 2:
                 break
             ind = sorted_ds[i]
             if ind == 0 or ind == len(d_omegas) - 1:
                 continue
+            
+            extreme = np.mean(omegas[ind:ind+2])
 
-            if dd_omegas[ind-1] > 0 and dd_omegas[ind] > 0:
+            if omegas[ind-1] > extreme and omegas[ind+2] > extreme and min_count < max_nex // 2:
                 # then this is a local minimum
                 min_inds.append(ind)
-                count += 1
-                continue
+                min_count += 1
 
-            if dd_omegas[ind-1] < 0 and dd_omegas[ind] < 0:
+            elif omegas[ind-1] < extreme and omegas[ind+2] < extreme and max_count < max_nex // 2:
                 # then this is a local maximum
                 max_inds.append(ind)
-                count += 1
+                max_count += 1
 
-        if len(min_inds) == 0 and len(max_inds) == 0:
-            print(tnd)
+            else:
+                lo = ind - 10
+                if  lo < 0:
+                    lo = 0
+                hi = ind + 12
+                if hi > n_data:
+                    hi = n_data
+
+                left_avrg = np.mean(omegas[lo:ind])
+                right_avrg = np.mean(omegas[ind+2:hi])
+
+                if left_avrg > extreme and right_avrg > extreme and min_count < max_nex // 2:
+                    # then this is a local minimum
+                    min_inds.append(ind)
+                    min_count += 1
+
+                elif left_avrg < extreme and right_avrg < extreme and max_count < max_nex // 2:
+                    # then this is a local maximum
+                    max_inds.append(ind)
+                    max_count += 1
+
+        
+        min_inds = np.array(min_inds)
+        max_inds = np.array(max_inds)
+        if min_count >= 2:
+            mins = np.array([np.mean(omegas[i:i+2]) for i in min_inds])
+            t_mins = np.array([np.mean(ts[i:i+2]) for i in min_inds])
+            min_slope = stats.linregress(t_mins,mins).slope
+            min_bool = True
+        else:
+            min_bool = False
+
+        if max_count >= 2:
+            maxs = np.array([np.mean(omegas[i:i+2]) for i in max_inds])
+            t_maxs = np.array([np.mean(ts[i:i+2]) for i in max_inds])
+            max_slope = stats.linregress(t_maxs,maxs).slope
+            max_bool = True
+        else:
+            max_bool = False
+
+        if min_bool and max_bool:
+            slope = (min_slope + max_slope) / 2.
+        elif min_bool:
+            slope = min_slope
+        elif max_bool:
+            slope = max_slope
+        else:
+            slope = stats.linregress(ts,omegas).slope
+
+            # plt.scatter(ts,omegas,color='black',s=0.5)
+            # plt.plot(ts,slope*ts + omegas[0],color="red")
+            # plt.scatter([ts[i] for i in min_inds],[omegas[i] for i in min_inds],color="blue")
+            # plt.scatter([ts[i] for i in max_inds],[omegas[i] for i in max_inds],color="blue")
+            # plt.savefig(os.path.join(plots_dir,"trial_"+str(tnd)+".png"), dpi=300)
+            # plt.clf()
+        theta_lo = 0.
+        theta_hi = 180.
+        n_thetas = 40
+        n_omegas = 20
+        thetas = np.linspace(theta_lo,theta_hi,n_thetas)
+        theta = thetas[int(tnd) % n_omegas]
+        if slope > 1.e-6 or slope < -1.e-6 or (omegas[0] >= 1.9875 and omegas[0] < 1.9925 and theta >=50 and theta < 75):
             plt.scatter(ts,omegas,color='black',s=0.5)
+            plt.plot(ts,slope*ts + omegas[0],color="red")
+            plt.scatter([ts[i] for i in min_inds],[omegas[i] for i in min_inds],color="blue")
+            plt.scatter([ts[i] for i in max_inds],[omegas[i] for i in max_inds],color="blue")
             plt.savefig(os.path.join(plots_dir,"trial_"+str(tnd)+".png"), dpi=300)
             plt.clf()
-            return 0
-        
-        if len(min_inds) > len(max_inds):
-            inds = np.array(min_inds)
-        else:
-            inds = np.array(max_inds)
 
-        indi = np.min(inds)
-        indf = np.max(inds)
-        slope = (np.mean(omegas[indf:indf+1]) - np.mean(omegas[indi:indi+1])) / (ts[indf]-ts[indi])
-    
-    if omegas[0] > 1.998:
-        plt.scatter(ts,omegas,color='black',s=0.5)
-        plt.plot(ts,slope*ts + omegas[0],color="red")
-        plt.savefig(os.path.join(plots_dir,"trial_"+str(tnd)+".png"), dpi=300)
-        plt.clf()
+    # if omegas[0] > 1.998:
+    #     plt.scatter(ts,omegas,color='black',s=0.5)
+    #     plt.plot(ts,slope*ts + omegas[0],color="red")
+    #     plt.savefig(os.path.join(plots_dir,"trial_"+str(tnd)+".png"), dpi=300)
+    #     plt.clf()
+    # if slope < -2.e-5 or slope > 1.e-5:
+    #     plt.scatter(ts,omegas,color='black',s=0.5)
+    #     plt.plot(ts,slope*ts + omegas[0],color="red")
+    #     plt.savefig(os.path.join(plots_dir,"trial_"+str(tnd)+".png"), dpi=300)
+    #     plt.clf()
 
     return slope
 
@@ -133,6 +197,7 @@ if __name__=="__main__":
     # out_step=1.
     from_file=False
     perturber=False
+    version = 2 # 1 for 3body_data_..., 2 for 3body_...
     omega_lo = 1.98
     omega_hi = 2.0
     n_omegas = 20
@@ -140,9 +205,15 @@ if __name__=="__main__":
     theta_hi = 180.
     n_thetas = 40
     if perturber:
-        dir = "3body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
+        if version == 1:
+            dir = "3body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
+        elif version == 2:
+            dir = "3body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
     else:
-        dir = "2body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
+        if version == 1:
+            dir = "2body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
+        elif version == 2:
+            dir = "2body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
     dir_path = "./data/grid/"+dir
 
     plots_dir = os.path.join("plots","grid",dir)
