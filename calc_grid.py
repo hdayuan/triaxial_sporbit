@@ -3,6 +3,7 @@ import numpy as np
 import time
 import scipy.stats as stats
 import multiprocessing as mp
+import 3body_plot_v2 as pltfs
 
 def calc_om_dot_v2(ts,omegas,tnd):
     buffer = 10
@@ -45,10 +46,10 @@ def calc_om_dot_v2(ts,omegas,tnd):
                 max_count += 1
 
             else:
-                lo = ind - 10
+                lo = ind - buffer
                 if  lo < 0:
                     lo = 0
-                hi = ind + 12
+                hi = ind + 2 + buffer
                 if hi > n_data:
                     hi = n_data
 
@@ -96,7 +97,13 @@ def calc_om_dot_v2(ts,omegas,tnd):
     return slope
 
 def mp_calc_om_dot(trial_num):
-    om_dots = np.zeros(2) # 0 for triaxial, 1 for oblate
+    ds = 1
+    om_th_dots = np.zeros(2,2) # first dimension corresponds to triax (0) or oblate (1)
+    # second dimension corresponds to omega (0) or theta (1)
+
+    val_names = ["ix","iy","iz","jx","jy","jz","kx","ky","kz","si","sj","sk","omega","rx","ry","rz","vx","vy","vz","t"] # r is vector from planet to star !
+    inds = {val_names[i]:i for i in range(len(val_names))}
+    
     for k in range(2):
         if k==1:
             trial_num_dec = trial_num + .1
@@ -106,42 +113,70 @@ def mp_calc_om_dot(trial_num):
         file_path = os.path.join(dir_path,"trial_"+str(trial_num_dec)+".npy")
         f = open(file_path, 'rb')
         data = np.load(f)
-        om_dots[k] = calc_om_dot_v2(data[1],data[0],trial_num_dec)
+        
+        rs = np.stack((data[inds['rx'],::ds],data[inds['ry'],::ds],data[inds['rz'],::ds]), axis=0)
+        rs /= pltfs.many_mags(rs)
+        vs = np.stack((data[inds['vx'],::ds],data[inds['vy'],::ds],data[inds['vz'],::ds]), axis=0)
+        ss = np.stack((data[inds['si'],::ds],data[inds['sj'],::ds],data[inds['sk'],::ds]), axis=0)
+        iss = np.stack((data[inds['ix'],::ds],data[inds['iy'],::ds],data[inds['iz'],::ds]), axis=0)
+        js = np.stack((data[inds['jx'],::ds],data[inds['jy'],::ds],data[inds['jz'],::ds]), axis=0)
+        ks = np.stack((data[inds['kx'],::ds],data[inds['ky'],::ds],data[inds['kz'],::ds]), axis=0)
+        ts = data[inds['t'],::ds]
 
-    return om_dots
+        n = np.sqrt(np.dot(vs[:,0],vs[:,0])) / np.sqrt(np.dot(rs[:,0],rs[:,0])) # mean-motion
+
+        omegas = data[inds['omega'],::ds]
+        theta_rad, phi_rad = pltfs.get_theta_phi(ss,iss,js,ks,rs,vs)
+        thetas = np.degrees(theta_rad)
+
+        om_th_dots[k,0] = calc_om_dot_v2(ts,omegas,trial_num_dec)
+        om_th_dots[k,1] = calc_om_dot_v2(ts,thetas,trial_num_dec)
+
+    return om_th_dots
+
+# FIGURE OUT HOW TO RETURN OMEGA DOT AND THETA DOT AND PROCESS THAT
 
 if __name__=="__main__":
     start = time.time()
     # tf=300.
     # out_step=1.
+    version = 2
     perturber=False
-    omega_lo = 0.
-    omega_hi = 3.
-    n_omegas = 900
+    omega_lo = 1.97
+    omega_hi = 2.
+    n_omegas = 40
     theta_lo = 0.
     theta_hi = 180.
-    n_thetas = 360
+    n_thetas = 40
     if perturber:
-        dir = "3body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
-        dir_path = "./data/grid/"+dir
+        if version == 1:
+            dir = "3body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
+        elif version == 2:
+            dir = "3body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
     else:
-        dir = "2body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
-        dir_path = "./data/grid/"+dir
+        if version == 1:
+            dir = "2body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
+        elif version == 2:
+            dir = "2body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
+    dir_path = "./data/grid/"+dir
 
-    omega_dots = np.zeros((2,n_thetas,n_omegas)) # first dimension corresponds to triax (0) or oblate (1)
+    omega_theta_dots = np.zeros((2,2,n_thetas,n_omegas)) # first dimension corresponds to triax (0) or oblate (1)
+    # second dimension corresponds to omega (0) or theta (1)
 
     with mp.Pool() as pool:
-        om_dots = pool.map(mp_calc_om_dot, range(n_omegas*n_thetas))
+        dots = pool.map(mp_calc_om_dot, range(n_omegas*n_thetas))
 
     for i in range(n_thetas):
         for j in range(n_omegas):
             trial_num = i*n_omegas + j
-            omega_dots[0,i,j] = om_dots[trial_num][0]
-            omega_dots[1,i,j] = om_dots[trial_num][1]
+            omega_theta_dots[0,0,i,j] = dots[trial_num][0,0]
+            omega_theta_dots[1,0,i,j] = dots[trial_num][1,0]
+            omega_theta_dots[0,1,i,j] = dots[trial_num][0,1]
+            omega_theta_dots[1,1,i,j] = dots[trial_num][1,1]
 
     file_path = os.path.join(dir_path,"grid_data.npy")
     
     with open(file_path, 'wb') as f:
-        np.save(f, omega_dots)
+        np.save(f, omega_theta_dots)
 
     print(time.time()-start)
