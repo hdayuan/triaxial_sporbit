@@ -2,6 +2,7 @@ import os
 # import rebound
 # import reboundx
 import numpy as np
+import so_params as sops
 # import time
 import scipy.stats as stats
 import matplotlib as mpl
@@ -139,13 +140,13 @@ def calc_om_dot_v2(ts,omegas,tnd,plots_dir):
         n_omegas = 20
         thetas = np.linspace(theta_lo,theta_hi,n_thetas)
         theta = thetas[int(tnd) % n_omegas]
-        if slope > 1.e-6 or slope < -1.e-6 or (omegas[0] >= 2 and omegas[0] < 2.01 and theta >=50 and theta < 75):
-            plt.scatter(ts,omegas,color='black',s=0.5)
-            plt.plot(ts,slope*ts + omegas[0],color="red")
-            plt.scatter([ts[i] for i in min_inds],[omegas[i] for i in min_inds],color="blue")
-            plt.scatter([ts[i] for i in max_inds],[omegas[i] for i in max_inds],color="blue")
-            plt.savefig(os.path.join(plots_dir,"trial_"+str(tnd)+".png"), dpi=300)
-            plt.clf()
+        # if slope > 1.e-6 or slope < -1.e-6 or (omegas[0] >= 2 and omegas[0] < 2.01 and theta >=50 and theta < 75):
+        plt.scatter(ts,omegas,color='black',s=0.5)
+        plt.plot(ts,slope*ts + omegas[0],color="red")
+        plt.scatter([ts[i] for i in min_inds],[omegas[i] for i in min_inds],color="blue")
+        plt.scatter([ts[i] for i in max_inds],[omegas[i] for i in max_inds],color="blue")
+        plt.savefig("trial_"+str(tnd)+".png", dpi=300)
+        plt.clf()
 
     # if omegas[0] > 1.998:
     #     plt.scatter(ts,omegas,color='black',s=0.5)
@@ -201,15 +202,15 @@ def calc_om_dot(ts,omegas):
 if __name__=="__main__":
     # tf=300.
     # out_step=1.
-    from_file=True
+    from_file=False
     perturber=False
-    version = 1 # 1 for 3body_data_..., 2 for 3body_...
-    omega_lo = 0
-    omega_hi = 3
-    n_omegas = 900
-    theta_lo = 0.
-    theta_hi = 180.
-    n_thetas = 360
+    version = 2 # 1 for 3body_data_..., 2 for 3body_...
+    omega_lo = float(1.97)
+    omega_hi = float(2.)
+    n_omegas = 40
+    theta_lo = float(0.)
+    theta_hi = float(180.)
+    n_thetas = 40
     if perturber:
         if version == 1:
             dir = "3body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
@@ -232,8 +233,10 @@ if __name__=="__main__":
     omega_grid, theta_grid = np.meshgrid(omegas,thetas)
 
     if not from_file:
+        ds = 1
         omega_dots = np.zeros((2,n_thetas,n_omegas)) # first dimension corresponds to triax (0) or oblate (1)
-
+        val_names = ["ix","iy","iz","jx","jy","jz","kx","ky","kz","si","sj","sk","omega","rx","ry","rz","vx","vy","vz","t"] # r is vector from planet to star !
+        inds = {val_names[i]:i for i in range(len(val_names))}
         for i in range(n_thetas):
             for j in range(n_omegas):
                 trial_num = i*n_omegas + j
@@ -246,7 +249,24 @@ if __name__=="__main__":
                     file_path = os.path.join(dir_path,"trial_"+str(trial_num_dec)+".npy")
                     f = open(file_path, 'rb')
                     data = np.load(f)
-                    omega_dots[k,i,j] = calc_om_dot_v2(data[1],data[0],trial_num_dec,plots_dir)
+
+                    rs = np.stack((data[inds['rx'],::ds],data[inds['ry'],::ds],data[inds['rz'],::ds]), axis=0)
+                    rs /= sops.many_mags(rs)
+                    vs = np.stack((data[inds['vx'],::ds],data[inds['vy'],::ds],data[inds['vz'],::ds]), axis=0)
+                    ss = np.stack((data[inds['si'],::ds],data[inds['sj'],::ds],data[inds['sk'],::ds]), axis=0)
+                    iss = np.stack((data[inds['ix'],::ds],data[inds['iy'],::ds],data[inds['iz'],::ds]), axis=0)
+                    js = np.stack((data[inds['jx'],::ds],data[inds['jy'],::ds],data[inds['jz'],::ds]), axis=0)
+                    ks = np.stack((data[inds['kx'],::ds],data[inds['ky'],::ds],data[inds['kz'],::ds]), axis=0)
+                    ts = data[inds['t'],::ds]
+
+                    n = np.sqrt(np.dot(vs[:,0],vs[:,0])) / np.sqrt(np.dot(rs[:,0],rs[:,0])) # mean-motion
+
+                    omegas = data[inds['omega'],::ds]
+                    theta_rad, phi_rad = sops.get_theta_phi(ss,iss,js,ks,rs,vs)
+                    thetas = np.degrees(theta_rad)
+
+                    calc_om_dot_v2(ts,omegas,trial_num_dec,plots_dir)
+                    # omega_dots[k,i,j] = calc_om_dot_v2(data[1],data[0],trial_num_dec,plots_dir)
                     # if omega_dots[k,i,j] > 0: #(omega_grid[i,j] <= 2 and omega_grid[i,j] > 1.995):
                     #     plt.scatter(data[1],data[0],color='black',s=0.5)
                     #     plt.savefig(os.path.join(plots_dir,"trial_"+str(trial_num_dec)+".png"), dpi=300)
@@ -255,13 +275,15 @@ if __name__=="__main__":
     else:
         file_path = os.path.join(dir_path,"grid_data.npy")
         f = open(file_path, 'rb')
-        omega_dots = np.load(f)
+        omega_theta_dots = np.load(f)
+        omega_dots = omega_theta_dots[:,0,:,:]
+        theta_dots = omega_theta_dots[:,1,:,:]
 
 
     # crop
-    omega_dots = omega_dots[:,:,n_omegas//6:5*n_omegas//6 + 1]
-    omega_grid = omega_grid[:,n_omegas//6:5*n_omegas//6 + 1]
-    theta_grid = theta_grid[:,n_omegas//6:5*n_omegas//6 + 1]
+    # omega_dots = omega_dots[:,:,n_omegas//6:5*n_omegas//6 + 1]
+    # omega_grid = omega_grid[:,n_omegas//6:5*n_omegas//6 + 1]
+    # theta_grid = theta_grid[:,n_omegas//6:5*n_omegas//6 + 1]
 
     # plot results
     fig, axs = plt.subplots(2, 1,figsize=(8, 8), sharex=True,sharey=True)
@@ -277,6 +299,9 @@ if __name__=="__main__":
     val = 0.85*np.maximum(np.max(omega_dots[1]),-np.min(omega_dots[1]))
     lab = r"$d\Omega/dt$ ($n/P$)"
 
+    print(np.shape(omega_dots))
+    print(omega_dots)
+
     # val = np.maximum(np.max(omega_dots[0]),-np.min(omega_dots[0])) # (np.max(omega_dots[0]) - np.min(omega_dots[0]))/2.
     norm = mpl.colors.Normalize(vmin=-val, vmax=val)
     axs[0].pcolormesh(omega_grid,theta_grid,omega_dots[0],norm=norm,cmap='coolwarm',shading='auto')
@@ -290,4 +315,3 @@ if __name__=="__main__":
     plt.savefig(os.path.join(plots_dir,"omega_dot.png"), dpi=300)
     plt.clf()
     plt.close(fig)
-    

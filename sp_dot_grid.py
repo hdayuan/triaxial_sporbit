@@ -14,11 +14,11 @@ else:
     tf=10000.
 out_step=2.
 perturber=False
-omega_lo = 1.97
-omega_hi = 2.
+omega_lo = float(1.97)
+omega_hi = float(2.)
 n_omegas = 40
-theta_lo = 0.
-theta_hi = 180.
+theta_lo = float(0.)
+theta_hi = float(180.)
 n_thetas = 40
 if perturber:
     dir_path = "./data/grid/3body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
@@ -123,8 +123,7 @@ def integrate_sim(sim_params,trial_num_dec):
         out_data[inds['vx'],i] = ps[1].vx
         out_data[inds['vy'],i] = ps[1].vy
         out_data[inds['vz'],i] = ps[1].vz
-        out_data[0,i] = ps[1].params['tt_omega']/ps[1].n
-        out_data[1,i] = sim.t / year
+        out_data[inds['t'],i] = sim.t / year
 
     file_path = os.path.join(dir_path,"trial_"+str(trial_num_dec)+".npy")
     

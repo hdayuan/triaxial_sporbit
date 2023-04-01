@@ -3,7 +3,7 @@ import numpy as np
 import time
 import scipy.stats as stats
 import multiprocessing as mp
-import plotfuncs as pltfs
+import so_params as sops
 
 def calc_om_dot_v2(ts,omegas,tnd):
     buffer = 10
@@ -115,7 +115,7 @@ def mp_calc_om_dot(trial_num):
         data = np.load(f)
         
         rs = np.stack((data[inds['rx'],::ds],data[inds['ry'],::ds],data[inds['rz'],::ds]), axis=0)
-        rs /= pltfs.many_mags(rs)
+        rs /= sops.many_mags(rs)
         vs = np.stack((data[inds['vx'],::ds],data[inds['vy'],::ds],data[inds['vz'],::ds]), axis=0)
         ss = np.stack((data[inds['si'],::ds],data[inds['sj'],::ds],data[inds['sk'],::ds]), axis=0)
         iss = np.stack((data[inds['ix'],::ds],data[inds['iy'],::ds],data[inds['iz'],::ds]), axis=0)
@@ -126,7 +126,7 @@ def mp_calc_om_dot(trial_num):
         n = np.sqrt(np.dot(vs[:,0],vs[:,0])) / np.sqrt(np.dot(rs[:,0],rs[:,0])) # mean-motion
 
         omegas = data[inds['omega'],::ds]
-        theta_rad, phi_rad = pltfs.get_theta_phi(ss,iss,js,ks,rs,vs)
+        theta_rad, phi_rad = sops.get_theta_phi(ss,iss,js,ks,rs,vs)
         thetas = np.degrees(theta_rad)
 
         om_th_dots[k,0] = calc_om_dot_v2(ts,omegas,trial_num_dec)
@@ -142,11 +142,11 @@ if __name__=="__main__":
     # out_step=1.
     version = 2
     perturber=False
-    omega_lo = 1.97
-    omega_hi = 2.
+    omega_lo = float(1.97)
+    omega_hi = float(2.)
     n_omegas = 40
-    theta_lo = 0.
-    theta_hi = 180.
+    theta_lo = float(0.)
+    theta_hi = float(180.)
     n_thetas = 40
     if perturber:
         if version == 1:
