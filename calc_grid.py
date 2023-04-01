@@ -98,7 +98,7 @@ def calc_om_dot_v2(ts,omegas,tnd):
 
 def mp_calc_om_dot(trial_num):
     ds = 1
-    om_th_dots = np.zeros(2,2) # first dimension corresponds to triax (0) or oblate (1)
+    om_th_dots = np.zeros((2,2)) # first dimension corresponds to triax (0) or oblate (1)
     # second dimension corresponds to omega (0) or theta (1)
 
     val_names = ["ix","iy","iz","jx","jy","jz","kx","ky","kz","si","sj","sk","omega","rx","ry","rz","vx","vy","vz","t"] # r is vector from planet to star !
