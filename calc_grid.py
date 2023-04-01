@@ -3,7 +3,7 @@ import numpy as np
 import time
 import scipy.stats as stats
 import multiprocessing as mp
-import 3body_plot_v2 as pltfs
+import plotfuncs as pltfs
 
 def calc_om_dot_v2(ts,omegas,tnd):
     buffer = 10
