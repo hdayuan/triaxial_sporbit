@@ -3,9 +3,15 @@ import os
 # import reboundx
 import numpy as np
 # import time
-import matplotlib as mpl
-import matplotlib.pyplot as plt
 import scipy.stats as stats
+import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
+plt.rc('text', usetex=True)
+plt.rc('font', family='serif', size=14)
+plt.rc('lines', lw=2.5)
+plt.rc('xtick', direction='in', top=True, bottom=True)
+plt.rc('ytick', direction='in', left=True, right=True)
 
 def get_fig_axs(nw,nh,sharex=False,sharey=False,share_titles=False,share_xlab=False,share_ylab=False,titles=None,xlabels=None,ylabels=None):
     fig, axs = plt.subplots(nh, nw,figsize=(6*nw, 4*nh), sharex=sharex,sharey=sharey)
@@ -73,10 +79,10 @@ def calc_om_dot_v2(ts,omegas,tnd,plots_dir):
                 max_count += 1
 
             else:
-                lo = ind - 10
+                lo = ind - buffer
                 if  lo < 0:
                     lo = 0
-                hi = ind + 12
+                hi = ind + 2 + buffer
                 if hi > n_data:
                     hi = n_data
 
@@ -133,7 +139,7 @@ def calc_om_dot_v2(ts,omegas,tnd,plots_dir):
         n_omegas = 20
         thetas = np.linspace(theta_lo,theta_hi,n_thetas)
         theta = thetas[int(tnd) % n_omegas]
-        if slope > 1.e-6 or slope < -1.e-6 or (omegas[0] >= 1.9875 and omegas[0] < 1.9925 and theta >=50 and theta < 75):
+        if slope > 1.e-6 or slope < -1.e-6 or (omegas[0] >= 2 and omegas[0] < 2.01 and theta >=50 and theta < 75):
             plt.scatter(ts,omegas,color='black',s=0.5)
             plt.plot(ts,slope*ts + omegas[0],color="red")
             plt.scatter([ts[i] for i in min_inds],[omegas[i] for i in min_inds],color="blue")
@@ -195,15 +201,15 @@ def calc_om_dot(ts,omegas):
 if __name__=="__main__":
     # tf=300.
     # out_step=1.
-    from_file=False
+    from_file=True
     perturber=False
-    version = 2 # 1 for 3body_data_..., 2 for 3body_...
-    omega_lo = 1.98
-    omega_hi = 2.0
-    n_omegas = 20
+    version = 1 # 1 for 3body_data_..., 2 for 3body_...
+    omega_lo = 0
+    omega_hi = 3
+    n_omegas = 900
     theta_lo = 0.
     theta_hi = 180.
-    n_thetas = 40
+    n_thetas = 360
     if perturber:
         if version == 1:
             dir = "3body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
@@ -252,6 +258,11 @@ if __name__=="__main__":
         omega_dots = np.load(f)
 
 
+    # crop
+    omega_dots = omega_dots[:,:,n_omegas//6:5*n_omegas//6 + 1]
+    omega_grid = omega_grid[:,n_omegas//6:5*n_omegas//6 + 1]
+    theta_grid = theta_grid[:,n_omegas//6:5*n_omegas//6 + 1]
+
     # plot results
     fig, axs = plt.subplots(2, 1,figsize=(8, 8), sharex=True,sharey=True)
     plt.subplots_adjust(left=0.1, bottom=0.1, right=.95, top=0.92, wspace=0.1, hspace=0.1)
@@ -263,18 +274,20 @@ if __name__=="__main__":
     axs[0].set_title("Triaxial")
     axs[1].set_title("Oblate")
 
-    val = np.maximum(np.max(omega_dots[0]),-np.min(omega_dots[0])) # (np.max(omega_dots[0]) - np.min(omega_dots[0]))/2.
+    val = 0.85*np.maximum(np.max(omega_dots[1]),-np.min(omega_dots[1]))
+    lab = r"$d\Omega/dt$ ($n/P$)"
+
+    # val = np.maximum(np.max(omega_dots[0]),-np.min(omega_dots[0])) # (np.max(omega_dots[0]) - np.min(omega_dots[0]))/2.
     norm = mpl.colors.Normalize(vmin=-val, vmax=val)
     axs[0].pcolormesh(omega_grid,theta_grid,omega_dots[0],norm=norm,cmap='coolwarm',shading='auto')
-    fig.colorbar(mpl.cm.ScalarMappable(norm=norm,cmap='coolwarm'), ax=axs[0])
+    fig.colorbar(mpl.cm.ScalarMappable(norm=norm,cmap='coolwarm'), ax=axs[0],label=lab)
 
-    val = np.maximum(np.max(omega_dots[1]),-np.min(omega_dots[1]))
     # val = (np.max(omega_dots[1]) - np.min(omega_dots[1]))/2.
     norm = mpl.colors.Normalize(vmin=-val, vmax=val)
     axs[1].pcolormesh(omega_grid,theta_grid,omega_dots[1],norm=norm,cmap='coolwarm',shading='auto')
-    lab = r"$d\Omega/dt$ ($n/P^2$)"
     fig.colorbar(mpl.cm.ScalarMappable(norm=norm,cmap='coolwarm'), ax=axs[1],label=lab)
 
     plt.savefig(os.path.join(plots_dir,"omega_dot.png"), dpi=300)
     plt.clf()
     plt.close(fig)
+    

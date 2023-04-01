@@ -11,12 +11,12 @@ edit_trials = [49,78,858,888,918,948,978]
 if editing:
     tf=1000.
 else:
-    tf=1000.
-out_step=1.
+    tf=10000.
+out_step=2.
 perturber=False
-omega_lo = 1.98
+omega_lo = 1.97
 omega_hi = 2.
-n_omegas = 20
+n_omegas = 40
 theta_lo = 0.
 theta_hi = 180.
 n_thetas = 40
@@ -97,11 +97,32 @@ def integrate_sim(sim_params,trial_num_dec):
     # also write time
     year = ps[1].P
     n_out = int((tf // out_step) + 1)
-    nv = 2
+    val_names = ["ix","iy","iz","jx","jy","jz","kx","ky","kz","si","sj","sk","omega","rx","ry","rz","vx","vy","vz","t"] # r is vector from planet to star !
+    inds = {val_names[i]:i for i in range(len(val_names))}
+    nv = len(val_names)
     out_data = np.zeros((nv,n_out), dtype=np.float32)
 
     for i in range(n_out):
         sim.integrate(i*out_step*year)
+        out_data[inds['ix'],i] = ps[1].params['tt_ix']
+        out_data[inds['iy'],i] = ps[1].params['tt_iy']
+        out_data[inds['iz'],i] = ps[1].params['tt_iz']
+        out_data[inds['jx'],i] = ps[1].params['tt_jx']
+        out_data[inds['jy'],i] = ps[1].params['tt_jy']
+        out_data[inds['jz'],i] = ps[1].params['tt_jz']
+        out_data[inds['kx'],i] = ps[1].params['tt_kx']
+        out_data[inds['ky'],i] = ps[1].params['tt_ky']
+        out_data[inds['kz'],i] = ps[1].params['tt_kz']
+        out_data[inds['si'],i] = ps[1].params['tt_si']
+        out_data[inds['sj'],i] = ps[1].params['tt_sj']
+        out_data[inds['sk'],i] = ps[1].params['tt_sk']
+        out_data[inds['omega'],i] = ps[1].params['tt_omega']/ps[1].n
+        out_data[inds['rx'],i] = ps[0].x - ps[1].x
+        out_data[inds['ry'],i] = ps[0].y - ps[1].y
+        out_data[inds['rz'],i] = ps[0].z - ps[1].z
+        out_data[inds['vx'],i] = ps[1].vx
+        out_data[inds['vy'],i] = ps[1].vy
+        out_data[inds['vz'],i] = ps[1].vz
         out_data[0,i] = ps[1].params['tt_omega']/ps[1].n
         out_data[1,i] = sim.t / year
 
