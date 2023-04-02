@@ -281,10 +281,10 @@ if __name__=="__main__":
 
 
     # crop
-    omega_dots = omega_dots[:,:,:n_omegas//2]
-    theta_dots = theta_dots[:,:,:n_omegas//2]
-    omega_grid = omega_grid[:,:n_omegas//2]
-    theta_grid = theta_grid[:,:n_omegas//2]
+    # omega_dots = omega_dots[:,:,:n_omegas//2]
+    # theta_dots = theta_dots[:,:,:n_omegas//2]
+    # omega_grid = omega_grid[:,:n_omegas//2]
+    # theta_grid = theta_grid[:,:n_omegas//2]
     
     # omega_dots = omega_dots[:,:,n_omegas//6:5*n_omegas//6 + 1]
     # omega_grid = omega_grid[:,n_omegas//6:5*n_omegas//6 + 1]
