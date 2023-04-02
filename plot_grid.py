@@ -51,6 +51,11 @@ def calc_om_dot_v2(ts,omegas,tnd,plots_dir):
     # test for roughly linear
     if np.all(d_omegas >= 0) or np.all(d_omegas <= 0):
         slope = stats.linregress(ts,omegas).slope
+
+        plt.scatter(ts,omegas,color='black',s=0.5)
+        plt.plot(ts,slope*ts + omegas[0],color="red")
+        plt.savefig(plots_dir+"/trial_"+str(tnd)+".png", dpi=300)
+        plt.clf()
     
     # otherwise assume sinusoidal
     else:
@@ -145,7 +150,7 @@ def calc_om_dot_v2(ts,omegas,tnd,plots_dir):
         plt.plot(ts,slope*ts + omegas[0],color="red")
         plt.scatter([ts[i] for i in min_inds],[omegas[i] for i in min_inds],color="blue")
         plt.scatter([ts[i] for i in max_inds],[omegas[i] for i in max_inds],color="blue")
-        plt.savefig("trial_"+str(tnd)+".png", dpi=300)
+        plt.savefig(plots_dir+"/trial_"+str(tnd)+".png", dpi=300)
         plt.clf()
 
     # if omegas[0] > 1.998:
@@ -202,7 +207,7 @@ def calc_om_dot(ts,omegas):
 if __name__=="__main__":
     # tf=300.
     # out_step=1.
-    from_file=True
+    from_file=False
     perturber=False
     version = 2 # 1 for 3body_data_..., 2 for 3body_...
     omega_lo = float(1.97)
@@ -247,6 +252,8 @@ if __name__=="__main__":
                         trial_num_dec = int(trial_num)
 
                     file_path = os.path.join(dir_path,"trial_"+str(trial_num_dec)+".npy")
+                    if (not os.path.exists(file_path)):
+                        continue
                     f = open(file_path, 'rb')
                     data = np.load(f)
 
@@ -258,6 +265,8 @@ if __name__=="__main__":
                     js = np.stack((data[inds['jx'],::ds],data[inds['jy'],::ds],data[inds['jz'],::ds]), axis=0)
                     ks = np.stack((data[inds['kx'],::ds],data[inds['ky'],::ds],data[inds['kz'],::ds]), axis=0)
                     ts = data[inds['t'],::ds]
+
+                    print(ts)
 
                     n = np.sqrt(np.dot(vs[:,0],vs[:,0])) / np.sqrt(np.dot(rs[:,0],rs[:,0])) # mean-motion
 
@@ -291,37 +300,37 @@ if __name__=="__main__":
     # theta_grid = theta_grid[:,n_omegas//6:5*n_omegas//6 + 1]
 
     # plot results
-    for i in range(2):
-        if i == 1:
-            omega_dots = theta_dots
+    # for i in range(2):
+    #     if i == 1:
+    #         omega_dots = theta_dots
 
-        fig, axs = plt.subplots(2, 1,figsize=(8, 8), sharex=True,sharey=True)
-        plt.subplots_adjust(left=0.1, bottom=0.1, right=.95, top=0.92, wspace=0.1, hspace=0.1)
-        # axs[0].set_xlabel(r"$\Omega/n$")
-        axs[1].set_xlabel(r"$\Omega/n$")
-        axs[0].set_ylabel(r"$\theta$ ($^{\circ}$)")
-        axs[1].set_ylabel(r"$\theta$ ($^{\circ}$)")
+    #     fig, axs = plt.subplots(2, 1,figsize=(8, 8), sharex=True,sharey=True)
+    #     plt.subplots_adjust(left=0.1, bottom=0.1, right=.95, top=0.92, wspace=0.1, hspace=0.1)
+    #     # axs[0].set_xlabel(r"$\Omega/n$")
+    #     axs[1].set_xlabel(r"$\Omega/n$")
+    #     axs[0].set_ylabel(r"$\theta$ ($^{\circ}$)")
+    #     axs[1].set_ylabel(r"$\theta$ ($^{\circ}$)")
         
-        axs[0].set_title("Triaxial")
-        axs[1].set_title("Oblate")
+    #     axs[0].set_title("Triaxial")
+    #     axs[1].set_title("Oblate")
 
-        val = 0.85*np.maximum(np.max(omega_dots[1]),-np.min(omega_dots[1]))
-        lab = r"$d\Omega/dt$ ($n/P$)"
+    #     val = 0.85*np.maximum(np.max(omega_dots[1]),-np.min(omega_dots[1]))
+    #     lab = r"$d\Omega/dt$ ($n/P$)"
 
-        # val = np.maximum(np.max(omega_dots[0]),-np.min(omega_dots[0])) # (np.max(omega_dots[0]) - np.min(omega_dots[0]))/2.
-        norm = mpl.colors.Normalize(vmin=-val, vmax=val)
-        axs[0].pcolormesh(omega_grid,theta_grid,omega_dots[0],norm=norm,cmap='coolwarm',shading='auto')
-        fig.colorbar(mpl.cm.ScalarMappable(norm=norm,cmap='coolwarm'), ax=axs[0],label=lab)
+    #     # val = np.maximum(np.max(omega_dots[0]),-np.min(omega_dots[0])) # (np.max(omega_dots[0]) - np.min(omega_dots[0]))/2.
+    #     norm = mpl.colors.Normalize(vmin=-val, vmax=val)
+    #     axs[0].pcolormesh(omega_grid,theta_grid,omega_dots[0],norm=norm,cmap='coolwarm',shading='auto')
+    #     fig.colorbar(mpl.cm.ScalarMappable(norm=norm,cmap='coolwarm'), ax=axs[0],label=lab)
 
-        # val = (np.max(omega_dots[1]) - np.min(omega_dots[1]))/2.
-        norm = mpl.colors.Normalize(vmin=-val, vmax=val)
-        axs[1].pcolormesh(omega_grid,theta_grid,omega_dots[1],norm=norm,cmap='coolwarm',shading='auto')
-        fig.colorbar(mpl.cm.ScalarMappable(norm=norm,cmap='coolwarm'), ax=axs[1],label=lab)
+    #     # val = (np.max(omega_dots[1]) - np.min(omega_dots[1]))/2.
+    #     norm = mpl.colors.Normalize(vmin=-val, vmax=val)
+    #     axs[1].pcolormesh(omega_grid,theta_grid,omega_dots[1],norm=norm,cmap='coolwarm',shading='auto')
+    #     fig.colorbar(mpl.cm.ScalarMappable(norm=norm,cmap='coolwarm'), ax=axs[1],label=lab)
 
-        if i == 1:
-            save_name = "theta_dot.png"
-        else:
-            save_name = "omega_dot.png"
-        plt.savefig(os.path.join(plots_dir,save_name), dpi=300)
-        plt.clf()
-        plt.close(fig)
+    #     if i == 1:
+    #         save_name = "theta_dot.png"
+    #     else:
+    #         save_name = "omega_dot.png"
+    #     plt.savefig(os.path.join(plots_dir,save_name), dpi=300)
+    #     plt.clf()
+    #     plt.close(fig)

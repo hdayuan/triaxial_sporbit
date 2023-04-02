@@ -122,6 +122,8 @@ def mp_calc_om_dot(trial_num):
         js = np.stack((data[inds['jx'],::ds],data[inds['jy'],::ds],data[inds['jz'],::ds]), axis=0)
         ks = np.stack((data[inds['kx'],::ds],data[inds['ky'],::ds],data[inds['kz'],::ds]), axis=0)
         ts = data[inds['t'],::ds]
+        if trial_num == 265:
+            print(ts)
 
         n = np.sqrt(np.dot(vs[:,0],vs[:,0])) / np.sqrt(np.dot(rs[:,0],rs[:,0])) # mean-motion
 
