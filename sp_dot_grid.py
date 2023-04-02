@@ -23,7 +23,7 @@ n_thetas = 40
 if perturber:
     dir_path = "./data/grid/3body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
 else:
-    dir_path = "./data/grid/2body_notides_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
+    dir_path = "./data/grid/2body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
 
 # make simulation object with given parameters
 # theta = obliquity, phi = azimuthal angle, 
@@ -149,7 +149,7 @@ def run_sim_grid(trial_num):
     Q_tide = 100.
     R_p = 2.*Re # radius of inner planet
     M_p = 4.*Me # mass of inner planet
-    k2 = 0. # *************** 1.5 # 1.5 for uniformly distributed mass
+    k2 = 1.5 # 1.5 for uniformly distributed mass
     s_k_angle = np.radians(0.) # angle between s and k
     a_out = 5. # a of outer planet
     i_out = np.radians(20.) # inclination of outer planet

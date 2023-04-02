@@ -157,7 +157,7 @@ if __name__=="__main__":
         if version == 1:
             dir = "2body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
         elif version == 2:
-            dir = "2body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
+            dir = "2body_notides_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
     dir_path = "./data/grid/"+dir
 
     omega_theta_dots = np.zeros((2,2,n_thetas,n_omegas)) # first dimension corresponds to triax (0) or oblate (1)
