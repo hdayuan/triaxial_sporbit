@@ -6,6 +6,8 @@ import time
 import multiprocessing as mp
 
 # global variables (params)
+beta_bool = True # if false, theta vs omega, if true, beta vs omega, use all theta valiables for beta
+theta_fix = float(70.) # degrees
 editing=False
 edit_trials = [49,78,858,888,918,948,978]
 if editing:
@@ -14,22 +16,23 @@ else:
     tf=10000.
 out_step=2.
 perturber=False
-omega_lo = float(1.97)
-omega_hi = float(2.)
+omega_lo = float(1.95)
+omega_hi = float(2.05)
 n_omegas = 40
 theta_lo = float(0.)
-theta_hi = float(180.)
+theta_hi = float(90.)
 n_thetas = 40
+proto_dir = "./data/grid/beta_"+str(theta_fix)+"th_"
 if perturber:
-    dir_path = "./data/grid/3body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
+    dir_path = proto_dir + "3body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
 else:
-    dir_path = "./data/grid/2body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
+    dir_path = proto_dir + "2body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
 
 # make simulation object with given parameters
 # theta = obliquity, phi = azimuthal angle, 
 # phi = 0 corresponds to initial condition where planet's k axis is tilting directly away from star
 def create_sim(sim_params,dt_frac=0.025):
-    a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out = sim_params
+    a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,beta,a_out,i_out,M_out = sim_params
 
     sim = rebound.Simulation()
     sim.integrator = 'whfast'
@@ -47,15 +50,15 @@ def create_sim(sim_params,dt_frac=0.025):
     # add spin to smaller body
     ps = sim.particles
 
-    ps[1].params['tt_ix'] = np.cos(theta) # + ((np.sin(phi)**2) * (1-np.cos(theta)))
+    ps[1].params['tt_ix'] = np.cos(theta-beta) # + ((np.sin(phi)**2) * (1-np.cos(theta)))
     ps[1].params['tt_iy'] = 0. # -np.sin(phi)*np.cos(phi)*(1-np.cos(theta))
-    ps[1].params['tt_iz'] = -np.sin(theta)# -np.cos(phi)*np.sin(theta)
+    ps[1].params['tt_iz'] = -np.sin(theta-beta)# -np.cos(phi)*np.sin(theta)
     ps[1].params['tt_jx'] = 0. #-np.sin(phi)*np.cos(phi)*(1-np.cos(theta))
     ps[1].params['tt_jy'] = 1. #np.cos(theta) + ((np.cos(phi)**2) * (1-np.cos(theta)))
     ps[1].params['tt_jz'] = 0. #-np.sin(phi)*np.sin(theta)
-    ps[1].params['tt_kx'] = np.sin(theta) # *np.cos(phi)
+    ps[1].params['tt_kx'] = np.sin(theta-beta) # *np.cos(phi)
     ps[1].params['tt_ky'] = 0. # np.sin(theta)*np.sin(phi)
-    ps[1].params['tt_kz'] = np.cos(theta)
+    ps[1].params['tt_kz'] = np.cos(theta-beta)
 
     k = 0.331
     Ii = k*M_p*R_p*R_p
@@ -66,9 +69,9 @@ def create_sim(sim_params,dt_frac=0.025):
     ps[1].params['tt_Ij'] = Ij
     ps[1].params['tt_Ik'] = Ik
 
-    ps[1].params['tt_si'] = np.sin(s_k_angle)
+    ps[1].params['tt_si'] = np.sin(beta)
     ps[1].params['tt_sj'] = 0.
-    ps[1].params['tt_sk'] = np.cos(s_k_angle)
+    ps[1].params['tt_sk'] = np.cos(beta)
 
     tidal_dt = np.arctan(1./Q_tide) / 2. / ps[1].n # check this / change n to some other frequency?
     omega = omega_to_n*ps[1].n
@@ -167,17 +170,23 @@ def run_sim_grid(trial_num):
     omegas = np.linspace(omega_lo, omega_hi, n_omegas)
     omega_to_n = omegas[trial_num % len(omegas)]
 
-    thetas = np.radians(np.linspace(theta_lo,theta_hi,n_thetas))
-    theta = thetas[trial_num//len(omegas)]
+    if beta_bool:
+        theta = np.radians(theta_fix)
+        betas = np.radians(np.linspace(theta_lo,theta_hi,n_thetas))
+        beta = betas[trial_num//len(omegas)]
+
+    else:
+        thetas = np.radians(np.linspace(theta_lo,theta_hi,n_thetas))
+        theta = thetas[trial_num//len(omegas)]
 
     ### RUN SIMULATION ###
-    sim_params = a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out
+    sim_params = a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,beta,a_out,i_out,M_out
     integrate_sim(sim_params,trial_num)
 
     ### Re-RUN SIMULATION with same parameters, except just j2 ###
     trial_num_2 = trial_num + 0.1
     moment2 = 0.
-    sim_params = a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,s_k_angle,a_out,i_out,M_out
+    sim_params = a,Q_tide,R_p,theta,omega_to_n,M_p,k2,moment2,moment3,beta,a_out,i_out,M_out
     integrate_sim(sim_params,trial_num_2)
 
 # main function

@@ -5,6 +5,31 @@ import scipy.stats as stats
 import multiprocessing as mp
 import so_params as sops
 
+beta_bool = True # if false, theta vs omega, if true, beta vs omega, use all theta valiables for beta
+theta_fix = float(70.) # degrees
+# tf=300.
+# out_step=1.
+version = 2
+perturber=False
+omega_lo = float(1.95)
+omega_hi = float(2.05)
+n_omegas = 40
+theta_lo = float(0.)
+theta_hi = float(90.)
+n_thetas = 40
+proto_dir = "./data/grid/beta_"+str(theta_fix)+"th_"
+if perturber:
+    if version == 1:
+        dir = "./data/grid/3body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
+    elif version == 2:
+        dir = proto_dir+"3body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
+else:
+    if version == 1:
+        dir = "./data/grid/2body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
+    elif version == 2:
+        dir = proto_dir+"2body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
+dir_path = dir
+
 def calc_om_dot_v2(ts,omegas,tnd):
     buffer = 10
     ds = 2
@@ -122,8 +147,6 @@ def mp_calc_om_dot(trial_num):
         js = np.stack((data[inds['jx'],::ds],data[inds['jy'],::ds],data[inds['jz'],::ds]), axis=0)
         ks = np.stack((data[inds['kx'],::ds],data[inds['ky'],::ds],data[inds['kz'],::ds]), axis=0)
         ts = data[inds['t'],::ds]
-        if trial_num == 265:
-            print(ts)
 
         n = np.sqrt(np.dot(vs[:,0],vs[:,0])) / np.sqrt(np.dot(rs[:,0],rs[:,0])) # mean-motion
 
@@ -140,31 +163,8 @@ def mp_calc_om_dot(trial_num):
 
     return om_th_dots
 
-# FIGURE OUT HOW TO RETURN OMEGA DOT AND THETA DOT AND PROCESS THAT
-
 if __name__=="__main__":
     start = time.time()
-    # tf=300.
-    # out_step=1.
-    version = 2
-    perturber=False
-    omega_lo = float(1.97)
-    omega_hi = float(2.)
-    n_omegas = 40
-    theta_lo = float(0.)
-    theta_hi = float(180.)
-    n_thetas = 40
-    if perturber:
-        if version == 1:
-            dir = "3body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
-        elif version == 2:
-            dir = "3body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
-    else:
-        if version == 1:
-            dir = "2body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
-        elif version == 2:
-            dir = "2body_notides_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
-    dir_path = "./data/grid/"+dir
 
     omega_theta_dots = np.zeros((2,2,n_thetas,n_omegas)) # first dimension corresponds to triax (0) or oblate (1)
     # second dimension corresponds to omega (0) or theta (1)

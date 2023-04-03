@@ -205,27 +205,30 @@ def calc_om_dot(ts,omegas):
     return delta_omega/delta_t
 
 if __name__=="__main__":
+    beta_bool = True # if false, theta vs omega, if true, beta vs omega, use all theta valiables for beta
+    theta_fix = float(70.) # degrees
     # tf=300.
     # out_step=1.
-    from_file=False
+    from_file=True
     perturber=False
     version = 2 # 1 for 3body_data_..., 2 for 3body_...
-    omega_lo = float(1.97)
-    omega_hi = float(2.)
+    omega_lo = float(1.95)
+    omega_hi = float(2.05)
     n_omegas = 40
     theta_lo = float(0.)
-    theta_hi = float(180.)
+    theta_hi = float(90.)
     n_thetas = 40
+    proto_dir = "beta_"+str(theta_fix)+"th_"
     if perturber:
         if version == 1:
             dir = "3body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
         elif version == 2:
-            dir = "3body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
+            dir = proto_dir+"3body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
     else:
         if version == 1:
             dir = "2body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
         elif version == 2:
-            dir = "2body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
+            dir = proto_dir+"2body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
     dir_path = "./data/grid/"+dir
 
     plots_dir = os.path.join("plots","grid",dir)
@@ -266,8 +269,6 @@ if __name__=="__main__":
                     ks = np.stack((data[inds['kx'],::ds],data[inds['ky'],::ds],data[inds['kz'],::ds]), axis=0)
                     ts = data[inds['t'],::ds]
 
-                    print(ts)
-
                     n = np.sqrt(np.dot(vs[:,0],vs[:,0])) / np.sqrt(np.dot(rs[:,0],rs[:,0])) # mean-motion
 
                     omegas = data[inds['omega'],::ds]
@@ -300,37 +301,42 @@ if __name__=="__main__":
     # theta_grid = theta_grid[:,n_omegas//6:5*n_omegas//6 + 1]
 
     # plot results
-    # for i in range(2):
-    #     if i == 1:
-    #         omega_dots = theta_dots
+    for i in range(2):
+        if i == 1:
+            omega_dots = theta_dots
 
-    #     fig, axs = plt.subplots(2, 1,figsize=(8, 8), sharex=True,sharey=True)
-    #     plt.subplots_adjust(left=0.1, bottom=0.1, right=.95, top=0.92, wspace=0.1, hspace=0.1)
-    #     # axs[0].set_xlabel(r"$\Omega/n$")
-    #     axs[1].set_xlabel(r"$\Omega/n$")
-    #     axs[0].set_ylabel(r"$\theta$ ($^{\circ}$)")
-    #     axs[1].set_ylabel(r"$\theta$ ($^{\circ}$)")
-        
-    #     axs[0].set_title("Triaxial")
-    #     axs[1].set_title("Oblate")
+        fig, axs = plt.subplots(2, 1,figsize=(8, 8), sharex=True,sharey=True)
+        plt.subplots_adjust(left=0.1, bottom=0.1, right=.95, top=0.92, wspace=0.1, hspace=0.1)
+        # axs[0].set_xlabel(r"$\Omega/n$")
+        axs[1].set_xlabel(r"$\Omega/n$")
+        if beta_bool:
+            axs[0].set_ylabel(r"$\beta$ ($^{\circ}$)")
+            axs[1].set_ylabel(r"$\beta$ ($^{\circ}$)")
+            axs[0].set_title(r"Triaxial, $\theta=$ "+str(theta_fix)+r"$^{\circ}$")
+            axs[1].set_title(r"Oblate, $\theta=$ "+str(theta_fix)+r"$^{\circ}$")
+        else:
+            axs[0].set_ylabel(r"$\theta$ ($^{\circ}$)")
+            axs[1].set_ylabel(r"$\theta$ ($^{\circ}$)")
+            axs[0].set_title("Triaxial")
+            axs[1].set_title("Oblate")
 
-    #     val = 0.85*np.maximum(np.max(omega_dots[1]),-np.min(omega_dots[1]))
-    #     lab = r"$d\Omega/dt$ ($n/P$)"
+        val = 0.85*np.maximum(np.max(omega_dots[1]),-np.min(omega_dots[1]))
+        lab = r"$d\Omega/dt$ ($n/P$)"
 
-    #     # val = np.maximum(np.max(omega_dots[0]),-np.min(omega_dots[0])) # (np.max(omega_dots[0]) - np.min(omega_dots[0]))/2.
-    #     norm = mpl.colors.Normalize(vmin=-val, vmax=val)
-    #     axs[0].pcolormesh(omega_grid,theta_grid,omega_dots[0],norm=norm,cmap='coolwarm',shading='auto')
-    #     fig.colorbar(mpl.cm.ScalarMappable(norm=norm,cmap='coolwarm'), ax=axs[0],label=lab)
+        # val = np.maximum(np.max(omega_dots[0]),-np.min(omega_dots[0])) # (np.max(omega_dots[0]) - np.min(omega_dots[0]))/2.
+        norm = mpl.colors.Normalize(vmin=-val, vmax=val)
+        axs[0].pcolormesh(omega_grid,theta_grid,omega_dots[0],norm=norm,cmap='coolwarm',shading='auto')
+        fig.colorbar(mpl.cm.ScalarMappable(norm=norm,cmap='coolwarm'), ax=axs[0],label=lab)
 
-    #     # val = (np.max(omega_dots[1]) - np.min(omega_dots[1]))/2.
-    #     norm = mpl.colors.Normalize(vmin=-val, vmax=val)
-    #     axs[1].pcolormesh(omega_grid,theta_grid,omega_dots[1],norm=norm,cmap='coolwarm',shading='auto')
-    #     fig.colorbar(mpl.cm.ScalarMappable(norm=norm,cmap='coolwarm'), ax=axs[1],label=lab)
+        # val = (np.max(omega_dots[1]) - np.min(omega_dots[1]))/2.
+        norm = mpl.colors.Normalize(vmin=-val, vmax=val)
+        axs[1].pcolormesh(omega_grid,theta_grid,omega_dots[1],norm=norm,cmap='coolwarm',shading='auto')
+        fig.colorbar(mpl.cm.ScalarMappable(norm=norm,cmap='coolwarm'), ax=axs[1],label=lab)
 
-    #     if i == 1:
-    #         save_name = "theta_dot.png"
-    #     else:
-    #         save_name = "omega_dot.png"
-    #     plt.savefig(os.path.join(plots_dir,save_name), dpi=300)
-    #     plt.clf()
-    #     plt.close(fig)
+        if i == 1:
+            save_name = "theta_dot.png"
+        else:
+            save_name = "omega_dot.png"
+        plt.savefig(os.path.join(plots_dir,save_name), dpi=300)
+        plt.clf()
+        plt.close(fig)
