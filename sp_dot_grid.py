@@ -206,6 +206,7 @@ if __name__ == '__main__':
     if not editing:
         if os.path.exists(dir_path):
             print("Error: Directory already exists")
+            print(dir_path)
             exit()
         os.mkdir(dir_path)
 
