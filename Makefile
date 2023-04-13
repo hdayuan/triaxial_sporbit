@@ -21,6 +21,10 @@ osci:
 	python3 triaxial_torque_tests.py -oscillation
 	open *.png
 
+eq_plot:
+	python3 2body_plot.py
+	open *.png
+
 equi:
 	python3 two_body_equi_conv.py
 
@@ -41,10 +45,6 @@ plot_grid:
 
 calc_grid:
 	python3 calc_grid.py
-
-eq_plot:
-	python3 2body_plot.py
-	open *.png
 
 plot_torque:
 	python3 plot_torque.py

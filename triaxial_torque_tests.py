@@ -10,7 +10,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=18)
-plt.rc('lines', lw=2.5)
+plt.rc('lines', lw=1.55)
 plt.rc('xtick', direction='in', top=True, bottom=True)
 plt.rc('ytick', direction='in', left=True, right=True)
 
@@ -156,10 +156,10 @@ def test_convergence(sim_params, n_dts, dtmax, tf_small, tf_big, plot_angle=Fals
         # plot
         fig, ax = plt.subplots(1, 1,figsize=(12, 4))
         plt.subplots_adjust(left=0.10, bottom=0.15, right=.98, top=0.95, wspace=0.05, hspace=0.)
-        ax.set_ylabel(r"$\alpha$ ($^{\circ}$)", fontsize=20)
+        ax.set_ylabel(r"$\psi$ ($^{\circ}$)", fontsize=20)
         ax.set_xlabel(r"Time ($P$)", fontsize=20)
-        ax.plot(ts_fine, angles_true, c='red',lw=1.5)
-        ax.plot(ts/(a**1.5), np.degrees(angles), 'o', c='black')
+        ax.plot(ts_fine, angles_true, c="tab:red",lw=1.5)
+        ax.plot(ts/(a**1.5), np.degrees(angles), 'ko')
 
         plt.savefig('oscillation_'+str(dtmax)+'dt.png', dpi=300)
         plt.clf()
@@ -215,7 +215,7 @@ def test_convergence(sim_params, n_dts, dtmax, tf_small, tf_big, plot_angle=Fals
                 # ##
                 errors[i] = np.abs((angle - exact_sol) / exact_sol)
             
-            ax[j].loglog(dts, errors[n_dts-1] * (dts / dts[n_dts-1])**4, c='r', lw=1.,
+            ax[j].loglog(dts, errors[n_dts-1] * (dts / dts[n_dts-1])**4, c='tab:red', lw=1.5,
                     label='4th order')
             ax[j].loglog(dts, errors, 'o',c='black', label='Numerical Error')
             ax[j].legend(fontsize=20)
@@ -275,10 +275,10 @@ def test_spin_damp(sim_params, dt_frac, n_data, tf_frac, dual=False):
         omega_dot = -15.*k2*sim.G*R_p**3*np.cos(theta_lag)*np.sin(theta_lag)/(2.*M_p*a**6)
         exact_sol = (omega0 + ts_fine*a**1.5*omega_dot) / mm
 
-        ax1.plot(ts_fine, exact_sol, color='red',lw=1.5)
+        ax1.plot(ts_fine, exact_sol, color="tab:red",lw=1.5)
         ax1.plot(ts/(a**1.5), np.array(omegas/mm), 'ko')
         ax1.legend(['Analytical','Numerical'])
-        ax1.set_ylabel(r"$\omega/n$",fontsize=20)
+        ax1.set_ylabel(r"$\Omega/n$",fontsize=20)
 
         # run second simulation
         start = time.time()
@@ -321,9 +321,9 @@ def test_spin_damp(sim_params, dt_frac, n_data, tf_frac, dual=False):
         omega_dot = -15.*k2*sim.G*R_p**3*np.cos(theta_lag)*np.sin(theta_lag)/(2.*M_p*a**6)
         exact_sol = (omega0 + ts_fine*a**1.5*omega_dot) / mm
 
-        ax2.plot(ts_fine, exact_sol, color='red',lw=1.5)
+        ax2.plot(ts_fine, exact_sol, color="tab:red",lw=1.5)
         ax2.plot(ts/(a**1.5), np.array(omegas/mm), 'ko')
-        ax2.set_ylabel(r"$\omega/n$", fontsize=20)
+        ax2.set_ylabel(r"$\Omega/n$", fontsize=20)
 
         ax2.set_xlabel(r'Time ($P$)',fontsize=20)
 
@@ -351,10 +351,10 @@ def test_spin_damp(sim_params, dt_frac, n_data, tf_frac, dual=False):
         omega_dot = -15.*k2*sim.G*R_p**3*np.cos(theta_lag)*np.sin(theta_lag)/(2.*M_p*a**6)
         exact_sol = (omega0 + ts_fine*a**1.5*omega_dot) / mm
 
-        ax.plot(ts_fine, exact_sol, color='red',lw=1.5)
+        ax.plot(ts_fine, exact_sol, color="tab:red",lw=1.5)
         ax.plot(ts/(a**1.5), np.array(omegas/mm), 'ko')
         ax.legend(['Analytical','Numerical'])
-        ax.set_ylabel(r"$\omega/n$",fontsize=20)
+        ax.set_ylabel(r"$\Omega/n$",fontsize=20)
         ax.set_xlabel(r'Time ($P$)',fontsize=20)
 
         plt.savefig('spin_damp_'+str(dt_frac)+'dt.png', dpi=300)
@@ -414,7 +414,7 @@ def test_obl_damp(sim_params, dt_frac, n_data, tf_frac, dual=False):
         t_tide = (8/15)*Q_tide/k2/mm * M_p*(a/R_p)**3
         theta_dot = -np.sin(obliquity)/t_tide * ((2/omega_to_n)-np.cos(obliquity))
         exact_sol = np.degrees(obliquity + (ts_fine*a**1.5 * theta_dot))
-        ax1.plot(ts_fine, exact_sol, color='red',lw=1.5)
+        ax1.plot(ts_fine, exact_sol, color="tab:red",lw=1.5)
         ax1.plot(ts/a**1.5, np.degrees(np.array(obliquities)), 'ko', label='Num')
         ax1.set_ylabel(r"$\theta$ ($^{\circ}$)",fontsize=20)
         ax1.legend(['Analytical','Numerical'])
@@ -459,7 +459,7 @@ def test_obl_damp(sim_params, dt_frac, n_data, tf_frac, dual=False):
         
         theta_dot = -np.sin(obliquity)/t_tide * ((2/omega_to_n)-np.cos(obliquity))
         exact_sol = np.degrees(obliquity + (ts_fine*a**1.5 * theta_dot))
-        ax2.plot(ts_fine, exact_sol, color='red',lw=1.5)
+        ax2.plot(ts_fine, exact_sol, color="tab:red",lw=1.5)
         ax2.plot(ts/a**1.5, np.degrees(np.array(obliquities)), 'ko', label='Num')
         ax2.set_ylabel(r"$\theta$ ($^{\circ}$)",fontsize=20)
 
@@ -477,7 +477,7 @@ def test_obl_damp(sim_params, dt_frac, n_data, tf_frac, dual=False):
         t_tide = (8/15)*Q_tide/k2/mm * M_p*(a/R_p)**3
         theta_dot = -np.sin(obliquity)/t_tide * ((2/omega_to_n)-np.cos(obliquity))
         exact_sol = np.degrees(obliquity + (ts_fine*a**1.5 * theta_dot))
-        ax.plot(ts_fine, exact_sol, color='red',lw=1.5)
+        ax.plot(ts_fine, exact_sol, color="tab:red",lw=1.5)
         ax.plot(ts/a**1.5, np.degrees(np.array(obliquities)), 'ko', label='Num')
         ax.set_ylabel(r"$\theta$ ($^{\circ}$)",fontsize=20)
         ax.set_xlabel(r'Time ($P$)',fontsize=20)
@@ -539,22 +539,22 @@ def test_chandler(sim_params, dt_frac, n_data, tf_frac):
     sk_true = sk0*np.ones_like(ts_fine)
     omega_true = omega0*np.ones_like(ts_fine)
 
-    ax[0].plot(ts_fine, si_true, c='red',lw=2.)
+    ax[0].plot(ts_fine, si_true, c="tab:red",lw=1.5)
     ax[0].plot(ts/spin_period, sis, 'o', c='black')
     ax[0].set_ylabel(r"$s_i$", fontsize=20)
 
-    ax[1].plot(ts_fine, sj_true, c='red',lw=2.)
+    ax[1].plot(ts_fine, sj_true, c="tab:red",lw=1.5)
     ax[1].plot(ts/spin_period, sjs, 'o', c='black')
     ax[1].set_ylabel(r"$s_j$", fontsize=20)
 
-    ax[2].plot(ts_fine, sk_true, c='red',lw=2.)
+    ax[2].plot(ts_fine, sk_true, c="tab:red",lw=1.5)
     ax[2].plot(ts/spin_period, sks, 'o', c='black')
     ax[2].set_ylabel(r"$s_k$", fontsize=20)
     ax[2].set_ylim(ymin=sk0 - 0.05,ymax=sk0 + 0.05)
 
-    ax[3].plot(ts_fine, omega_true/omega0, c='red',lw=2.)
+    ax[3].plot(ts_fine, omega_true/omega0, c="tab:red",lw=1.5)
     ax[3].plot(ts/spin_period, omegas/omega0, 'o', c='black')
-    ax[3].set_ylabel(r"$\omega / \omega_0$", fontsize=20)
+    ax[3].set_ylabel(r"$\Omega / \Omega_0$", fontsize=20)
     ax[3].set_ylim(ymin=0., ymax=2.)
 
     plt.savefig('chandler_'+str(dt_frac)+'dt.png', dpi=300)
@@ -629,8 +629,8 @@ if __name__ == '__main__':
         # turn off triaxial torque
         moment2 = 0
         moment3 = 0
-        obliquity = np.radians(179.99)
-        omega_to_n = 1.9
+        obliquity = np.radians(10.)
+        omega_to_n = 1.5
 
         # create sim_params
         sim_params = (a,Q_tide,R_p,obliquity,omega_to_n,M_p,k2,moment2,moment3,s_k_angle)

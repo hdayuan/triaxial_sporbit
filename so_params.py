@@ -84,7 +84,8 @@ def get_psi_v2(rs,i_xyz,j_xyz,k_xyz,s_ijk):
 
 # returns angle in rad
 def get_beta(ss):
-    beta = np.arccos(ss[2])
+    proto_beta = np.arccos(ss[2])
+    beta = (proto_beta*(proto_beta <= np.pi/2).astype(int)) + ((np.pi - proto_beta)*(proto_beta > np.pi/2).astype(int))
     return beta
 
 def get_theta_kl(ks,r,v):

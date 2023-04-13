@@ -31,11 +31,11 @@ def get_fig_axs(nw,nh,sharex=False,sharey=False,share_titles=False,share_xlab=Fa
 
 def calc_om_dot_lr(ts,omegas,tnd,plots_dir):
     result = stats.linregress(ts,omegas)
-    if omegas[0] > 1.998:
-        plt.scatter(ts,omegas,color='black',s=0.5)
-        plt.plot(ts,result.slope*ts + omegas[0],color="red")
-        plt.savefig(os.path.join(plots_dir,"trial_"+str(tnd)+".png"), dpi=300)
-        plt.clf()
+    # if omegas[0] > 1.998:
+    #     plt.scatter(ts,omegas,color='black',s=0.5)
+    #     plt.plot(ts,result.slope*ts + omegas[0],color="tab:red")
+    #     plt.savefig(os.path.join(plots_dir,"trial_"+str(tnd)+".png"), dpi=300)
+    #     plt.clf()
 
     return result.slope
 
@@ -53,7 +53,7 @@ def calc_om_dot_v2(ts,omegas,tnd,plots_dir):
         slope = stats.linregress(ts,omegas).slope
 
         plt.scatter(ts,omegas,color='black',s=0.5)
-        plt.plot(ts,slope*ts + omegas[0],color="red")
+        plt.plot(ts,slope*ts + omegas[0],color="tab:red")
         plt.savefig(plots_dir+"/trial_"+str(tnd)+".png", dpi=300)
         plt.clf()
     
@@ -134,7 +134,7 @@ def calc_om_dot_v2(ts,omegas,tnd,plots_dir):
             slope = stats.linregress(ts,omegas).slope
 
             # plt.scatter(ts,omegas,color='black',s=0.5)
-            # plt.plot(ts,slope*ts + omegas[0],color="red")
+            # plt.plot(ts,slope*ts + omegas[0],color="tab:red")
             # plt.scatter([ts[i] for i in min_inds],[omegas[i] for i in min_inds],color="blue")
             # plt.scatter([ts[i] for i in max_inds],[omegas[i] for i in max_inds],color="blue")
             # plt.savefig(os.path.join(plots_dir,"trial_"+str(tnd)+".png"), dpi=300)
@@ -147,7 +147,7 @@ def calc_om_dot_v2(ts,omegas,tnd,plots_dir):
         theta = thetas[int(tnd) % n_omegas]
         # if slope > 1.e-6 or slope < -1.e-6 or (omegas[0] >= 2 and omegas[0] < 2.01 and theta >=50 and theta < 75):
         plt.scatter(ts,omegas,color='black',s=0.5)
-        plt.plot(ts,slope*ts + omegas[0],color="red")
+        plt.plot(ts,slope*ts + omegas[0],color="tab:red")
         plt.scatter([ts[i] for i in min_inds],[omegas[i] for i in min_inds],color="blue")
         plt.scatter([ts[i] for i in max_inds],[omegas[i] for i in max_inds],color="blue")
         plt.savefig(plots_dir+"/trial_"+str(tnd)+".png", dpi=300)
@@ -155,17 +155,16 @@ def calc_om_dot_v2(ts,omegas,tnd,plots_dir):
 
     # if omegas[0] > 1.998:
     #     plt.scatter(ts,omegas,color='black',s=0.5)
-    #     plt.plot(ts,slope*ts + omegas[0],color="red")
+    #     plt.plot(ts,slope*ts + omegas[0],color="tab:red")
     #     plt.savefig(os.path.join(plots_dir,"trial_"+str(tnd)+".png"), dpi=300)
     #     plt.clf()
     # if slope < -2.e-5 or slope > 1.e-5:
     #     plt.scatter(ts,omegas,color='black',s=0.5)
-    #     plt.plot(ts,slope*ts + omegas[0],color="red")
+    #     plt.plot(ts,slope*ts + omegas[0],color="tab:red")
     #     plt.savefig(os.path.join(plots_dir,"trial_"+str(tnd)+".png"), dpi=300)
     #     plt.clf()
 
     return slope
-
 
 def calc_om_dot(ts,omegas):
     n = len(omegas)
@@ -204,21 +203,34 @@ def calc_om_dot(ts,omegas):
     delta_omega = omegas[indf] - omegas[indi]
     return delta_omega/delta_t
 
+def calc_om_dot_simple(ts,omegas):
+    return (omegas[-1]-omegas[0]) / (ts[-1]-ts[0])
+
 if __name__=="__main__":
-    beta_bool = True # if false, theta vs omega, if true, beta vs omega, use all theta valiables for beta
-    theta_fix = float(70.) # degrees
+    beta_bool = False # if false, theta vs omega, if true, beta vs omega, use all theta valiables for beta
+    theta_fix = float(120.) # degrees
+    short_bool = True
     # tf=300.
     # out_step=1.
     from_file=True
     perturber=False
     version = 2 # 1 for 3body_data_..., 2 for 3body_...
-    omega_lo = float(1.95)
-    omega_hi = float(2.05)
-    n_omegas = 40
+    omega_lo = float(0.5)
+    omega_hi = float(3.5)
+    n_omegas = 600
     theta_lo = float(0.)
-    theta_hi = float(90.)
-    n_thetas = 40
-    proto_dir = "beta_"+str(theta_fix)+"th_"
+    theta_hi = float(180.)
+    n_thetas = 180
+    if beta_bool:
+        if short_bool:
+            proto_dir = "beta_s"+str(theta_fix)+"th_"
+        else:
+            proto_dir = "beta_"+str(theta_fix)+"th_"
+    else:
+        if short_bool:
+            proto_dir = "ss_"
+        else:
+            proto_dir = ""
     if perturber:
         if version == 1:
             dir = "3body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
@@ -243,6 +255,7 @@ if __name__=="__main__":
     if not from_file:
         ds = 1
         omega_dots = np.zeros((2,n_thetas,n_omegas)) # first dimension corresponds to triax (0) or oblate (1)
+        theta_dots = np.zeros((2,n_thetas,n_omegas)) # first dimension corresponds to triax (0) or oblate (1)
         val_names = ["ix","iy","iz","jx","jy","jz","kx","ky","kz","si","sj","sk","omega","rx","ry","rz","vx","vy","vz","t"] # r is vector from planet to star !
         inds = {val_names[i]:i for i in range(len(val_names))}
         for i in range(n_thetas):
@@ -275,7 +288,10 @@ if __name__=="__main__":
                     theta_rad, phi_rad = sops.get_theta_phi(ss,iss,js,ks,rs,vs)
                     thetas = np.degrees(theta_rad)
 
-                    calc_om_dot_v2(ts,omegas,trial_num_dec,plots_dir)
+                    omega_dots[k,i,j] = calc_om_dot_simple(ts,omegas)
+                    theta_dots[k,i,j] = calc_om_dot_simple(ts,thetas)
+                    # calc_om_dot_v2(ts,omegas,trial_num_dec,plots_dir)
+
                     # omega_dots[k,i,j] = calc_om_dot_v2(data[1],data[0],trial_num_dec,plots_dir)
                     # if omega_dots[k,i,j] > 0: #(omega_grid[i,j] <= 2 and omega_grid[i,j] > 1.995):
                     #     plt.scatter(data[1],data[0],color='black',s=0.5)
@@ -291,10 +307,12 @@ if __name__=="__main__":
 
 
     # crop
-    # omega_dots = omega_dots[:,:,:n_omegas//2]
-    # theta_dots = theta_dots[:,:,:n_omegas//2]
-    # omega_grid = omega_grid[:,:n_omegas//2]
-    # theta_grid = theta_grid[:,:n_omegas//2]
+    lo = int((6/60)*n_omegas)
+    hi = int((14/60)*n_omegas)
+    omega_dots = omega_dots[:,:,lo:hi]
+    theta_dots = theta_dots[:,:,lo:hi]
+    omega_grid = omega_grid[:,lo:hi]
+    theta_grid = theta_grid[:,lo:hi]
     
     # omega_dots = omega_dots[:,:,n_omegas//6:5*n_omegas//6 + 1]
     # omega_grid = omega_grid[:,n_omegas//6:5*n_omegas//6 + 1]
@@ -305,8 +323,13 @@ if __name__=="__main__":
         if i == 1:
             omega_dots = theta_dots
 
-        fig, axs = plt.subplots(2, 1,figsize=(8, 8), sharex=True,sharey=True)
-        plt.subplots_adjust(left=0.1, bottom=0.1, right=.95, top=0.92, wspace=0.1, hspace=0.1)
+        
+        if i==1:
+            fig, axs = plt.subplots(2, 1,figsize=(5, 7), sharex=True,sharey=True)
+            plt.subplots_adjust(left=0.08, bottom=0.09, right=0.88, top=0.95, wspace=0., hspace=0.15)
+        else:
+            fig, axs = plt.subplots(2, 1,figsize=(5, 7), sharex=True,sharey=True)
+            plt.subplots_adjust(left=0.13, bottom=0.09, right=0.93, top=0.95, wspace=0., hspace=0.15)
         # axs[0].set_xlabel(r"$\Omega/n$")
         axs[1].set_xlabel(r"$\Omega/n$")
         if beta_bool:
@@ -315,19 +338,23 @@ if __name__=="__main__":
             axs[0].set_title(r"Triaxial, $\theta=$ "+str(theta_fix)+r"$^{\circ}$")
             axs[1].set_title(r"Oblate, $\theta=$ "+str(theta_fix)+r"$^{\circ}$")
         else:
-            axs[0].set_ylabel(r"$\theta$ ($^{\circ}$)")
-            axs[1].set_ylabel(r"$\theta$ ($^{\circ}$)")
+            if i==0:
+                axs[0].set_ylabel(r"$\theta$ ($^{\circ}$)")
+                axs[1].set_ylabel(r"$\theta$ ($^{\circ}$)")
             axs[0].set_title("Triaxial")
             axs[1].set_title("Oblate")
 
-        val = 0.85*np.maximum(np.max(omega_dots[1]),-np.min(omega_dots[1]))
         lab = r"$d\Omega/dt$ ($n/P$)"
+        if i == 1:
+            lab = r"$d\theta/dt$ ($^{\circ}/P$)"
 
+        val = 0.80*np.maximum(np.max(omega_dots[0]),-np.min(omega_dots[0]))
         # val = np.maximum(np.max(omega_dots[0]),-np.min(omega_dots[0])) # (np.max(omega_dots[0]) - np.min(omega_dots[0]))/2.
         norm = mpl.colors.Normalize(vmin=-val, vmax=val)
         axs[0].pcolormesh(omega_grid,theta_grid,omega_dots[0],norm=norm,cmap='coolwarm',shading='auto')
         fig.colorbar(mpl.cm.ScalarMappable(norm=norm,cmap='coolwarm'), ax=axs[0],label=lab)
 
+        val = 0.80*np.maximum(np.max(omega_dots[1]),-np.min(omega_dots[1]))
         # val = (np.max(omega_dots[1]) - np.min(omega_dots[1]))/2.
         norm = mpl.colors.Normalize(vmin=-val, vmax=val)
         axs[1].pcolormesh(omega_grid,theta_grid,omega_dots[1],norm=norm,cmap='coolwarm',shading='auto')

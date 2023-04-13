@@ -6,23 +6,35 @@ import time
 import multiprocessing as mp
 
 # global variables (params)
-beta_bool = True # if false, theta vs omega, if true, beta vs omega, use all theta valiables for beta
-theta_fix = float(70.) # degrees
+beta_bool = False # if false, theta vs omega, if true, beta vs omega, use all theta valiables for beta
+theta_fix = float(120.) # degrees
+short_bool = False
 editing=False
 edit_trials = [49,78,858,888,918,948,978]
 if editing:
     tf=1000.
+elif short_bool:
+    tf=1.
+    out_step=0.5
 else:
     tf=10000.
-out_step=2.
+    out_step=2
 perturber=False
-omega_lo = float(1.95)
-omega_hi = float(2.05)
-n_omegas = 40
+omega_lo = float(0.75)
+omega_hi = float(1.25)
+n_omegas = 200
 theta_lo = float(0.)
-theta_hi = float(90.)
-n_thetas = 40
-proto_dir = "./data/grid/beta_"+str(theta_fix)+"th_"
+theta_hi = float(180.)
+n_thetas = 180
+if short_bool:
+    proto_dir = "./data/grid/ss_"
+else:
+    proto_dir = "./data/grid/"
+if beta_bool:
+    if short_bool:
+        proto_dir = "./data/grid/beta_s"+str(theta_fix)+"th_"
+    else:
+        proto_dir = "./data/grid/beta_"+str(theta_fix)+"th_"
 if perturber:
     dir_path = proto_dir + "3body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
 else:
@@ -153,7 +165,7 @@ def run_sim_grid(trial_num):
     R_p = 2.*Re # radius of inner planet
     M_p = 4.*Me # mass of inner planet
     k2 = 1.5 # 1.5 for uniformly distributed mass
-    s_k_angle = np.radians(0.) # angle between s and k
+    beta = np.radians(0.) # angle between s and k
     a_out = 5. # a of outer planet
     i_out = np.radians(20.) # inclination of outer planet
 

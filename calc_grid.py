@@ -5,19 +5,21 @@ import scipy.stats as stats
 import multiprocessing as mp
 import so_params as sops
 
-beta_bool = True # if false, theta vs omega, if true, beta vs omega, use all theta valiables for beta
+beta_bool = False # if false, theta vs omega, if true, beta vs omega, use all theta valiables for beta
 theta_fix = float(70.) # degrees
 # tf=300.
 # out_step=1.
 version = 2
 perturber=False
-omega_lo = float(1.95)
-omega_hi = float(2.05)
-n_omegas = 40
+omega_lo = float(0.5)
+omega_hi = float(3.5)
+n_omegas = 600
 theta_lo = float(0.)
-theta_hi = float(90.)
-n_thetas = 40
-proto_dir = "./data/grid/beta_"+str(theta_fix)+"th_"
+theta_hi = float(180.)
+n_thetas = 180
+proto_dir = "./data/grid/"
+if beta_bool:
+    proto_dir = "./data/grid/beta_"+str(theta_fix)+"th_"
 if perturber:
     if version == 1:
         dir = "./data/grid/3body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
@@ -27,7 +29,7 @@ else:
     if version == 1:
         dir = "./data/grid/2body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
     elif version == 2:
-        dir = proto_dir+"2body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
+        dir = proto_dir+"ss_2body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
 dir_path = dir
 
 def calc_om_dot_v2(ts,omegas,tnd):

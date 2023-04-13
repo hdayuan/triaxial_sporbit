@@ -1,0 +1,15 @@
+Info / files for remaking plots for wirte-up:
+
+For numerical tests:
+- triaxial_torque_tests.py
+- two_body_equi_conv.py and 2body_plot.py
+- see Makefile
+
+For full trajectories (10^7) years
+- 3body_plot_v2.py
+    - for both 2 and 3 body despite the name of the file
+- Make sure to change the parameters in the main function
+
+For grid run over 1 period
+- plot_grid.py
+- /Users/henryyuan/Documents/Github/triaxial_sporbit/data/grid/ss_2body_180.0.0-180.0_600.0.5-3.5 

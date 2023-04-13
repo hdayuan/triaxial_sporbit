@@ -91,3 +91,6 @@ To-do:
 
 - easy way to scp or rsync: makefile? .sh file? 
 - save output and error file to directory?
+
+Grid plots:
+ss = integrated for 1 period
