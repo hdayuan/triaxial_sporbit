@@ -119,7 +119,7 @@ def calc_om_dot_v2(ts,omegas,tnd):
             slope = max_slope
         else:
             slope = stats.linregress(ts,omegas).slope
-            print(f"Warning: Not enough extremes for trial {tnd}")
+            # print(f"Warning: Not enough extremes for trial {tnd}")
 
     return slope
 
