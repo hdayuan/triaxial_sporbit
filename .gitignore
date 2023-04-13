@@ -1,3 +1,4 @@
 data/
 plots/
 pull_data.sh
+__pycache__/
