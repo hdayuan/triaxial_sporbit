@@ -158,10 +158,10 @@ def mp_calc_om_dot(trial_num):
 
         om_th_dots[k,0] = calc_om_dot_v2(ts,omegas,trial_num_dec)
         om_th_dots[k,1] = calc_om_dot_v2(ts,thetas,trial_num_dec)
-        if om_th_dots[k,0] > 1.e-8 or om_th_dots[k,0] < -1.e-8:
-            print(trial_num_dec)
-        if om_th_dots[k,1] > 1.e-5 or om_th_dots[k,1] < -1.e-5:
-            print(trial_num_dec)
+        # if om_th_dots[k,0] > 1.e-8 or om_th_dots[k,0] < -1.e-8:
+        #     print(trial_num_dec)
+        # if om_th_dots[k,1] > 1.e-5 or om_th_dots[k,1] < -1.e-5:
+        #     print(trial_num_dec)
 
     return om_th_dots
 
