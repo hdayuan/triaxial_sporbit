@@ -20,8 +20,8 @@ else:
     tf=10000.
     out_step=2
 perturber=False
-omega_lo = float(0.75)
-omega_hi = float(1.25)
+omega_lo = float(1.75)
+omega_hi = float(2.25)
 n_omegas = 200
 theta_lo = float(0.)
 theta_hi = float(180.)
