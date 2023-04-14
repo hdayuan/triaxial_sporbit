@@ -94,3 +94,5 @@ To-do:
 
 Grid plots:
 ss = integrated for 1 period
+s = 5 periods?
+otherwise either 1000,3000, or 10000?

@@ -5,21 +5,22 @@ import scipy.stats as stats
 import multiprocessing as mp
 import so_params as sops
 
-beta_bool = False # if false, theta vs omega, if true, beta vs omega, use all theta valiables for beta
-theta_fix = float(70.) # degrees
+beta_bool = True # if false, theta vs omega, if true, beta vs omega, use all theta valiables for beta
+theta_fix = float(60.) # degrees
+short_bool = True
 # tf=300.
 # out_step=1.
 version = 2
 perturber=False
-omega_lo = float(1.75)
-omega_hi = float(2.25)
-n_omegas = 200
+omega_lo = float(1.95)
+omega_hi = float(2.05)
+n_omegas = 100
 theta_lo = float(0.)
-theta_hi = float(180.)
-n_thetas = 180
+theta_hi = float(90.)
+n_thetas = 90
 proto_dir = "./data/grid/"
 if beta_bool:
-    proto_dir = "./data/grid/beta_"+str(theta_fix)+"th_"
+    proto_dir = "./data/grid/beta_ss"+str(theta_fix)+"th_"
 if perturber:
     if version == 1:
         dir = "./data/grid/3body_data_"+str(n_thetas)+":"+str(theta_lo)+"-"+str(theta_hi)
@@ -123,6 +124,11 @@ def calc_om_dot_v2(ts,omegas,tnd):
 
     return slope
 
+def calc_om_dot_simple(ts,omegas,tnd):
+    delta_omega = omegas[-1]-omegas[0]
+    delta_t = ts[-1]-ts[0]
+    return delta_omega/delta_t
+
 def mp_calc_om_dot(trial_num):
     ds = 1
     om_th_dots = np.zeros((2,2)) # first dimension corresponds to triax (0) or oblate (1)
@@ -156,8 +162,12 @@ def mp_calc_om_dot(trial_num):
         theta_rad, phi_rad = sops.get_theta_phi(ss,iss,js,ks,rs,vs)
         thetas = np.degrees(theta_rad)
 
-        om_th_dots[k,0] = calc_om_dot_v2(ts,omegas,trial_num_dec)
-        om_th_dots[k,1] = calc_om_dot_v2(ts,thetas,trial_num_dec)
+        if short_bool:
+            om_th_dots[k,0] = calc_om_dot_simple(ts,omegas,trial_num_dec)
+            om_th_dots[k,1] = calc_om_dot_simple(ts,thetas,trial_num_dec)
+        else:
+            om_th_dots[k,0] = calc_om_dot_v2(ts,omegas,trial_num_dec)
+            om_th_dots[k,1] = calc_om_dot_v2(ts,thetas,trial_num_dec)
         # if om_th_dots[k,0] > 1.e-8 or om_th_dots[k,0] < -1.e-8:
         #     print(trial_num_dec)
         # if om_th_dots[k,1] > 1.e-5 or om_th_dots[k,1] < -1.e-5:

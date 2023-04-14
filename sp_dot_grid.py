@@ -6,9 +6,9 @@ import time
 import multiprocessing as mp
 
 # global variables (params)
-beta_bool = False # if false, theta vs omega, if true, beta vs omega, use all theta valiables for beta
-theta_fix = float(120.) # degrees
-short_bool = False
+beta_bool = True # if false, theta vs omega, if true, beta vs omega, use all theta valiables for beta
+theta_fix = float(60.) # degrees
+short_bool = True
 editing=False
 edit_trials = [49,78,858,888,918,948,978]
 if editing:
@@ -20,21 +20,22 @@ else:
     tf=10000.
     out_step=2
 perturber=False
-omega_lo = float(1.75)
-omega_hi = float(2.25)
-n_omegas = 200
+omega_lo = float(1.95)
+omega_hi = float(2.05)
+n_omegas = 100
 theta_lo = float(0.)
-theta_hi = float(180.)
-n_thetas = 180
-if short_bool:
-    proto_dir = "./data/grid/ss_"
-else:
-    proto_dir = "./data/grid/"
+theta_hi = float(90.)
+n_thetas = 90
 if beta_bool:
     if short_bool:
-        proto_dir = "./data/grid/beta_s"+str(theta_fix)+"th_"
+        proto_dir = "./data/grid/beta_ss"+str(theta_fix)+"th_"
     else:
         proto_dir = "./data/grid/beta_"+str(theta_fix)+"th_"
+else:
+    if short_bool:
+        proto_dir = "./data/grid/ss_"
+    else:
+        proto_dir = "./data/grid/"
 if perturber:
     dir_path = proto_dir + "3body_"+str(n_thetas)+"."+str(theta_lo)+"-"+str(theta_hi)+"_"+str(n_omegas)+"."+str(omega_lo)+"-"+str(omega_hi)
 else:

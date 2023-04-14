@@ -209,15 +209,15 @@ def calc_om_dot_simple(ts,omegas):
 if __name__=="__main__":
     beta_bool = False # if false, theta vs omega, if true, beta vs omega, use all theta valiables for beta
     theta_fix = float(120.) # degrees
-    short_bool = True
+    short_bool = False
     # tf=300.
     # out_step=1.
     from_file=True
     perturber=False
     version = 2 # 1 for 3body_data_..., 2 for 3body_...
-    omega_lo = float(0.5)
-    omega_hi = float(3.5)
-    n_omegas = 600
+    omega_lo = float(1.75)
+    omega_hi = float(2.25)
+    n_omegas = 200
     theta_lo = float(0.)
     theta_hi = float(180.)
     n_thetas = 180
@@ -307,12 +307,12 @@ if __name__=="__main__":
 
 
     # crop
-    lo = int((6/60)*n_omegas)
-    hi = int((14/60)*n_omegas)
-    omega_dots = omega_dots[:,:,lo:hi]
-    theta_dots = theta_dots[:,:,lo:hi]
-    omega_grid = omega_grid[:,lo:hi]
-    theta_grid = theta_grid[:,lo:hi]
+    # lo = int((6/60)*n_omegas)
+    # hi = int((14/60)*n_omegas)
+    # omega_dots = omega_dots[:,:,lo:hi]
+    # theta_dots = theta_dots[:,:,lo:hi]
+    # omega_grid = omega_grid[:,lo:hi]
+    # theta_grid = theta_grid[:,lo:hi]
     
     # omega_dots = omega_dots[:,:,n_omegas//6:5*n_omegas//6 + 1]
     # omega_grid = omega_grid[:,n_omegas//6:5*n_omegas//6 + 1]
@@ -323,7 +323,6 @@ if __name__=="__main__":
         if i == 1:
             omega_dots = theta_dots
 
-        
         if i==1:
             fig, axs = plt.subplots(2, 1,figsize=(5, 7), sharex=True,sharey=True)
             plt.subplots_adjust(left=0.08, bottom=0.09, right=0.88, top=0.95, wspace=0., hspace=0.15)
@@ -348,13 +347,20 @@ if __name__=="__main__":
         if i == 1:
             lab = r"$d\theta/dt$ ($^{\circ}/P$)"
 
-        val = 0.80*np.maximum(np.max(omega_dots[0]),-np.min(omega_dots[0]))
+        if i== 1:
+            val = 0.80*np.maximum(np.max(omega_dots[1]),-np.min(omega_dots[1]))
+        else:
+            val = 0.80*np.maximum(np.max(omega_dots[0]),-np.min(omega_dots[0]))
+        if i==1:
+            val = 5.e-5
         # val = np.maximum(np.max(omega_dots[0]),-np.min(omega_dots[0])) # (np.max(omega_dots[0]) - np.min(omega_dots[0]))/2.
         norm = mpl.colors.Normalize(vmin=-val, vmax=val)
         axs[0].pcolormesh(omega_grid,theta_grid,omega_dots[0],norm=norm,cmap='coolwarm',shading='auto')
         fig.colorbar(mpl.cm.ScalarMappable(norm=norm,cmap='coolwarm'), ax=axs[0],label=lab)
-
+        
         val = 0.80*np.maximum(np.max(omega_dots[1]),-np.min(omega_dots[1]))
+        if i == 1:
+            val = 5.e-5
         # val = (np.max(omega_dots[1]) - np.min(omega_dots[1]))/2.
         norm = mpl.colors.Normalize(vmin=-val, vmax=val)
         axs[1].pcolormesh(omega_grid,theta_grid,omega_dots[1],norm=norm,cmap='coolwarm',shading='auto')

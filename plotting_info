@@ -12,4 +12,10 @@ For full trajectories (10^7) years
 
 For grid run over 1 period
 - plot_grid.py
-- /Users/henryyuan/Documents/Github/triaxial_sporbit/data/grid/ss_2body_180.0.0-180.0_600.0.5-3.5 
+- /Users/henryyuan/Documents/Github/triaxial_sporbit/data/grid/ss_2body_180.0.0-180.0_600.0.5-3.5
+
+For grid run over 10000 periods
+- plot_grid.py
+- /Users/henryyuan/Documents/Github/triaxial_sporbit/data/grid/2body_180.0.0-180.0_200.0.75-1.25
+- /Users/henryyuan/Documents/Github/triaxial_sporbit/data/grid/2body_180.0.0-180.0_200.1.75-2.25
+- /Users/henryyuan/Documents/Github/triaxial_sporbit/data/grid/2body_data_360:0.0-180.0

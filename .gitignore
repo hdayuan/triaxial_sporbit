@@ -2,3 +2,4 @@ data/
 plots/
 pull_data.sh
 __pycache__/
+plotting_info
