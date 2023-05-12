@@ -166,7 +166,7 @@ if __name__=="__main__":
 
     # Params to change each time
     version = 2.4
-    perturber = False
+    perturber = True
     together = True
     if perturber:
         dir_name = "v"+str(version)+"_3body_data"
@@ -285,7 +285,7 @@ if __name__=="__main__":
                     sn = '2body_trials_1.2.png'
             else:
                 if perturber:
-                    sn = '3body_trials_1.2.png'
+                    sn = '3body_trials_2.2.png'
                 else:
                     sn = '2body_trials_2.2.png'
             plt.savefig(os.path.join(plots_dir,sn), dpi=300)

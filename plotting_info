@@ -1,5 +1,7 @@
 Info / files for remaking plots for wirte-up:
 
+ALL PLOTS IN THE RESPECTIVE PLOTS FOLDER (same as data folder)
+
 For numerical tests:
 - triaxial_torque_tests.py
 - two_body_equi_conv.py and 2body_plot.py
@@ -19,3 +21,14 @@ For grid run over 10000 periods
 - /Users/henryyuan/Documents/Github/triaxial_sporbit/data/grid/2body_180.0.0-180.0_200.0.75-1.25
 - /Users/henryyuan/Documents/Github/triaxial_sporbit/data/grid/2body_180.0.0-180.0_200.1.75-2.25
 - /Users/henryyuan/Documents/Github/triaxial_sporbit/data/grid/2body_data_360:0.0-180.0
+
+For beta grid plots
+- beta_ss60.0th_2body_90.0.0-90.0_100.1.95-2.05/
+
+For omega, theta, beta profiles:
+- plot_profile (see main options) with 2body_180.0.0-180.0_200.1.75-2.25
+
+For slope calculating algo demo:
+- plot_profile (see main options)
+- with 2body_180.0.0-180.0_200.1.75-2.25
+- remember to downsample by the amount I do when making plots (2 I believe, check calc_grid.py)

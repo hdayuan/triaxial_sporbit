@@ -44,8 +44,8 @@ def plot_trial(triaxial_bool,axs,data,lo,hi,ds,alpha,inds,clr='black',lw=0.75, t
 def get_fig_axs():
     a = 3
     b = 2
-    fig, axs = plt.subplots(a, b,figsize=(8, 6), sharex=True)
-    plt.subplots_adjust(left=0.08, bottom=0.1, right=.98, top=0.92, wspace=0.1, hspace=0.08)
+    fig, axs = plt.subplots(a, b,figsize=(7, 3), sharex=True)
+    plt.subplots_adjust(left=0.08, bottom=0.15, right=.98, top=0.9, wspace=0.15, hspace=0.08)
     ylabels = [r"$\Omega/n$",r"$\theta$ ($^{\circ}$)",r"$\beta$ ($^{\circ}$)"]
     # ylabels = np.array([[r"$\Omega/n$",r"$\theta$ ($^{\circ}$)",r"$\phi$ ($^{\circ}$)",r"$\psi$ ($^{\circ}$)"],[r"$\beta$ ($^{\circ}$)",r"$\theta_{kl}$ ($^{\circ}$)",r"$tan^{-1}(s_y/s_x)$ ($^{\circ}$)",r"$\theta '$ ($^{\circ}$)"]]) # ,r"Inclination"]
     for i in range(b):

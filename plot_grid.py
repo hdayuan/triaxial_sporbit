@@ -207,23 +207,24 @@ def calc_om_dot_simple(ts,omegas):
     return (omegas[-1]-omegas[0]) / (ts[-1]-ts[0])
 
 if __name__=="__main__":
-    beta_bool = False # if false, theta vs omega, if true, beta vs omega, use all theta valiables for beta
-    theta_fix = float(120.) # degrees
-    short_bool = False
+    beta_bool = True # if false, theta vs omega, if true, beta vs omega, use all theta valiables for beta
+    theta_fix = float(60.) # degrees
+    short_bool = True
+    vertical_plot = False
     # tf=300.
     # out_step=1.
     from_file=True
     perturber=False
     version = 2 # 1 for 3body_data_..., 2 for 3body_...
-    omega_lo = float(1.75)
-    omega_hi = float(2.25)
-    n_omegas = 200
+    omega_lo = float(1.95)
+    omega_hi = float(2.05)
+    n_omegas = 100
     theta_lo = float(0.)
-    theta_hi = float(180.)
-    n_thetas = 180
+    theta_hi = float(90.)
+    n_thetas = 90
     if beta_bool:
         if short_bool:
-            proto_dir = "beta_s"+str(theta_fix)+"th_"
+            proto_dir = "beta_ss"+str(theta_fix)+"th_"
         else:
             proto_dir = "beta_"+str(theta_fix)+"th_"
     else:
@@ -323,44 +324,69 @@ if __name__=="__main__":
         if i == 1:
             omega_dots = theta_dots
 
-        if i==1:
-            fig, axs = plt.subplots(2, 1,figsize=(5, 7), sharex=True,sharey=True)
-            plt.subplots_adjust(left=0.08, bottom=0.09, right=0.88, top=0.95, wspace=0., hspace=0.15)
-        else:
-            fig, axs = plt.subplots(2, 1,figsize=(5, 7), sharex=True,sharey=True)
-            plt.subplots_adjust(left=0.13, bottom=0.09, right=0.93, top=0.95, wspace=0., hspace=0.15)
-        # axs[0].set_xlabel(r"$\Omega/n$")
-        axs[1].set_xlabel(r"$\Omega/n$")
-        if beta_bool:
-            axs[0].set_ylabel(r"$\beta$ ($^{\circ}$)")
-            axs[1].set_ylabel(r"$\beta$ ($^{\circ}$)")
-            axs[0].set_title(r"Triaxial, $\theta=$ "+str(theta_fix)+r"$^{\circ}$")
-            axs[1].set_title(r"Oblate, $\theta=$ "+str(theta_fix)+r"$^{\circ}$")
-        else:
-            if i==0:
-                axs[0].set_ylabel(r"$\theta$ ($^{\circ}$)")
-                axs[1].set_ylabel(r"$\theta$ ($^{\circ}$)")
-            axs[0].set_title("Triaxial")
-            axs[1].set_title("Oblate")
+        if vertical_plot:
+            if i==1:
+                fig, axs = plt.subplots(2, 1,figsize=(5, 7), sharex=True,sharey=True)
+                plt.subplots_adjust(left=0.08, bottom=0.09, right=0.88, top=0.95, wspace=0., hspace=0.15)
+            else:
+                fig, axs = plt.subplots(2, 1,figsize=(5, 7), sharex=True,sharey=True)
+                plt.subplots_adjust(left=0.13, bottom=0.09, right=0.93, top=0.95, wspace=0., hspace=0.15)
+            # axs[0].set_xlabel(r"$\Omega/n$")
+            axs[1].set_xlabel(r"$\Omega/n$")
+            if beta_bool:
+                axs[0].set_ylabel(r"$\beta$ ($^{\circ}$)")
+                axs[1].set_ylabel(r"$\beta$ ($^{\circ}$)")
+                axs[0].set_title(r"Triaxial, $\theta=$ "+str(theta_fix)+r"$^{\circ}$")
+                axs[1].set_title(r"Oblate, $\theta=$ "+str(theta_fix)+r"$^{\circ}$")
+            else:
+                if i==0:
+                    axs[0].set_ylabel(r"$\theta$ ($^{\circ}$)")
+                    axs[1].set_ylabel(r"$\theta$ ($^{\circ}$)")
+                axs[0].set_title("Triaxial")
+                axs[1].set_title("Oblate")
 
-        lab = r"$d\Omega/dt$ ($n/P$)"
-        if i == 1:
-            lab = r"$d\theta/dt$ ($^{\circ}/P$)"
-
-        if i== 1:
-            val = 0.80*np.maximum(np.max(omega_dots[1]),-np.min(omega_dots[1]))
+            lab = r"$d\Omega/dt$ ($n/P$)"
+            if i == 1:
+                lab = r"$d\theta/dt$ ($^{\circ}/P$)"
+        
         else:
-            val = 0.80*np.maximum(np.max(omega_dots[0]),-np.min(omega_dots[0]))
-        if i==1:
-            val = 5.e-5
+            if i==1:
+                fig, axs = plt.subplots(1, 2,figsize=(9, 4), sharex=True,sharey=True)
+                plt.subplots_adjust(left=0.07, bottom=0.12, right=0.88, top=0.92, wspace=0.2, hspace=0.15)
+            else:
+                fig, axs = plt.subplots(1, 2,figsize=(9, 4), sharex=True,sharey=True)
+                plt.subplots_adjust(left=0.07, bottom=0.12, right=0.93, top=0.92, wspace=0.2, hspace=0.15)
+            axs[0].set_xlabel(r"$\Omega/n$")
+            axs[1].set_xlabel(r"$\Omega/n$")
+            if beta_bool:
+                axs[0].set_ylabel(r"$\beta$ ($^{\circ}$)")
+                axs[0].set_title(r"Triaxial")
+                axs[1].set_title(r"Oblate")
+            else:
+                if i==0:
+                    axs[0].set_ylabel(r"$\theta$ ($^{\circ}$)")
+                    axs[1].set_ylabel(r"$\theta$ ($^{\circ}$)")
+                axs[0].set_title("Triaxial")
+                axs[1].set_title("Oblate")
+
+            lab = r"$d\Omega/dt$ ($n/P$)"
+            if i == 1:
+                lab = r"$d\theta/dt$ ($^{\circ}/P$)"
+
+        # if i== 1:
+        #     val = 0.80*np.maximum(np.max(omega_dots[1]),-np.min(omega_dots[1]))
+        # else:
+        val = 0.80*np.maximum(np.max(omega_dots[0]),-np.min(omega_dots[0]))
+        # if i==1:
+        #     val = 5.e-5
         # val = np.maximum(np.max(omega_dots[0]),-np.min(omega_dots[0])) # (np.max(omega_dots[0]) - np.min(omega_dots[0]))/2.
         norm = mpl.colors.Normalize(vmin=-val, vmax=val)
         axs[0].pcolormesh(omega_grid,theta_grid,omega_dots[0],norm=norm,cmap='coolwarm',shading='auto')
         fig.colorbar(mpl.cm.ScalarMappable(norm=norm,cmap='coolwarm'), ax=axs[0],label=lab)
         
         val = 0.80*np.maximum(np.max(omega_dots[1]),-np.min(omega_dots[1]))
-        if i == 1:
-            val = 5.e-5
+        # if i == 1:
+        #     val = 5.e-5
         # val = (np.max(omega_dots[1]) - np.min(omega_dots[1]))/2.
         norm = mpl.colors.Normalize(vmin=-val, vmax=val)
         axs[1].pcolormesh(omega_grid,theta_grid,omega_dots[1],norm=norm,cmap='coolwarm',shading='auto')
