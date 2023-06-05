@@ -112,7 +112,7 @@ def integrate_sim(dir_path,sim_params,trial_num_dec,tf,step,rand_ijk=True):
         val_names = ["ix","iy","iz","jx","jy","jz","kx","ky","kz","si","sj","sk","omega","rx","ry","rz","vx","vy","vz","t"] # r is vector from planet to star !
     inds = {val_names[i]:i for i in range(len(val_names))}
     nv = len(val_names)
-    out_data = np.zeros((nv,n_out), dtype=np.float32)
+    out_data = np.zeros((nv,n_out), dtype=np.float64)
 
     for i in range(n_out):
         sim.integrate(i*step*year)
@@ -153,7 +153,7 @@ def integrate_sim(dir_path,sim_params,trial_num_dec,tf,step,rand_ijk=True):
     secs = int((int_time % 3600) % 60)
     print(f"Trial {trial_num_dec} completed in {hrs} hours {mins} minutes {secs} seconds.", flush=True) 
 
-def run_sim(trial_num, tf=1.e6, out_step=1.e2, perturber=True, rand_ijk=False, n_trials=50, version=2.5):
+def run_sim(trial_num, tf=1.e7, out_step=1.e3, perturber=True, rand_ijk=False, n_trials=50, version=2.5):
 
     # some constants
     Re = 4.263e-5 # radius of Earth in AU

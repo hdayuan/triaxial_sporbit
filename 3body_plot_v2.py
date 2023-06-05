@@ -165,7 +165,7 @@ def plot_traj(data, ax):
 if __name__=="__main__":
 
     # Params to change each time
-    version = 2.4
+    version = 2.5
     perturber = True
     together = True
     if perturber:
@@ -179,7 +179,7 @@ if __name__=="__main__":
 
     if version == 2.3:
         val_names = ["ix","iy","iz","jx","jy","jz","kx","ky","kz","si","sj","sk","omega","rx","ry","rz","vx","vy","vz","t"] # r is vector from planet to star !
-    if version == 2.4:
+    if version == 2.4 or version == 2.5:
         if perturber:
             val_names = ["ix","iy","iz","jx","jy","jz","kx","ky","kz","si","sj","sk","omega","rx","ry","rz","vx","vy","vz","rpx","rpy","rpz","t"] # r and rp are vectors from planet 1 and 2 to star !
         else:

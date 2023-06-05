@@ -90,6 +90,7 @@ v2:
     v2.5:
 
     > trying starting from omega = 1.6 and 3.1
+    > switched to np.float64 instead of 32
 
 To-do:
 
