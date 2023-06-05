@@ -87,6 +87,10 @@ v2:
 
     > added r vector from perturbing planet to star
 
+    v2.5:
+
+    > trying starting from omega = 1.6 and 3.1
+
 To-do:
 
 - easy way to scp or rsync: makefile? .sh file? 

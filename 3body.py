@@ -153,7 +153,7 @@ def integrate_sim(dir_path,sim_params,trial_num_dec,tf,step,rand_ijk=True):
     secs = int((int_time % 3600) % 60)
     print(f"Trial {trial_num_dec} completed in {hrs} hours {mins} minutes {secs} seconds.", flush=True) 
 
-def run_sim(trial_num, tf=1.e7, out_step=1.e3, perturber=True, rand_ijk=False, n_trials=50, version=2.4):
+def run_sim(trial_num, tf=1.e6, out_step=1.e2, perturber=True, rand_ijk=False, n_trials=50, version=2.5):
 
     # some constants
     Re = 4.263e-5 # radius of Earth in AU
@@ -180,7 +180,7 @@ def run_sim(trial_num, tf=1.e7, out_step=1.e3, perturber=True, rand_ijk=False, n
 
     # max_omega = 4. # 2 because otherwise obliquity is excited # (1+(np.pi/2/np.arctan(1/Q_tide)))
     # omega_to_n = max_omega*np.random.default_rng().uniform()
-    omegas = [1.2,2.2]
+    omegas = [1.6,3.1]
     omega_to_n = omegas[trial_num % len(omegas)]
 
     # variable params
